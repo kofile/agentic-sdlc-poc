@@ -156,6 +156,35 @@ Findings from the live n8n instance (read-only, 2026-11-04):
 - The instance is in heavy use: WF3 alone has 705 recorded executions, and about 1,500 executions across the visible workflows since 2026-10-01. Recent WF2.1/2.2/3 runs all show status success, with durations from about 17 s (router) to about 3 min (plan, designer).
 - Consequence: n8n execution history is a **free baseline** for speed and success rate on triage-to-plan, without running anything new. Token and cost data per execution still needs checking.
 
+## 9b. Cesar's reply and the n8n workflows (2026-11-04)
+
+Cesar (n8n implementer), paraphrased: n8n has workflows for **execute, validate and review**; **merge and deploy are missing**. Two workflows named:
+- `PR Reviewer & Approver` (`kXm9WaYSXp7MGmol`, "used for validate and review a PR"): readable through the connector.
+- The execute/implement workflow (`ad47NpL1Nf3VlZUM`): **not exposed to the MCP connector**; the workflow's MCP access must be enabled (settings link: https://neumo.app.n8n.cloud/workflow/ad47NpL1Nf3VlZUM?settings=true) before we can read its design or executions.
+
+What `PR Reviewer & Approver` actually is (23 nodes, active, last edited 2026-10-30):
+- Trigger: GitHub webhook, only when a specific reviewer is requested or a draft is marked ready.
+- Intake is code: normalize PR, fetch prior review state (GraphQL), skip if the head commit was already reviewed, fetch files, build a line-numbered diff (skips lockfiles/binaries, 120k-char cap).
+- One LLM node: n8n AI Agent on **Claude Sonnet 5.5** (adaptive thinking, effort medium), with one tool (`read_repo_file`), `maxIterations` 15, and a **manual JSON-schema output parser** (severity-rated findings, prior-finding status).
+- **The verdict is made by a Code node, not the model**: any medium+ finding blocks; unknown severities count as medium; truncated or empty diffs are never approved (fail closed); unclosed prior findings stay open.
+- Side effects are code: approve / request changes with inline comments, fallback to a plain comment, resolve fixed threads, supersede old summaries.
+- Prompt hardening: PR content declared untrusted data; injection attempts must be reported as a high finding.
+
+Why this matters for the architecture: the existing n8n review stage already follows the pattern under discussion (LLM as a typed function, deterministic gates in code). It is evidence for the hypothesis and a fair, strong n8n baseline, not a strawman. It also shows n8n's ceiling: the agent has no checkout, only an HTTP file-read tool, so n8n cannot run tests or edit code itself, which is where `execute` and `validate` need a sandbox.
+
+Coverage matrix (what exists to compare, to be confirmed):
+
+| Stage | Plugin | n8n | New system |
+|---|---|---|---|
+| triage | yes | yes (grader webhook is inactive/old; `[HARSH]` copies) | build |
+| route | yes | yes (WF2.1, active) | build |
+| design | yes | yes (WF2.2, active) | build |
+| plan | yes | yes (WF3, active, 705 runs) | build |
+| execute | yes | yes (workflow not readable yet) | build |
+| validate | yes | partly (review workflow; gates unknown) | build |
+| review | yes | yes (`PR Reviewer & Approver`) | build |
+| merge / deploy | yes | **missing** | out of PoC scope unless time allows |
+
 ## 10. Open questions
 
 - Which benchmark tickets and repos? (Need known-good outcomes for accuracy scoring.)
