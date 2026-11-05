@@ -4,7 +4,7 @@ title: 'Real Reasoning adapter: replace the stub model steps'
 status: In Progress
 assignee: []
 created_date: '2026-11-05 20:51'
-updated_date: '2026-11-05 21:46'
+updated_date: '2026-11-05 21:47'
 labels:
   - graph
   - adapter
@@ -34,7 +34,12 @@ Spec: specs/005-reasoning-adapter
 - [ ] #2 Invalid output fails closed at a gate rather than advancing
 - [ ] #3 Served model and token usage recorded per step
 - [ ] #4 Unit and workflow tests updated; npm test and npm run test:workflow pass
+- [ ] #5 Spec phase: Port, cost and telemetry
+- [ ] #6 Spec phase: Anthropic adapter, prompts and fixtures
+- [ ] #7 Spec phase: Wiring, fail-closed workflow and docs
 <!-- AC:END -->
+
+
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
