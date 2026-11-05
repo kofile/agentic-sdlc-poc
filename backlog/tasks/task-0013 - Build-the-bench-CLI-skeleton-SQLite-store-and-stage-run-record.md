@@ -1,9 +1,10 @@
 ---
 id: TASK-0013
 title: 'Build the bench CLI skeleton, SQLite store and stage-run record'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-05 20:51'
+updated_date: '2026-11-05 21:07'
 labels:
   - harness
   - bench
@@ -20,6 +21,8 @@ ordinal: 13000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Per spec section 7: a small TypeScript CLI 'bench' (Node 22, exact dependency versions, committed lockfile) with one adapter per contender and no contender-specific logic in the core. 'bench run --contender P|N|G --ticket T07 --rep 2 --stages triage..open-pr --seed-order n'. Adapters normalise events into ONE uniform JSON record per stage per run. Storage: bench.sqlite (tables runs, stage_runs, scores, interventions) plus artifacts/<run_id>/; flat JSONL export. bench.sqlite and artifacts/ are gitignored.
+
+Spec: specs/003-bench-harness
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
