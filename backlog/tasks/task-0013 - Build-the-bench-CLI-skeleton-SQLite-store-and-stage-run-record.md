@@ -4,7 +4,7 @@ title: 'Build the bench CLI skeleton, SQLite store and stage-run record'
 status: In Progress
 assignee: []
 created_date: '2026-11-05 20:51'
-updated_date: '2026-11-05 21:07'
+updated_date: '2026-11-05 21:09'
 labels:
   - harness
   - bench
@@ -31,7 +31,12 @@ Spec: specs/003-bench-harness
 - [ ] #2 The stage-run record schema matches spec section 7 and is validated (zod) on write
 - [ ] #3 bench report reads only from SQLite
 - [ ] #4 Unit tests cover the schema and the store
+- [ ] #5 Spec phase: Package, schema and store
+- [ ] #6 Spec phase: Adapter contract, stub and run command
+- [ ] #7 Spec phase: Report, export and end-to-end
 <!-- AC:END -->
+
+
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
