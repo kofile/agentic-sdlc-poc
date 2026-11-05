@@ -9,10 +9,10 @@
 
 ## Phase 2: Worker, gates, adapter and registration
 
-- [ ] T004a `record.ts`: `gate.expected`/`gate.correct` optional (R6a); report treats absent `correct` as not scored; tests
-- [ ] T005 Add `@temporalio/client` 1.25.0 exact; lockfile
-- [ ] T006 `adapters/g/worker.ts` (detached, per-run queue, group kill, up-wait, preconditions)
-- [ ] T007 `adapters/g/gates.ts` + fake-handle unit tests
-- [ ] T008 `adapters/g/index.ts` (`run`, cancel after last requested stage, `version`); registered as `G`
-- [ ] T009 Opt-in `tests/g.e2e.test.ts` + `test:g` script; README; D13 row
-- [ ] T010 `npm run build && npm test` green (e2e skipped by default)
+- [x] T004a `record.ts`: `gate.expected`/`gate.correct` optional (R6a); report treats absent `correct` as not scored; tests
+- [x] T005 Add `@temporalio/client` 1.25.0 exact; lockfile
+- [x] T006 `adapters/g/worker.ts` (detached, per-run queue, group kill, up-wait, preconditions)
+- [x] T007 `adapters/g/gates.ts` + fake-handle unit tests
+- [x] T008 `adapters/g/index.ts` (`run`, cancel after last requested stage, `version`); registered as `G`
+- [x] T009 Opt-in `tests/g.e2e.test.ts` + `test:g` script; README; D13 row
+- [x] T010 `npm run build && npm test` green (e2e skipped by default)

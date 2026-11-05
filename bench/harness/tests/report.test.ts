@@ -64,4 +64,13 @@ describe('report', () => {
     expect(JSON.parse(lines[0]).run_id).toBe('a');
     store.close();
   });
+  it('a gate with no correct (unscored) is stored and reported without being treated as false', () => {
+    const store = openStore(':memory:');
+    store.insertStageRun(rec({ run_id: 'u', contender: 'G', stage: 'triage', gate: { name: 'A or B?', decision: 'pass' }, telemetry_gaps: [] }));
+    const rows = buildReport(store);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ contender: 'G', stage: 'triage', runs: 1, completed: 1 });
+    expect(store.listStageRuns()[0].gate).toEqual({ name: 'A or B?', decision: 'pass' });
+    store.close();
+  });
 });

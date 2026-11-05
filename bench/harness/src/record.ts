@@ -54,8 +54,8 @@ export const StageRunRecordSchema = z
       .object({
         name: z.string(),
         decision: z.enum(['pass', 'fail']),
-        expected: z.enum(['pass', 'fail']),
-        correct: z.boolean(),
+        expected: z.enum(['pass', 'fail']).optional(),
+        correct: z.boolean().optional(),
       })
       .nullable(),
     output: z.object({

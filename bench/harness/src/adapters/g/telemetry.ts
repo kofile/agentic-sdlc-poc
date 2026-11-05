@@ -130,8 +130,8 @@ function mergeStage(stage: Stage, lines: GraphLine[]): StageEvent {
     };
   }
 
-  // Scoring (expected/correct) is TASK-0014's; they stay unset here, so the cast is deliberate.
-  if (lastGate?.gate) ev.gate = { name: lastGate.gate.name, decision: lastGate.gate.decision } as unknown as StageEvent['gate'];
+  // Scoring (expected/correct) is TASK-0014's; they stay unset (optional since spec 006 R6a).
+  if (lastGate?.gate) ev.gate = { name: lastGate.gate.name, decision: lastGate.gate.decision };
 
   const labelled = [...base].reverse().find((l) => l.failure_label);
   if (labelled) {
