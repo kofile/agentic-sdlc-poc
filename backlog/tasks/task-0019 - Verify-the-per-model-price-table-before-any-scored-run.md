@@ -31,8 +31,10 @@ Spec: specs/001-price-table
 - [x] #1 Every price in prices.json cites its source and retrieval date and the UNVERIFIED markers are gone
 - [x] #2 A unit test recomputes cost for a recorded usage sample
 - [x] #3 Spec phase: Source the prices
-- [ ] #4 Spec phase: Rewrite the table and test it
+- [x] #4 Spec phase: Rewrite the table and test it
 <!-- AC:END -->
+
+
 
 
 
