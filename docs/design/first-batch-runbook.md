@@ -35,7 +35,7 @@ proposed" in session; rulings recorded under Operator checkpoints)
 - **Spec Kit:** `.specify/` present; constitution is the unfilled template (unratified).
   No `specs/` dir yet — first spec number is `001`.
 - **Queued (this runbook's scope), in merge order:** TASK-0021, TASK-0019, TASK-0027,
-  TASK-0013, TASK-0022, TASK-0018, TASK-0010.
+  TASK-0013, TASK-0043 (amendment A1), TASK-0022, TASK-0018, TASK-0010.
 - **Out of scope (blocked by M1 or operator-owned):** TASK-0001..0009, 0011, 0012,
   0014..0017, 0020, 0023..0026, 0028+.
 
@@ -83,6 +83,13 @@ directories).
   `bench/*/reference.diff`** (scoring is TASK-0014, out of scope).
 
 **Lane 2 — each after its Lane 1 dependency has merged:**
+
+- **TASK-0043 (sonnet · model `claude-sonnet-5-5`, fallback `claude-sonnet-5` — fix
+  specified by the card's ACs)** — added by amendment A1 (see execution log). Integration
+  test must kill every worker tree it starts and use a per-run task queue. Footprint:
+  `graph/tests/integration/` only. **Merges before TASK-0022.** Before any integration run,
+  check for and kill stray `worker.ts` processes from earlier runs (`ps -axo pid,command |
+  grep '[w]orker.ts'`).
 
 - **TASK-0022 (sonnet · model `claude-sonnet-5-5`, fallback `claude-sonnet-5` — the
   transport decision is made by the operator at C3 and written into spec/plan before
@@ -263,7 +270,7 @@ build ok, unit 32, workflow 10, versioning 1, integration 4/4 (after killing orp
 workers); harness build ok, 41 tests. Merges were done by the operator (the session's
 `gh pr merge` was refused by the permission classifier).
 
-**Proposed amendment (needs operator OK):** add TASK-0043 (integration test leaks worker
+**Amendment A1 — approved by the operator 2026-11-05 ("Yes, add it"):** add TASK-0043 (integration test leaks worker
 processes) to Lane 2, merging before TASK-0022, because TASK-0022 touches
 `graph/src/workflow/` and so must pass `test:integration`, which is unreliable until the
 leak is fixed. Tier: sonnet (`claude-sonnet-5-5`, fallback `claude-sonnet-5`) — the fix is
