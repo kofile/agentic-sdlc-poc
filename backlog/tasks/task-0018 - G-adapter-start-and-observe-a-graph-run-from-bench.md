@@ -1,9 +1,10 @@
 ---
 id: TASK-0018
 title: 'G adapter: start and observe a graph run from bench'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-05 20:51'
+updated_date: '2026-11-05 21:48'
 labels:
   - adapter
   - contender-g
@@ -22,6 +23,8 @@ ordinal: 18000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Thin adapter that starts a Temporal run of graph/ (workflow triage..open-pr), answers or auto-approves gates according to the team policy file, and normalises telemetry into the uniform record. No contender-specific logic in the bench core.
+
+Spec: specs/006-g-adapter
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
