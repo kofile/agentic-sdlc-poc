@@ -29,9 +29,26 @@ export type HarnessOwnedFields =
  */
 export type StageEvent = { stage: Stage } & Partial<Omit<StageRunRecord, HarnessOwnedFields | 'stage'>>;
 
+/**
+ * A human/operator touch an adapter observed mid-run (R5). The core writes it to the
+ * `interventions` table via `store.insertIntervention`; it is not a stage record. Whether a
+ * kind counts toward a stage's `interventions` metric is the adapter's call (e.g. G's
+ * `scripted_approval` does not, spec 006 R4).
+ */
+export interface InterventionEvent {
+  type: 'intervention';
+  stage: Stage;
+  at: string;
+  kind: string;
+  note?: string;
+}
+
+/** Everything an adapter may yield: stage events and intervention events. */
+export type AdapterEvent = StageEvent | InterventionEvent;
+
 export interface ContenderAdapter {
   /** Contender id recorded on every record (P | N | G | stub). */
   id: Contender;
   version(): Promise<string>;
-  run(ctx: RunContext): AsyncIterable<StageEvent>;
+  run(ctx: RunContext): AsyncIterable<AdapterEvent>;
 }

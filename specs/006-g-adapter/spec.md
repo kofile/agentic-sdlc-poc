@@ -73,6 +73,12 @@ human gates until it receives a `decide` signal.
   - The graph result `stopped-invalid-output` (added by TASK-0022) maps to `status: 'failed'`,
     `failure_label: 'schema'` on that stage. The adapter must tolerate it being absent from
     an older graph.
+- **R6a (amendment, 2026-11-05, orchestrator)** The harness record's `gate.expected` and
+  `gate.correct` become optional in `bench/harness/src/record.ts`. Only scoring against the
+  expected labels (TASK-0014) can fill them, and defaulting them would fabricate a grade,
+  which spec 003 R3a forbids. Found in Phase 1: a G record carrying `gate: { name, decision }`
+  failed validation. The `scores`/report code must treat an absent `correct` as "not scored",
+  never as false.
 - **R7** `version()` returns `graph@<graph/package.json version>+<git short sha of HEAD>`, or
   `+unknown` with a stderr warning when git is unavailable.
 - **R8** Tests. Unit tests with no Temporal: the ticket parser; telemetry → `StageEvent`
@@ -89,7 +95,7 @@ human gates until it receives a `decide` signal.
 ## Constraints
 
 - Footprint: `bench/harness/src/adapters/g/` (new), `bench/harness/src/adapters/types.ts`,
-  `bench/harness/src/adapters/registry.ts`, `bench/harness/src/core/run.ts` (R5 only),
+  `bench/harness/src/adapters/registry.ts`, `bench/harness/src/core/run.ts` (R5 only), `bench/harness/src/record.ts` (R6a only),
   `bench/harness/tests/`, `bench/harness/package.json` + lockfile, `bench/harness/README.md`,
   `notes/00-discovery-log.md` (D13 row only).
 - New dependency: `@temporalio/client` 1.25.0 exact (same as graph). Exact versions, lockfile,
