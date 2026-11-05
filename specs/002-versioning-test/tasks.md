@@ -10,5 +10,5 @@
 
 ## Phase 2: Evidence
 
-- [ ] T006 Write `notes/spike-04-versioning.md` (method, commands, results, limits, plain paragraph)
-- [ ] T007 Add a dated note under section 7 of `notes/00-discovery-log.md` pointing D7's follow-up to the evidence file
+- [x] T006 Write `notes/spike-04-versioning.md` (method, commands, results, limits, plain paragraph)
+- [x] T007 Add a dated note under section 7 of `notes/00-discovery-log.md` pointing D7's follow-up to the evidence file

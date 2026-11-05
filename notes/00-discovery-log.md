@@ -131,6 +131,8 @@ post-conditions, plus a graph around it.
 | D10 | Operator added git remote `origin` (`https://github.com/kofile/agentic-sdlc-poc`). The "local-only" rule in `CLAUDE.md` is replaced: `origin` is the only remote and is approved for writes (branches, pushes, PRs), but commits and pushes still happen only when the operator asks. For the External systems rule, GitHub means this `origin` and nothing else. Evidence: `git remote -v`, operator statements in session 2026-11-05 | 2026-11-05 | Med: backup and history on a remote; Backlog checks remote branches | Med: teammates can see the work | Med | Decided |
 | D11 | Hidden tests, `expected.draft.yaml` and `reference.diff` files stay in git history on `origin` (pushed 2026-11-05 in `08b2672` and earlier commits). Accepted for now; revisit if repo visibility widens beyond the operator and Cesar, contender agents can clone it, or a canary leak appears. Rewriting history would need a force-push. Evidence: operator statement in session 2026-11-05 | 2026-11-05 | Med: history rewrite deferred | Med: possible integrity risk if exposure widens | Med | Decided, revisit on trigger |
 
+Note 2026-11-05: D7's follow-up (workflow versioning with in-flight runs) is answered in `notes/spike-04-versioning.md` — a run parked at the design gate survived a worker swap to a changed definition guarded by `patched()`, and the unguarded change failed replay with a determinism error (single patch, local server, mocked activities; Worker Versioning and Temporal Cloud not tested).
+
 ## 8. Vocabulary and presentation rules
 
 **Two registers (operator, round 3).** Internal documentation, this log and the repo use the
