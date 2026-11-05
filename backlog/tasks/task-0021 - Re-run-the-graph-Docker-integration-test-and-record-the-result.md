@@ -1,9 +1,10 @@
 ---
 id: TASK-0021
 title: Re-run the graph Docker integration test and record the result
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-05 20:51'
+updated_date: '2026-11-05 21:06'
 labels:
   - graph
   - verify
