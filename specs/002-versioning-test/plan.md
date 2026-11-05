@@ -35,6 +35,15 @@ evidence note.
 - `graph/package.json`: `"test:versioning": "vitest run tests/versioning"`.
 - `vitest` include for `tests/versioning` if the config restricts paths.
 
+## Deviation recorded at phase 1 (2026-11-05)
+
+The inserted step sits after the route gate and **before the design loop**, not before the
+plan stage. `patched()` only shields history already replayed; run A parks at the design
+gate, so a step placed before plan would execute live after the signal, `patched()` would
+return true, and run A would call `precheck` — violating R1/R2. The spec's own wording
+("before the point where the in-flight run resumes") is satisfied; the plan's literal
+placement was wrong. Accepted by the orchestrator; the evidence note explains it.
+
 ## Evidence
 
 `notes/spike-04-versioning.md`: method, commands, raw result lines, timings, limits, plain

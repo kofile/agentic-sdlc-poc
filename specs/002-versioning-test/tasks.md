@@ -2,11 +2,11 @@
 
 ## Phase 1: Fixtures and in-flight test
 
-- [ ] T001 Add `graph/tests/versioning/fixtures/workflows-v2-patched.ts` and `workflows-v2-unpatched.ts` per plan
-- [ ] T002 Add `graph/tests/versioning/in-flight.test.ts`: run A starts on v1, waits at design gate, worker swap to v2-patched, approval, run A completes without the new step
-- [ ] T003 Same test file: run B on v2-patched takes the new step
-- [ ] T004 Same test file: replay run A history against v2-unpatched fails with a determinism error; against v2-patched passes
-- [ ] T005 Add `test:versioning` script; `npm run test:versioning`, `npm test`, `npm run test:workflow`, `npm run build` all green
+- [x] T001 Add `graph/tests/versioning/fixtures/workflows-v2-patched.ts` and `workflows-v2-unpatched.ts` per plan
+- [x] T002 Add `graph/tests/versioning/in-flight.test.ts`: run A starts on v1, waits at design gate, worker swap to v2-patched, approval, run A completes without the new step
+- [x] T003 Same test file: run B on v2-patched takes the new step
+- [x] T004 Same test file: replay run A history against v2-unpatched fails with a determinism error; against v2-patched passes
+- [x] T005 Add `test:versioning` script; `npm run test:versioning`, `npm test`, `npm run test:workflow`, `npm run build` all green
 
 ## Phase 2: Evidence
 
