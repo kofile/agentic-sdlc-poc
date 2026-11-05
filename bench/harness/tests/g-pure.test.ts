@@ -80,6 +80,16 @@ describe('telemetry mapping', () => {
     expect(evs[4].tool_calls).toBe(1);
     expect(evs[4].model_requested).toBeUndefined();
   });
+  it('gate-line telemetry_gaps do not leak into the stage record (R6)', () => {
+    const raw = readGraphTelemetry(fx('single.jsonl'), 'RUN1').filter((l) => l.stage === 'triage');
+    expect(raw.find((l) => l.gate)?.telemetry_gaps).toEqual(['no_model_call']);
+    expect(raw.find((l) => !l.gate)?.telemetry_gaps).toEqual([]);
+    const evs = events('single.jsonl', 'RUN1', 'triage..design');
+    for (const e of [evs[0], evs[2]]) expect(e.telemetry_gaps).not.toContain('no_model_call');
+    expect(evs[0].telemetry_gaps).toEqual([]);
+    // a stage that really ran no model (execute) keeps its own stage-line gap
+    expect(events('single.jsonl', 'RUN1', 'execute..execute')[0].telemetry_gaps).toEqual(['no_model_call']);
+  });
   it('omits cold_start_ms and harness-owned fields', () => {
     const e = events('single.jsonl', 'RUN1', 'triage..triage')[0] as Record<string, unknown>;
     for (const k of ['cold_start_ms', 'run_id', 'benchmark_version', 'contender', 'contender_version', 'ticket_id']) expect(k in e).toBe(false);

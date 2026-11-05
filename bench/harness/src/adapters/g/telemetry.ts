@@ -94,7 +94,8 @@ function mergeStage(stage: Stage, lines: GraphLine[]): StageEvent {
     waiting_ms: base.reduce((a, l) => a + num(l.waiting_ms), 0),
     status,
     fix_attempts: Math.max(0, work.length - 1),
-    telemetry_gaps: uniq(lines.flatMap((l) => l.telemetry_gaps ?? [])),
+    telemetry_gaps: uniq(work.flatMap((l) => l.telemetry_gaps ?? [])), // gate lines supply only `gate` (R6): their no_model_call must not leak
+
   };
   // cold_start_ms is deliberately omitted: graph writes a hard 0 it does not measure (R3a names the gap).
   const withModel = [...base].reverse().find((l) => l.model_requested !== undefined);
