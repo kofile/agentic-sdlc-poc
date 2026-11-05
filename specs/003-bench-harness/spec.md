@@ -65,9 +65,10 @@ Repo reset to `bench/base`, sandbox Jira ticket creation and timers against real
   (`DatabaseSync`, works unflagged on the repo's Node 22.23) and `node:util` `parseArgs`.
   Match `graph/`'s versions for shared tools: zod 3.24.1, typescript 5.7.3, tsx 4.23.15,
   vitest 2.1.8, @types/node 22.20.5.
-- **Benchmark integrity (verbatim from CLAUDE.md):** do not read `bench/hidden-tests/`,
+- **Benchmark integrity (from CLAUDE.md):** do not read `bench/hidden-tests/`,
   `bench/tickets/expected.draft.yaml` or `bench/*/reference.diff`. Hidden tests carry the
-  canary string `BENCH-CANARY-7f3a91c2`; if it appears anywhere, stop and flag a leak.
+  canary string named in `CLAUDE.md`; if it appears anywhere, stop and flag a leak. (The
+  string itself is not repeated here, so the per-PR canary grep stays at zero hits.)
 
 ## Done when
 
