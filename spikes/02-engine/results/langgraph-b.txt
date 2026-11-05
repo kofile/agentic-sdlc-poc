@@ -1,0 +1,101 @@
+PASS B1 sequential duplicate resume after completion: harmless?
+{
+ "first": "merged",
+ "secondOutput": "{\"next\":[],\"interrupts\":[],\"values\":{\"status\":\"merged\",\"round\":1,\"log\":[\"gate:design:approved\",\"gate:plan:auto\",\"gate:merge:auto\"]}}",
+ "ledger": [
+  "execute:write-file@pid40985",
+  "open-pr@pid40985",
+  "merge@pid40985"
+ ]
+}
+FAIL B2 duplicate design-approval on a strict team: duplicate must not be consumed as the PLAN approval
+{
+ "afterFirst": {
+  "interrupts": [
+   {
+    "gate": "plan",
+    "round": 1,
+    "deadline": 1793897915316
+   }
+  ]
+ },
+ "afterSecond": {
+  "interrupts": [
+   {
+    "gate": "merge",
+    "round": 1,
+    "deadline": 1793897916060
+   }
+  ],
+  "log": [
+   "gate:design:approved",
+   "gate:plan:approved"
+  ]
+ },
+ "ledger": [
+  "execute:write-file@pid40996",
+  "open-pr@pid40996"
+ ]
+}
+PASS B2b with a caller-side expected-gate check: stale duplicate ignored (sequential only)
+{
+ "out": "STALE ignored: no pending design gate\nRESULT {\"next\":[\"planWait\"],\"interrupts\":[{\"gate\":\"plan\",\"round\":1,\"deadline\":1793897917896}],\"values\":{\"status\":\"running\",\"round\":1,\"log\":[\"gate:design:approved\"]}}"
+}
+FAIL B3 4 concurrent resume PROCESSES on one thread: single execution?
+{
+ "outputs": [
+  "merged",
+  "merged",
+  "running",
+  "running"
+ ],
+ "counts": {
+  "triage": 1,
+  "route": 1,
+  "design": 1,
+  "plan": 4,
+  "execute:start": 4,
+  "execute:effect-done": 4,
+  "open-pr": 4,
+  "merge": 4
+ },
+ "ledger": [
+  "execute:write-file@pid41050",
+  "execute:write-file@pid41049",
+  "open-pr@pid41050",
+  "execute:write-file@pid41047",
+  "execute:write-file@pid41048",
+  "open-pr@pid41049",
+  "merge@pid41050",
+  "open-pr@pid41048",
+  "open-pr@pid41047",
+  "merge@pid41049",
+  "merge@pid41048",
+  "merge@pid41047"
+ ]
+}
+FAIL B4 2 concurrent resumes in one process: single execution?
+{
+ "settled": [
+  "fulfilled",
+  "fulfilled"
+ ],
+ "ledger": [
+  "execute:write-file@pid40977",
+  "execute:write-file@pid40977",
+  "open-pr@pid40977",
+  "merge@pid40977",
+  "open-pr@pid40977",
+  "merge@pid40977"
+ ],
+ "counts": {
+  "triage": 1,
+  "route": 1,
+  "design": 1,
+  "plan": 2,
+  "execute:start": 2,
+  "execute:effect-done": 2,
+  "open-pr": 2,
+  "merge": 2
+ }
+}

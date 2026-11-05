@@ -1,0 +1,60 @@
+  -- process exited by itself at the interrupt (code 0); nothing is running. waiting 8s ("two days")
+PASS C1 late approval after process exit + 8s: state intact, completes
+{
+ "pausedState": {
+  "next": [
+   "designWait"
+  ],
+  "interrupts": [
+   {
+    "gate": "design",
+    "round": 1,
+    "deadline": 1793897787466
+   }
+  ]
+ },
+ "result": {
+  "status": "merged",
+  "round": 1,
+  "log": [
+   "gate:design:approved",
+   "gate:plan:auto",
+   "gate:merge:auto"
+  ]
+ },
+ "counts": {
+  "triage": 1,
+  "route": 1,
+  "design": 1,
+  "plan": 1,
+  "execute:start": 1,
+  "execute:effect-done": 1,
+  "open-pr": 1,
+  "merge": 1
+ },
+ "ledger": [
+  "execute:write-file@pid37860",
+  "open-pr@pid37860",
+  "merge@pid37860"
+ ]
+}
+PASS C2 timeout escalation: only fires when an EXTERNAL sweeper runs (no built-in timer)
+{
+ "stateWithoutSweeper": {
+  "next": [
+   "designWait"
+  ],
+  "status": "running"
+ },
+ "afterSweep": {
+  "next": [],
+  "interrupts": [],
+  "values": {
+   "status": "running",
+   "round": 1,
+   "log": [
+    "gate:design:rejected(timeout)"
+   ]
+  }
+ }
+}

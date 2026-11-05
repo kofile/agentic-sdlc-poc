@@ -1,0 +1,70 @@
+  -- SIGKILL; counts at kill: {"triage":1,"route":1,"design":1,"plan":1,"execute:start":1,"execute:effect-done":0,"open-pr":0,"merge":0}
+  -- state on disk: next=["execute"] status=running
+PASS A1 kill mid-execute (before side effect): run resumed + completed, completed steps not redone
+{
+ "result": "merged",
+ "resumeMs": 6575,
+ "counts": {
+  "triage": 1,
+  "route": 1,
+  "design": 1,
+  "plan": 1,
+  "execute:start": 2,
+  "execute:effect-done": 1,
+  "open-pr": 1,
+  "merge": 1
+ },
+ "ledger": [
+  "execute:write-file@pid36131",
+  "open-pr@pid36131",
+  "merge@pid36131"
+ ],
+ "duplicateSideEffectInLedger": false
+}
+  -- SIGKILL; counts at kill: {"triage":1,"route":1,"design":1,"plan":1,"execute:start":1,"execute:effect-done":1,"open-pr":0,"merge":0}
+  -- state on disk: next=["execute"] status=running
+PASS A2 kill after effect, before checkpoint (plain append): run resumed + completed, completed steps not redone
+{
+ "result": "merged",
+ "resumeMs": 7070,
+ "counts": {
+  "triage": 1,
+  "route": 1,
+  "design": 1,
+  "plan": 1,
+  "execute:start": 2,
+  "execute:effect-done": 2,
+  "open-pr": 1,
+  "merge": 1
+ },
+ "ledger": [
+  "execute:write-file@pid36165",
+  "execute:write-file@pid36425",
+  "open-pr@pid36425",
+  "merge@pid36425"
+ ],
+ "duplicateSideEffectInLedger": true
+}
+  -- SIGKILL; counts at kill: {"triage":1,"route":1,"design":1,"plan":1,"execute:start":1,"execute:effect-done":1,"open-pr":0,"merge":0}
+  -- state on disk: next=["execute"] status=running
+PASS A3 same as A2 but idempotency-guarded effect: run resumed + completed, completed steps not redone
+{
+ "result": "merged",
+ "resumeMs": 7047,
+ "counts": {
+  "triage": 1,
+  "route": 1,
+  "design": 1,
+  "plan": 1,
+  "execute:start": 2,
+  "execute:effect-done": 2,
+  "open-pr": 1,
+  "merge": 1
+ },
+ "ledger": [
+  "execute:write-file@pid36805",
+  "open-pr@pid36987",
+  "merge@pid36987"
+ ],
+ "duplicateSideEffectInLedger": false
+}

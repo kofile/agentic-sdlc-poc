@@ -1,0 +1,9 @@
+{"t":1793894287838,"pid":40696,"runId":"G1-mw3qc7vb-0","step":"execute:write-file","file":"out/G1-mw3qc7vb-0.txt"}
+{"t":1793894287851,"pid":40696,"runId":"G1-mw3qc7vb-0","step":"open-pr","pr":"https://example.invalid/pr/G1-mw3qc7vb-0"}
+{"t":1793894287871,"pid":40696,"runId":"G1-mw3qc7vb-0","step":"merge"}
+{"t":1793894289914,"pid":40746,"runId":"G2-mw3qcba4-1","step":"execute:write-file","file":"out/G2-mw3qcba4-1.txt"}
+{"t":1793894289945,"pid":40746,"runId":"G2-mw3qcba4-1","step":"open-pr","pr":"https://example.invalid/pr/G2-mw3qcba4-1"}
+{"t":1793894289968,"pid":40746,"runId":"G2-mw3qcba4-1","step":"merge"}
+{"t":1793894292368,"pid":40753,"runId":"G3-mw3qccwo-2","step":"execute:write-file","file":"out/G3-mw3qccwo-2.txt"}
+{"t":1793894292385,"pid":40753,"runId":"G3-mw3qccwo-2","step":"open-pr","pr":"https://example.invalid/pr/G3-mw3qccwo-2"}
+{"t":1793894292402,"pid":40753,"runId":"G3-mw3qccwo-2","step":"merge"}

@@ -1,0 +1,53 @@
+PASS D reject with feedback -> design reruns with feedback -> approve
+{
+ "afterReject": [
+  {
+   "gate": "design",
+   "round": 2,
+   "deadline": 1793897808091
+  }
+ ],
+ "final": {
+  "status": "merged",
+  "round": 2,
+  "log": [
+   "gate:design:rejected",
+   "gate:design:approved",
+   "gate:plan:auto",
+   "gate:merge:auto"
+  ]
+ },
+ "designCalls": [
+  {
+   "round": 1,
+   "feedback": null
+  },
+  {
+   "round": 2,
+   "feedback": "use postgres not sqlite"
+  }
+ ]
+}
+  checkpoint history (oldest first):
+step=-1 source=input next=[__start__] status=running round=1 grade=- tasks=__start__
+step=0 source=loop next=[loadPolicy] status=running round=1 grade=- tasks=loadPolicy
+step=1 source=loop next=[triage] status=running round=1 grade=- tasks=triage
+step=2 source=loop next=[route] status=running round=1 grade=A tasks=route
+step=3 source=loop next=[design] status=running round=1 grade=A tasks=design
+step=4 source=loop next=[designArm] status=running round=1 grade=A tasks=designArm
+step=5 source=loop next=[designWait] status=running round=1 grade=A tasks=designWait(INTERRUPT)
+step=6 source=loop next=[designReject] status=running round=1 grade=A tasks=designReject
+step=7 source=loop next=[design] status=running round=2 grade=A tasks=design
+step=8 source=loop next=[designArm] status=running round=2 grade=A tasks=designArm
+step=9 source=loop next=[designWait] status=running round=2 grade=A tasks=designWait(INTERRUPT)
+step=10 source=loop next=[plan] status=running round=2 grade=A tasks=plan
+step=11 source=loop next=[planArm] status=running round=2 grade=A tasks=planArm
+step=12 source=loop next=[planWait] status=running round=2 grade=A tasks=planWait
+step=13 source=loop next=[execute] status=running round=2 grade=A tasks=execute
+step=14 source=loop next=[openPr] status=running round=2 grade=A tasks=openPr
+step=15 source=loop next=[mergeArm] status=running round=2 grade=A tasks=mergeArm
+step=16 source=loop next=[mergeWait] status=running round=2 grade=A tasks=mergeWait
+step=17 source=loop next=[merge] status=running round=2 grade=A tasks=merge
+step=18 source=loop next=[] status=merged round=2 grade=A tasks=
+RESULT {"next":[],"interrupts":[],"values":{"status":"merged","round":2,"log":["gate:design:rejected","gate:design:approved","gate:plan:auto","gate:merge:auto"]}}
+

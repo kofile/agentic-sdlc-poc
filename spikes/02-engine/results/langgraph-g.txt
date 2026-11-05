@@ -1,0 +1,35 @@
+PASS G1 retryPolicy (node option; initial 1s x2, no jitter) succeeds on 3rd attempt
+{
+ "designCalls": 3,
+ "gapsMs": [
+  1054,
+  2056
+ ]
+}
+PASS G2 (separate gate node) model call result is checkpointed: resume does NOT re-call model
+{
+ "counts": {
+  "triage": 1,
+  "route": 1,
+  "design": 1,
+  "plan": 1,
+  "execute:start": 1,
+  "execute:effect-done": 1,
+  "open-pr": 1,
+  "merge": 1
+ }
+}
+PASS G3 FOOTGUN: model call + interrupt() in ONE node => model re-called on resume (expect design=2)
+{
+ "counts": {
+  "triage": 1,
+  "route": 1,
+  "design": 2,
+  "plan": 1,
+  "execute:start": 1,
+  "execute:effect-done": 1,
+  "open-pr": 1,
+  "merge": 1
+ },
+ "note": "PASS here means the footgun reproduced"
+}

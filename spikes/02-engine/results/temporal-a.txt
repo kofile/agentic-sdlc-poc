@@ -1,0 +1,67 @@
+  -- SIGKILL worker pid 28982; counts at kill: {"triage":1,"route":1,"design":1,"plan":1,"execute:start":1,"execute:effect-done":0,"open-pr":0,"merge":0}
+PASS A1 kill mid-execute (before side effect): run resumed + completed, completed steps not redone
+{
+ "result": "merged",
+ "resumeMs": 11307,
+ "counts": {
+  "triage": 1,
+  "route": 1,
+  "design": 1,
+  "plan": 1,
+  "execute:start": 2,
+  "execute:effect-done": 1,
+  "open-pr": 1,
+  "merge": 1
+ },
+ "ledger": [
+  "execute:write-file@pid29019",
+  "open-pr@pid29019",
+  "merge@pid29019"
+ ],
+ "duplicateSideEffectInLedger": false
+}
+  -- SIGKILL worker pid 29086; counts at kill: {"triage":1,"route":1,"design":1,"plan":1,"execute:start":1,"execute:effect-done":1,"open-pr":0,"merge":0}
+PASS A2 kill after effect, before ack (plain append): run resumed + completed, completed steps not redone
+{
+ "result": "merged",
+ "resumeMs": 10868,
+ "counts": {
+  "triage": 1,
+  "route": 1,
+  "design": 1,
+  "plan": 1,
+  "execute:start": 2,
+  "execute:effect-done": 2,
+  "open-pr": 1,
+  "merge": 1
+ },
+ "ledger": [
+  "execute:write-file@pid29086",
+  "execute:write-file@pid29168",
+  "open-pr@pid29168",
+  "merge@pid29168"
+ ],
+ "duplicateSideEffectInLedger": true
+}
+  -- SIGKILL worker pid 29221; counts at kill: {"triage":1,"route":1,"design":1,"plan":1,"execute:start":1,"execute:effect-done":1,"open-pr":0,"merge":0}
+PASS A3 same as A2 but idempotency-guarded effect: run resumed + completed, completed steps not redone
+{
+ "result": "merged",
+ "resumeMs": 10644,
+ "counts": {
+  "triage": 1,
+  "route": 1,
+  "design": 1,
+  "plan": 1,
+  "execute:start": 2,
+  "execute:effect-done": 2,
+  "open-pr": 1,
+  "merge": 1
+ },
+ "ledger": [
+  "execute:write-file@pid29221",
+  "open-pr@pid29233",
+  "merge@pid29233"
+ ],
+ "duplicateSideEffectInLedger": false
+}

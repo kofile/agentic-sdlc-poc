@@ -1,0 +1,46 @@
+  -- KILLED RUN: getState() from a cold process
+ {
+ "next": [
+  "execute"
+ ],
+ "interrupts": [],
+ "values": {
+  "status": "running",
+  "round": 1,
+  "log": [
+   "gate:design:auto",
+   "gate:plan:auto"
+  ]
+ }
+}
+  checkpoint history:
+step=-1 source=input next=[__start__] status=running round=1 grade=- tasks=__start__
+step=0 source=loop next=[loadPolicy] status=running round=1 grade=- tasks=loadPolicy
+step=1 source=loop next=[triage] status=running round=1 grade=- tasks=triage
+step=2 source=loop next=[route] status=running round=1 grade=A tasks=route
+step=3 source=loop next=[design] status=running round=1 grade=A tasks=design
+step=4 source=loop next=[designArm] status=running round=1 grade=A tasks=designArm
+step=5 source=loop next=[designWait] status=running round=1 grade=A tasks=designWait
+step=6 source=loop next=[plan] status=running round=1 grade=A tasks=plan
+step=7 source=loop next=[planArm] status=running round=1 grade=A tasks=planArm
+step=8 source=loop next=[planWait] status=running round=1 grade=A tasks=planWait
+step=9 source=loop next=[execute] status=running round=1 grade=A tasks=execute
+RESULT {"next":["execute"],"interrupts":[],"values":{"status":"running","round":1,"log":["gate:design:auto","gate:plan:auto"]}}
+
+  -- (note: nothing says WHICH node was running or that a process died; "next" just lists the node that will (re)run)
+PASS F1 killed run: inspect w/o debugger
+see above
+  -- FAILED RUN: invoke() output: Retrying task "design" after 1000.00ms (attempt 1) after Error: Error: stub model 529 overloaded (call #1)
+Retrying task "design" after 2000.00ms (attempt 2) after Error: Error: stub model 529 overloa
+  state: {"next":["design"],"interrupts":[],"values":{"status":"running","round":1,"log":[]}}
+  checkpoint history:
+step=-1 source=input next=[__start__] status=running round=1 grade=- tasks=__start__
+step=0 source=loop next=[loadPolicy] status=running round=1 grade=- tasks=loadPolicy
+step=1 source=loop next=[triage] status=running round=1 grade=- tasks=triage
+step=2 source=loop next=[route] status=running round=1 grade=A tasks=route
+step=3 source=loop next=[design] status=running round=1 grade=A tasks=design(ERROR:stub model 529 overloaded (call #5))
+RESULT {"next":["design"],"interrupts":[],"values":{"status":"running","round":1,"log":[]}}
+
+PASS F2 failed run: cause + attempts visible?
+error surfaced to caller only: Retrying task "design" after 1000.00ms (attempt 1) after Error: Error: stub model 529 overloaded (call #1)
+Retrying task; designAttempts=5

@@ -1,3 +1,5 @@
+@AGENTS.md
+
 # CLAUDE.md
 
 Proof of concept for a hosted, mostly autonomous SDLC system (Jira ticket in, reviewable PR out), compared head to head against the `sdlc-pipeline-plugin` and the n8n implementation. Read `notes/00-discovery-log.md` (decisions D1-D9, constraints K1-K8) and `notes/02-benchmark-spec.md` before changing anything. `notes/HANDOFF.md` says where work stands.
@@ -12,11 +14,11 @@ Proof of concept for a hosted, mostly autonomous SDLC system (Jira ticket in, re
 
 ## Rules that always hold
 
-- **Local-only.** No remote, no pushes, no PRs. Commit only when the operator asks.
+- **Remote.** `origin` (`https://github.com/kofile/agentic-sdlc-poc`, added 2026-11-05, decision D10) is the project's only remote and is approved for writes (branches, pushes, PRs). Commit and push only when the operator asks. No other remotes.
 - **Secrets.** The OAuth token lives in the macOS Keychain (service `claude-bench-oauth`). Never print it, paste it, write it to a file in this repo, or bake it into an image. Read it at launch with `security find-generic-password -a "$USER" -s claude-bench-oauth -w`, pass it by file mount.
 - **Benchmark integrity.** When working on `graph/` or any contender code, do not read `bench/hidden-tests/`, `bench/tickets/expected.draft.yaml` or `bench/*/reference.diff`. Hidden tests carry the canary string `BENCH-CANARY-7f3a91c2`; if it appears in any transcript or contender output, flag a leak.
 - **Graders.** Expected ticket outcomes are graded independently by the operator and Cesar. Claude drafts but is never a grader of record.
-- **External systems.** Sandbox Jira, Confluence and GitHub only, once provisioned. No writes to production systems. No cloud resources without the operator's say-so and a cost note.
+- **External systems.** Sandbox Jira and Confluence only, once provisioned; GitHub is this repo's `origin` only. No writes to production systems. No cloud resources without the operator's say-so and a cost note.
 - **Decisions** go in the log's Decisions table with the three-way grade (AICOE maintenance, customer ease, adaptability) and the evidence file. A choice made only in chat did not happen.
 - **Honesty.** Report where the new system does not win. Mark unverified claims UNVERIFIED. Agent-reported results are not facts until re-run.
 - **Vocabulary.** Internal docs use industry terms (durable execution, interrupt, idempotency, ports and adapters). Demo and manager-facing material uses plain language; the log's section 8 has the glossary.

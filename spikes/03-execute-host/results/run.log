@@ -1,0 +1,98 @@
+initial image build (base layers cached) ms 891
+   image cached: first-event ms = 274, 186, 166, 179, 180 (median 180); start() call itself median 131 ms
+   image removed, base layer cached: build 544 ms, then first event 228 ms (build+first = 772 ms)
+   rmi base: Error response from daemon: No such image: node:22-alpine
+   image AND node:22-alpine base removed (--no-cache --pull: re-pull base, apk add git, build): 1853 ms, then first event 282 ms
+PASS A Cold start: start() -> first agent event (8027 ms)
+
+   B1-graceful(stub handles SIGTERM): cancel latency 141 ms (grace 10s); container Running=false exit=143; host status=cancelled/sigterm
+   B1-graceful(stub handles SIGTERM): workspace left in stopped container: YES (docker cp of /work/repo/NOTES.md works; 54 changed paths under /work/repo); partial branch pushed: false
+   B1-graceful(stub handles SIGTERM): after cleanup() container exists=false
+   B2-stub-ignores-SIGTERM(runner escalates after 3s): cancel latency 3190 ms (grace 10s); container Running=false exit=143; host status=cancelled/sigterm
+   B2-stub-ignores-SIGTERM(runner escalates after 3s): workspace left in stopped container: YES (docker cp of /work/repo/NOTES.md works; 55 changed paths under /work/repo); partial branch pushed: false
+   B2-stub-ignores-SIGTERM(runner escalates after 3s): after cleanup() container exists=false
+   B3-grace1s(docker SIGKILL before runner can finish): cancel latency 1126 ms (grace 1s); container Running=false exit=137; host status=cancelled/cancel_requested
+   B3-grace1s(docker SIGKILL before runner can finish): workspace left in stopped container: YES (docker cp of /work/repo/NOTES.md works; 55 changed paths under /work/repo); partial branch pushed: false
+   B3-grace1s(docker SIGKILL before runner can finish): after cleanup() container exists=false
+PASS B Cancel mid-run (5727 ms)
+
+   receiver killed
+   orchestrator learned of terminal state via poll in 988 ms (no callback record: true)
+   container-side callback result: {"attempted":true,"delivered":false,"attempts":4,"error":"ECONNREFUSED"} (retries are our runner code, not a host feature); status=succeeded, branch=agent/j-7518303131
+   receiver restarted; completion auto-redelivered by host/container after restart: false
+   orchestrator-driven resend (poll fallback -> hostSideCallback): HTTP 200 {"outcome":"accepted"}; completion recorded: true
+   C2 receiver back ~0.8 s after job finished: container callback {"attempted":true,"delivered":true,"attempts":3}; recorded=true
+PASS C Callback reliability: receiver down, retry, poll fallback (16594 ms)
+
+   forged secret: bad_signature/401; first valid: accepted/200; identical re-send: duplicate/200; tampered body w/ original sig: bad_signature/401
+   stale ts (-1h, validly signed): stale_timestamp/401; conflicting 2nd terminal status: duplicate/200; unknown job id: unknown_job/404; stored status stays: succeeded
+   4 concurrent identical deliveries: duplicate, duplicate, accepted, duplicate; host resend after container delivered: 200 {"outcome":"duplicate"}
+   completion files for job: 1 (wx create); receiver delivery log lines for job: 6
+PASS D Duplicate, replayed, forged callbacks (2622 ms)
+
+   E1 in-container watchdog: state=timed_out reason=budget_exceeded:5s; wall 5311 ms for 5 s budget (learned via callback); usage=usage.json; branch pushed=false
+   E1 callback payload status/reason: timed_out/budget_exceeded:5s
+   E2 no in-container watchdog: host status() poll killed it: state=timed_out reason=host_deadline_kill inferred=true; terminal after 6062 ms of polling (budget 4 s + 2 s grace); usage source=events
+PASS E Timeout: budget exceeded (13398 ms)
+
+   orchestrator process SIGKILLed with 3 containers started (2 registered: j-37ba373ffc, j-0c296aa275)
+   containers still running after orchestrator death: 3 (sdlcpoc-j-a5e1deaaad, sdlcpoc-j-0c296aa275, sdlcpoc-j-37ba373ffc)
+   restart + attach: long job status=running; short job status=succeeded, callback recorded while orchestrator was dead: true
+   short job result recovered: branch=agent/j-0c296aa275 commit=c8f96beb usage={"i":3060,"o":606}
+   label-based list() (no registry): 11 jobs: j-a5e1deaaad:running, j-0c296aa275:succeeded, j-37ba373ffc:running, j-9c3234e8c7:timed_out, j-83bdd2d8d5:failed, j-9dff7c779e:timed_out, j-5d7ceee007:failed, j-56efeff341:failed, j-437c79e3a2:failed, j-cedf4ff1b1:succeeded, j-7518303131:succeeded
+   reapOrphans(known=registry): killed=j-a5e1deaaad removed=j-a5e1deaaad,j-9c3234e8c7,j-83bdd2d8d5,j-9dff7c779e,j-5d7ceee007,j-56efeff341,j-437c79e3a2,j-cedf4ff1b1,j-7518303131
+   orphan container gone=true; orphan pushed anything=false
+   long job awaited by new orchestrator via callback: succeeded, branch agent/j-37ba373ffc, 10 s after the kill
+   start() with the same idempotency key after restart returns existing handle: true
+PASS F Orchestrator death, re-attach, orphan reaping (10644 ms)
+
+   N=4: all succeeded=true; distinct branches=4/4 present in remote=true; workspace/branch isolation=true; callbacks recorded=4/4
+   N=4: start() fan-out 179 ms; whole batch 3358 ms (single job ~2.7 s)
+   N=8: all succeeded=true; distinct branches=8/8 present in remote=true; workspace/branch isolation=true; callbacks recorded=8/8
+   N=8: start() fan-out 444 ms; whole batch 3683 ms (single job ~2.7 s)
+   idempotent start: same id=true; containers with that name=1
+   memory limit 128 MB (HostConfig.Memory=134217728, swap=134217728): container OOMKilled=true exit=1; host status=oom_killed/memory_limit (runner saw agent_killed_SIGKILL); usage source=events
+   last alloc event before death: {"type":"system","subtype":"alloc","mb":96}
+   cpu limit 0.5 (NanoCpus=500000000): busy-loop agent sampled CPU% = 49.96, 50.09, 0, 0 (an unlimited single-thread loop would show ~100)
+   pids limit set: 128; listening ports used by jobs: 0 (no -p publishes; ports cannot collide); /remote.git is a shared bind mount (concurrent pushes to distinct refs worked)
+PASS G Concurrency (4 then 8) and resource limits (18159 ms)
+
+   image layers/history/inspect (file mode token): not visible
+   image layers (env-mode token): not visible
+   `docker inspect <container>` file-mode token: not visible
+   `docker inspect <container>` env-mode token: VISIBLE
+   callback secret in docker inspect: not visible
+   docker logs file-mode: not visible
+   docker logs env-mode: not visible
+   events.ndjson/out dir (file mode): not visible
+   inside container (docker exec, same uid as agent): file readable=true -> tok_dummy_h8irisxzcea1voaefyv4bi | total 8 | -rw-------    1 501      dialout         64 Nov  5 15:57 callback_secret | -rw-------    1 501      dialout        
+   env mode: token is in PID1 /proc environ: count=1
+   secrets in env of any process in file-mode container (runner strips them from the agent env): matches=0
+   host disk: /Users/evanstern/projects/kofile/agentic-sdlc-poc/spikes/03-execute-host/.work/state/jobs/j-0dd00498be/secrets (mode 0600 files, removed by cleanup(); also readable by anyone with docker socket access)
+PASS S Secrets: file mount vs env var visibility (3991 ms)
+
+   B1-graceful(stub handles SIGTERM): state=cancelled(sigterm) events=7 usage=usage.json in=1010 partial
+   B2-stub-ignores-SIGTERM(runner escalates after 3s): state=cancelled(sigterm) events=15 usage=events in=8360 partial
+   B3-grace1s(docker SIGKILL before runner can finish): state=cancelled(cancel_requested) events=9 usage=events in=3060 partial
+   C-callback-lost: state=succeeded(ok) events=11 usage=usage.json in=2030
+   E1-timeout-inner: state=timed_out(budget_exceeded:5s) events=8 usage=usage.json in=1010 partial
+   E2-host-backstop: state=timed_out(host_deadline_kill) events=5 usage=events in=1010 partial
+   F-A-recovered: state=succeeded(ok) events=28 usage=usage.json in=22100
+   G-oom: state=failed(agent_killed_SIGKILL) events=13 usage=events in=4100 partial
+   H-agent-fails: state=failed(agent_exit_1) events=8 usage=usage.json in=2030 partial
+   (all containers removed before reading: telemetry survives because runner appends events.ndjson to a host-mounted /out; docker logs are gone)
+   docker logs after rm: unavailable=true
+PASS H Telemetry retrievable on fail/cancel/timeout/OOM/kill (2041 ms)
+
+
+=== SUMMARY ===
+PASS    A  Cold start: start() -> first agent event  (8027 ms)
+PASS    B  Cancel mid-run  (5727 ms)
+PASS    C  Callback reliability: receiver down, retry, poll fallback  (16594 ms)
+PASS    D  Duplicate, replayed, forged callbacks  (2622 ms)
+PASS    E  Timeout: budget exceeded  (13398 ms)
+PASS    F  Orchestrator death, re-attach, orphan reaping  (10644 ms)
+PASS    G  Concurrency (4 then 8) and resource limits  (18159 ms)
+PASS    S  Secrets: file mount vs env var visibility  (3991 ms)
+PASS    H  Telemetry retrievable on fail/cancel/timeout/OOM/kill  (2041 ms)
+node --no-warnings tests/run-all.ts  5.57s user 4.29s system 11% cpu 1:22.63 total

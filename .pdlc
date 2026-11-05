@@ -1,0 +1,15 @@
+{
+  "planted": "pdlc:bootstrap",
+  "version": "1.0.2",
+  "name": "agentic-sdlc-poc",
+  "peers": [
+    "backlog",
+    "spec-kit"
+  ],
+  "peersOmitted": [
+    "jira"
+  ],
+  "hooks": [],
+  "localOnly": false,
+  "plantedAt": "2026-11-05T20:18:58.066Z"
+}

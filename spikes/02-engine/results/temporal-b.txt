@@ -1,0 +1,21 @@
+PASS B duplicate/concurrent approval: extra signals ignored, single execution
+{
+ "result": "merged",
+ "ignoredDuplicates": 6,
+ "counts": {
+  "triage": 1,
+  "route": 1,
+  "design": 1,
+  "plan": 1,
+  "execute:start": 1,
+  "execute:effect-done": 1,
+  "open-pr": 1,
+  "merge": 1
+ },
+ "ledger": [
+  "execute:write-file@pid29315",
+  "open-pr@pid29315",
+  "merge@pid29315"
+ ],
+ "signalAfterCompletion": "WorkflowNotFoundError: workflow execution already completed"
+}

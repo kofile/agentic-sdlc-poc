@@ -1,0 +1,21 @@
+PASS G1 retry w/ exponential backoff (initial 1s, x2) succeeds on 3rd attempt
+{
+ "designCalls": 3,
+ "gapsMs": [
+  1080,
+  2070
+ ]
+}
+PASS G2 expensive model call result lives in history: replay on fresh worker does NOT re-call model
+{
+ "counts": {
+  "triage": 1,
+  "route": 1,
+  "design": 1,
+  "plan": 1,
+  "execute:start": 1,
+  "execute:effect-done": 1,
+  "open-pr": 1,
+  "merge": 1
+ }
+}

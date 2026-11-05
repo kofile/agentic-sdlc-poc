@@ -1,0 +1,3 @@
+{"t":1793894085198,"pid":35108,"runId":"smoke1","step":"execute:write-file","file":"out/smoke1.txt"}
+{"t":1793894085208,"pid":35108,"runId":"smoke1","step":"open-pr","pr":"https://example.invalid/pr/smoke1"}
+{"t":1793894085224,"pid":35108,"runId":"smoke1","step":"merge"}

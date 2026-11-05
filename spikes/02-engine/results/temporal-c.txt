@@ -1,0 +1,44 @@
+  -- worker SIGKILLed while paused at design gate
+  -- temporal server container restarted
+  -- 8s "two days" elapsed; starting fresh worker
+PASS C1 late approval after worker kill + server restart + 8s: state intact, run completes
+{
+ "statusBeforeApprove": "RUNNING",
+ "waiting": {
+  "gate": "design",
+  "round": 1
+ },
+ "result": "merged",
+ "counts": {
+  "triage": 1,
+  "route": 1,
+  "design": 1,
+  "plan": 1,
+  "execute:start": 1,
+  "execute:effect-done": 1,
+  "open-pr": 1,
+  "merge": 1
+ },
+ "ledger": [
+  "execute:write-file@pid29433",
+  "open-pr@pid29433",
+  "merge@pid29433"
+ ]
+}
+  -- worker dead; 4s durable timer fires with nobody home
+  -- status while worker still dead: RUNNING
+PASS C2 durable timer timeout -> escalation fires even if worker was down when it expired
+{
+ "result": {
+  "status": "escalated-timeout",
+  "at": "design",
+  "round": 1,
+  "log": [
+   "gate:design:timeout"
+  ]
+ },
+ "log": [
+  "gate:design:timeout"
+ ],
+ "statusWhileWorkerDown": "RUNNING"
+}

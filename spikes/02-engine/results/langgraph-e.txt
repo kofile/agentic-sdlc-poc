@@ -1,0 +1,29 @@
+PASS E1 team auto-design: no human pause, completes unattended
+[
+ "gate:design:auto",
+ "gate:plan:auto",
+ "gate:merge:auto"
+]
+PASS E2 team default: pauses at design gate
+[
+ {
+  "gate": "design",
+  "round": 1,
+  "deadline": 1793897813412
+ }
+]
+PASS E3 config flipped to design:auto: NEW run skips gate; in-flight run keeps snapshot (still paused)
+{
+ "newRun": [
+  "gate:design:auto",
+  "gate:plan:auto",
+  "gate:merge:auto"
+ ],
+ "inFlight": [
+  {
+   "gate": "design",
+   "round": 1,
+   "deadline": 1793897813412
+  }
+ ]
+}

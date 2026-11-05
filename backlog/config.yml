@@ -1,0 +1,18 @@
+project_name: "agentic-sdlc-poc"
+default_status: "To Do"
+statuses: ["To Do", "In Progress", "Done"]
+labels: []
+definition_of_done: ["Tests are written (when applicable).", "All Tests pass (when available)", "All acceptance criteria (AC) are checked off or explicitly bypassed with note", "Spec-kit specifications have been written, and have been fully executed (when applicable)"]
+date_format: yyyy-mm-dd
+max_column_width: 20
+default_editor: "nvim"
+auto_open_browser: false
+default_port: 6420
+remote_operations: true
+auto_commit: true
+filesystem_only: false
+zero_padded_ids: 4
+bypass_git_hooks: false
+check_active_branches: true
+active_branch_days: 30
+task_prefix: "task"

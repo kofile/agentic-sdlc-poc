@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { WORK, IMAGE, makeRemote, mkHost, mkSpec, startReceiver, firstEventLatency, drain, branches, sh } from './lib.ts';
+import { awaitTerminal } from '../src/orchestrator.ts';
+import { docker } from '../src/docker-host.ts';
+fs.mkdirSync(WORK, { recursive: true });
+await docker(['build', '-q', '-t', IMAGE, path.join(path.dirname(WORK), 'container')]);
+const bare = makeRemote(); const state = path.join(WORK, 'state'); fs.mkdirSync(state, { recursive: true });
+const rcv = await startReceiver(state, 18911);
+const host = mkHost(state);
+const t0 = Date.now();
+const h = await host.start(mkSpec(bare, { callback: { url: 'http://host.docker.internal:18911/callback' } }));
+console.log('start ms', Date.now() - t0, 'first event ms', await firstEventLatency(host, h, t0));
+console.log(await awaitTerminal(host, h, { stateDir: state }));
+console.log(JSON.stringify(await host.result(h), null, 1));
+console.log((await drain(host, h)).join('\n'));
+console.log(branches(bare)); console.log(fs.readFileSync(path.join(state, 'deliveries.ndjson'), 'utf8'));
+await host.cleanup(h); rcv.kill();
