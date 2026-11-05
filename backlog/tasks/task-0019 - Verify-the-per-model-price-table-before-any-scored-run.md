@@ -4,7 +4,7 @@ title: Verify the per-model price table before any scored run
 status: In Progress
 assignee: []
 created_date: '2026-11-05 20:51'
-updated_date: '2026-11-05 21:07'
+updated_date: '2026-11-05 21:09'
 labels:
   - harness
   - cost
@@ -30,7 +30,11 @@ Spec: specs/001-price-table
 <!-- AC:BEGIN -->
 - [ ] #1 Every price in prices.json cites its source and retrieval date and the UNVERIFIED markers are gone
 - [ ] #2 A unit test recomputes cost for a recorded usage sample
+- [ ] #3 Spec phase: Source the prices
+- [ ] #4 Spec phase: Rewrite the table and test it
 <!-- AC:END -->
+
+
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
