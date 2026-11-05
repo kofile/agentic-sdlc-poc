@@ -1,9 +1,10 @@
 ---
 id: TASK-0027
 title: Temporal workflow-versioning test with runs in flight
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-05 20:51'
+updated_date: '2026-11-05 21:07'
 labels:
   - graph
   - temporal
@@ -20,6 +21,8 @@ ordinal: 27000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Open caveat on D7 (Temporal chosen): prove that a workflow definition can be changed while runs are in flight (patching or versioning) without breaking them; this is a core claim of the durable-execution approach and a likely question from the n8n owner.
+
+Spec: specs/002-versioning-test
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
