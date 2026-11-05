@@ -122,6 +122,9 @@ post-conditions, plus a graph around it.
 | D1 | Benchmark runs the plugin two ways: as shipped (headline) and pinned to Sonnet (anchors only); N and G pinned to Sonnet 5.5 | 2026-11-05 | Med: two P configs to run | High: honest cost story | High | Decided |
 | D2 | n8n baseline: use execution history for triage-to-plan; live sandbox copies only if Cesar can do it in about a day | 2026-11-05 | High: avoids n8n rework | Med | Med | Decided |
 | D3 | Second independent grader of expected ticket outcomes is Cesar (operator is first); Claude drafts but does not grade | 2026-11-05 | Med | High: Cesar owns fairness | Med | Decided |
+| D4 | The plugin runs on the operator's subscription during the benchmark; its cost is labelled estimated and cannot be cross-checked against provider logs; N and G use dedicated API keys | 2026-11-05 | High: no extra key/cost | Med: P cost is weaker evidence | Med | Decided |
+| D5 | Thresholds and verdict rules freeze at end of Day 5, after the dev pilot and before held-out runs, tagged `spec-frozen` | 2026-11-05 | Med | High: data-informed thresholds | Med | Decided |
+| D6 | Days 1-2 run three parallel spikes (plugin headless, Temporal vs LangGraph, execute-host callback/cancel); engine and host chosen by end of Day 2 | 2026-11-05 | Med: extra work up front | High: evidence over reading | High | Decided |
 
 ## 8. Vocabulary and presentation rules
 
@@ -189,7 +192,7 @@ Coverage matrix (what exists to compare, to be confirmed):
 
 ## 9c. Spec review round 1 (2026-11-05, sections 0-4)
 
-Raised, not yet decided: H1 is under-powered (4 anchors at k=5; consider 6-8 anchors, cheap because triage-only runs cost little); plugin may not run unattended under `claude -p` (spike 1); schedule is aggressive (Day 1 is 2026-11-05; repo, tickets, hidden tests and seeded PRs need a few days before G exists); $2.50 mean per run is likely low, replace after the first pilot; dev set lacks cross-repo and reject tickets; H2 falsification clause mixes two conditions; no live-demo script yet; freeze the spec with a git tag before the first scored run. Sections 5-9 not yet reviewed.
+Raised, not yet decided: H1 is under-powered (4 anchors at k=5; consider 6-8 anchors, cheap because triage-only runs cost little); plugin may not run unattended under `claude -p` (spike 1); schedule is aggressive (Day 1 is 2026-11-05; repo, tickets, hidden tests and seeded PRs need a few days before G exists); $2.50 mean per run is likely low, replace after the first pilot; dev set lacks cross-repo and reject tickets; H2 falsification clause mixes two conditions; no live-demo script yet; freeze the spec with a git tag before the first scored run. Sections 5-9 reviewed 2026-11-05: added per-model price table and re-verify requirement, H5 framed as a capability comparison with equal fault types, freeze moved to Day 5, spikes added to Days 1-2, operating model (agent lanes, operator reviews at Days 2/5/7) and spot-check blindness limitation recorded in the spec. Still undecided: raise anchor-ticket count for H1, add cross-repo and reject tickets to dev set, split the H2 clause, add live-demo script and an at-scale architecture note, test the design-redesign loop with a scripted reject.
 
 ## 10. Open questions
 

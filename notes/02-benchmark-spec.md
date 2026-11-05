@@ -213,8 +213,10 @@ G from its own span events.
 ### 5.2 Tokens and cost
 
 Fields: `input_tokens`, `output_tokens`, `cache_read_tokens`, `cache_write_tokens`, `thinking`
-included in output. **Cost = tokens x list price** (Sonnet 5/5.5 list: $2 in / $10 out per
-MTok per the cost notes; cache hit at the vendor's rate **[A]**), computed uniformly by the
+included in output. **Cost = tokens x list price looked up per call by `model_served`** (a per-model
+price table in the repo, **re-verified against the vendor price page before the first scored
+run**; the earlier cost notes' Sonnet figure of $2 in / $10 out per MTok is stale-risk, and P-shipped
+uses Opus and Haiku on some agents, so a single price is wrong; cache rates per model **[A]**), computed uniformly by the
 harness, never taken from a contender's own number, plus sandbox compute and orchestration
 (n8n execution fee) reported as separate lines. Subscription use by P is converted to
 list-price equivalent and labelled so.
@@ -225,8 +227,13 @@ list-price equivalent and labelled so.
 | N | n8n execution data: AI Agent / Anthropic Chat Model node `tokenUsage` | **Likely missing** for some nodes (HTTP-request LLM calls, older agent versions) and for the execute workflow until readable. Fallback: **dedicated Anthropic workspace/API key per contender**, so provider-side usage logs give totals per contender per day. Per-stage then estimated from character counts, labelled `estimated` |
 | G | Provider response `usage` per call, logged by G | Full control; verify against the provider-side key logs |
 
-Cross-check for all three: the dedicated per-contender API key totals must agree with summed
-record tokens within 5%; if not, the harness's number is flagged invalid for that day.
+Cross-check (**Decision D4, 2026-11-05: P runs on the operator's subscription**, so P is metered
+only by Claude Code's own client-side usage output): for N and G, the dedicated per-contender API
+key totals must agree with summed record tokens within 5%; if not, the harness's number is
+flagged invalid for that day. P's cost is labelled `estimated (client-side, list-price equivalent)`
+on every chart and cannot be cross-checked; this is a stated limitation, and P cost differences
+under 10% are treated as noise. Subscription rate limits may also throttle P, so P's `waiting_ms`
+is reported separately.
 
 ### 5.3 Success tiers (cumulative, each tier a subset of the previous)
 
@@ -267,7 +274,7 @@ questions (right problem? any unrequested change? would I merge?).
 | Failure taxonomy | One label per failed run: `model_wrong` (bad output), `schema` (format), `tool_error`, `gate_logic` (gate misjudged), `context` (missed file/info), `loop` (stuck/over-budget), `infra`, `budget`, `false_pass`, `immature` (known unfinished feature of the contender), `harness_bug` (ours; run discarded and re-run) |
 | Variance | Per ticket, per contender, per metric: CV = std/mean over k repeats; pooled median CV; plus min-max range |
 | pass@k | Probability that at least one of k repeats reaches S3+S4: `1 - C(n-c, k)/C(n, k)` with n=3..5 observed; plus **pass^k** (all k succeed) because an unattended system needs consistency, not best-of-k |
-| Resumability (H5) | Fault injection: kill the run process at a fixed point (after design, mid-execute) on 3 tickets x 3 contenders; metric = completed stages not redone, extra cost to finish, minutes to finish |
+| Resumability (H5) | Reported as a **capability comparison, not a performance win**: G is designed around durable pause/resume, so the result is expected; the same three faults are applied to every contender (kill the worker, API outage for 10 minutes, human approval delayed 2 days), and a contender with no resume feature is scored `no resume`, not zero. Fault injection: kill the run process at a fixed point (after design, mid-execute) on 3 tickets x 3 contenders; metric = completed stages not redone, extra cost to finish, minutes to finish |
 | Observability (H5) | For every failed run, can a third person name the failing stage and cause using only the stored record in under 5 minutes? Fraction answered "yes" |
 
 ## 6. Scoring and charts
@@ -361,11 +368,11 @@ parallel with the benchmark prep and is the critical path.
 
 | Day | Plan |
 |---|---|
-| 1 | Freeze this spec with operator (hypotheses, thresholds, verdict rules). Create sandbox Jira project + Confluence space + per-contender API keys. Confirm n8n access (execute workflow) with Cesar. Scaffold `bench-orderdesk` |
-| 2 | App to a green baseline; write tickets 1-8 and `expected.yaml`; hidden tests for them |
+| 1 | **Spikes start (D6), run as parallel agent lanes:** (1) plugin unattended under `claude -p` in a container on GitHub and ADO; (2) Temporal vs LangGraph on kill-the-worker, duplicate-approval, late-approval; (3) execute-host callback and cancel reliability. Create sandbox Jira project + Confluence space + per-contender API keys (N, G). Confirm n8n access (execute workflow) with Cesar. Scaffold `bench-orderdesk` |
+| 2 | **Spikes finish; engine and execute host chosen by end of day and recorded as decisions in the log.** App to a green baseline; write tickets 1-8 and `expected.yaml`; hidden tests for them |
 | 3 | Tickets 9-16, reference diffs, hidden tests; prove reference passes and baseline fails; second reader reconciles expected grades. Start harness: record schema, SQLite, `bench run` skeleton |
 | 4 | P adapter (headless run, stream-json parse) and N adapter (webhook trigger, execution pull). Pilot both on 2 dev tickets; check token telemetry gaps. G: triage and route nodes |
-| 5 | G: design and plan nodes. Pilot k=1 across all adapters on the 4 dev tickets to find harness bugs; lock the harness; write the seeded-bug PR fixtures |
+| 5 | G: design and plan nodes. Pilot k=1 across all adapters on the 4 dev tickets to find harness bugs; lock the harness; write the seeded-bug PR fixtures. **End of day: freeze thresholds and verdict rules from pilot data (D5), tag `spec-frozen` in git, before any held-out run** |
 | 6 | G: execute node (wrapped agent in sandbox) and open-pr. Decide MRNexus yes/no. Start P and N held-out runs in background (k=3, randomized order) |
 | 7 | G: finish end to end on dev set; freeze G (prompt/graph tag). Fault-injection tests |
 | 8 | G held-out runs; anchor k=5 repeats; seeded review runs if validate/review are ready |
@@ -397,7 +404,10 @@ parallel with the benchmark prep and is the critical path.
 
 ## 9. Open items for the operator
 
-- [ ] Approve hypotheses, thresholds and win/tie/loss rules (Day 1).
+- [ ] Approve hypotheses, thresholds and win/tie/loss rules **at the Day 5 freeze (D5), after the dev pilot**, tagged `spec-frozen`.
+- [x] Model pin: settled by D1. Second grader: settled by D3 (Cesar). P billing: settled by D4 (subscription).
+- [ ] Note for the spot-check: outputs are anonymized, but n8n PR comments are recognizable, so the spot-check is only partly blind; record this as a limitation.
+- [ ] Operating model: agents build the harness, bench repo and G in parallel lanes; the operator's time is review at stated checkpoints (end of Days 2, 5, 7).
 - [ ] Enable MCP access on the n8n execute workflow `ad47NpL1Nf3VlZUM` (settings link in the log) so it can be read and its executions pulled.
 - [ ] Ask Cesar: do WF4-WF9 exist elsewhere? Does the execute workflow open the PR? Which n8n variants (many-node, single-node) are current? Can the inactive triage workflow be reactivated as a sandbox copy?
 - [ ] Create or name the sandbox Jira project and Confluence space (benchmark tickets prefixed `[SDLC-TEST]`, label `sdlc_test`); confirm all three contenders can be pointed at it.
