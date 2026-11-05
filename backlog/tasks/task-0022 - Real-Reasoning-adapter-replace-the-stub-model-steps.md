@@ -4,7 +4,7 @@ title: 'Real Reasoning adapter: replace the stub model steps'
 status: In Progress
 assignee: []
 created_date: '2026-11-05 20:51'
-updated_date: '2026-11-05 21:55'
+updated_date: '2026-11-05 21:58'
 labels:
   - graph
   - adapter
@@ -30,10 +30,10 @@ Spec: specs/005-reasoning-adapter
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Triage, route, design and plan steps call the real model with zod-validated output
-- [ ] #2 Invalid output fails closed at a gate rather than advancing
-- [ ] #3 Served model and token usage recorded per step
-- [ ] #4 Unit and workflow tests updated; npm test and npm run test:workflow pass
+- [x] #1 Triage, route, design and plan steps call the real model with zod-validated output
+- [x] #2 Invalid output fails closed at a gate rather than advancing
+- [x] #3 Served model and token usage recorded per step
+- [x] #4 Unit and workflow tests updated; npm test and npm run test:workflow pass
 - [ ] #5 Spec phase: Port, cost and telemetry
 - [ ] #6 Spec phase: Anthropic adapter, prompts and fixtures
 - [ ] #7 Spec phase: Wiring, fail-closed workflow and docs
@@ -53,6 +53,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 2026-11-05 phase 3 done: build ok, unit 56, workflow 12, versioning 1 (orchestrator re-run).
+
+2026-11-05 orchestrator: integration ALL PASS (4/4) on stub; PR #6 opened, merges after #5.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
