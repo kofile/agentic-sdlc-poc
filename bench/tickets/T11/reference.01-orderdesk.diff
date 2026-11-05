@@ -1,0 +1,80 @@
+diff --git a/src/discounts/routes.ts b/src/discounts/routes.ts
+index e03cfc5..739768a 100644
+--- a/src/discounts/routes.ts
++++ b/src/discounts/routes.ts
+@@ -1,6 +1,7 @@
+ import { Router } from "express";
+ import type Database from "better-sqlite3";
+ import { DiscountService } from "./service.js";
++import { ValidationError } from "../errors.js";
+ 
+ export function discountRoutes(db: Database.Database): Router {
+   const router = Router();
+@@ -23,6 +24,19 @@ export function discountRoutes(db: Database.Database): Router {
+     }
+   });
+ 
++  router.get("/:code/preview", (req, res, next) => {
++    try {
++      const subtotalRaw = req.query.subtotal_cents;
++      const subtotalCents = Number(subtotalRaw);
++      if (typeof subtotalRaw !== "string" || !Number.isInteger(subtotalCents) || subtotalCents < 0) {
++        throw new ValidationError("subtotal_cents must be a non-negative integer query parameter");
++      }
++      res.json(service.preview(req.params.code, subtotalCents));
++    } catch (err) {
++      next(err);
++    }
++  });
++
+   router.get("/:code", (req, res, next) => {
+     try {
+       res.json(service.getByCode(req.params.code));
+diff --git a/src/discounts/service.ts b/src/discounts/service.ts
+index 8b46c77..8946c23 100644
+--- a/src/discounts/service.ts
++++ b/src/discounts/service.ts
+@@ -54,6 +54,43 @@ export class DiscountService {
+     return this.getByCode(code);
+   }
+ 
++  /**
++   * A non-throwing preview of whether a discount code would apply to a
++   * hypothetical order with the given subtotal. Never creates an order or
++   * reserves stock. Returns `valid: false` (with a `reason`, never a thrown
++   * error) for an unknown, inactive, expired, or below-minimum code, so
++   * callers can show this directly without a try/catch.
++   */
++  preview(code: string, subtotalCents: number): { valid: boolean; discount_cents: number; reason: string | null } {
++    let discount: Discount;
++    try {
++      discount = this.getByCode(code);
++    } catch {
++      return { valid: false, discount_cents: 0, reason: "unknown discount code" };
++    }
++
++    if (!discount.active) {
++      return { valid: false, discount_cents: 0, reason: `discount ${discount.code} is not active` };
++    }
++    if (discount.expires_at && new Date(discount.expires_at).getTime() < Date.now()) {
++      return { valid: false, discount_cents: 0, reason: `discount ${discount.code} has expired` };
++    }
++    if (subtotalCents < discount.min_subtotal_cents) {
++      return {
++        valid: false,
++        discount_cents: 0,
++        reason: `order subtotal ${subtotalCents} is below the minimum ${discount.min_subtotal_cents} required for discount ${discount.code}`,
++      };
++    }
++
++    const discountCents =
++      discount.kind === "percent"
++        ? Math.floor((subtotalCents * discount.value) / 100)
++        : Math.min(discount.value, subtotalCents);
++
++    return { valid: true, discount_cents: discountCents, reason: null };
++  }
++
+   /**
+    * Validates that a discount can be applied to an order with the given
+    * subtotal, and returns the discount amount in cents. Only a single

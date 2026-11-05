@@ -1,0 +1,35 @@
+diff --git a/src/customers/routes.ts b/src/customers/routes.ts
+index 57cbfe6..991f73f 100644
+--- a/src/customers/routes.ts
++++ b/src/customers/routes.ts
+@@ -1,10 +1,12 @@
+ import { Router } from "express";
+ import type Database from "better-sqlite3";
+ import { CustomerService } from "./service.js";
++import { OrderService } from "../orders/service.js";
+ 
+ export function customerRoutes(db: Database.Database): Router {
+   const router = Router();
+   const service = new CustomerService(db);
++  const orderService = new OrderService(db);
+ 
+   router.post("/", (req, res, next) => {
+     try {
+@@ -33,6 +35,17 @@ export function customerRoutes(db: Database.Database): Router {
+     }
+   });
+ 
++  router.get("/:id/orders", (req, res, next) => {
++    try {
++      const customerId = Number(req.params.id);
++      service.getById(customerId); // 404s if the customer doesn't exist
++      const result = orderService.list({ ...(req.query as Record<string, unknown>), customer_id: customerId });
++      res.json(result);
++    } catch (err) {
++      next(err);
++    }
++  });
++
+   router.patch("/:id", (req, res, next) => {
+     try {
+       const customer = service.update(Number(req.params.id), req.body ?? {});

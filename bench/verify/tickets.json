@@ -1,0 +1,28 @@
+{
+  "comment": "Buildable tickets (11 of 16). Single-repo tickets list one repo; cross-repo tickets list two, in producer-then-client order. Paths are relative to bench/.",
+  "tickets": [
+    { "id": "T01", "repos": [{ "repo": "orderdesk", "diff": "tickets/T01/reference.diff", "hidden": "hidden-tests/T01" }] },
+    { "id": "T02", "repos": [{ "repo": "orderdesk", "diff": "tickets/T02/reference.diff", "hidden": "hidden-tests/T02" }] },
+    { "id": "T03", "repos": [{ "repo": "orderdesk", "diff": "tickets/T03/reference.diff", "hidden": "hidden-tests/T03" }] },
+    { "id": "T04", "repos": [{ "repo": "orderdesk", "diff": "tickets/T04/reference.diff", "hidden": "hidden-tests/T04" }] },
+    { "id": "T05", "repos": [{ "repo": "orderdesk", "diff": "tickets/T05/reference.diff", "hidden": "hidden-tests/T05" }] },
+    { "id": "T06", "repos": [{ "repo": "orderdesk", "diff": "tickets/T06/reference.diff", "hidden": "hidden-tests/T06" }] },
+    { "id": "T07", "repos": [{ "repo": "orderdesk", "diff": "tickets/T07/reference.diff", "hidden": "hidden-tests/T07" }] },
+    { "id": "T08", "repos": [{ "repo": "orderdesk", "diff": "tickets/T08/reference.diff", "hidden": "hidden-tests/T08" }] },
+    { "id": "T09", "repos": [{ "repo": "orderdesk-web", "diff": "tickets/T09/reference.diff", "hidden": "hidden-tests/T09" }] },
+    {
+      "id": "T10",
+      "repos": [
+        { "repo": "orderdesk", "diff": "tickets/T10/reference.01-orderdesk.diff", "hidden": "hidden-tests/T10/orderdesk" },
+        { "repo": "orderdesk-web", "diff": "tickets/T10/reference.02-orderdesk-web.diff", "hidden": "hidden-tests/T10/orderdesk-web" }
+      ]
+    },
+    {
+      "id": "T11",
+      "repos": [
+        { "repo": "orderdesk", "diff": "tickets/T11/reference.01-orderdesk.diff", "hidden": "hidden-tests/T11/orderdesk" },
+        { "repo": "orderdesk-web", "diff": "tickets/T11/reference.02-orderdesk-web.diff", "hidden": "hidden-tests/T11/orderdesk-web" }
+      ]
+    }
+  ]
+}

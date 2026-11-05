@@ -1,0 +1,39 @@
+diff --git a/src/orders/service.ts b/src/orders/service.ts
+index 515e3ee..b6936af 100644
+--- a/src/orders/service.ts
++++ b/src/orders/service.ts
+@@ -6,6 +6,12 @@ import { InventoryService } from "../inventory/service.js";
+ import { DiscountService } from "../discounts/service.js";
+ import type { CreateOrderInput, Order, OrderItem, OrderStatus, OrderWithItems } from "./model.js";
+ 
++const ORDER_BY_CLAUSES: Record<string, string> = {
++  created_at_asc: "id ASC",
++  created_at_desc: "id DESC",
++  total_desc: "total_cents DESC",
++};
++
+ const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+   pending: ["paid", "cancelled"],
+   paid: ["fulfilled", "cancelled"],
+@@ -119,12 +125,20 @@ export class OrderService {
+ 
+     const where = filters.length > 0 ? `WHERE ${filters.join(" AND ")}` : "";
+ 
++    const sort = query.sort !== undefined ? String(query.sort) : "created_at_asc";
++    const orderBy = ORDER_BY_CLAUSES[sort];
++    if (!orderBy) {
++      throw new ValidationError(
++        `sort must be one of: ${Object.keys(ORDER_BY_CLAUSES).join(", ")}`,
++      );
++    }
++
+     const total = (
+       this.db.prepare(`SELECT COUNT(*) as count FROM orders ${where}`).get(...params) as { count: number }
+     ).count;
+ 
+     const items = this.db
+-      .prepare(`SELECT * FROM orders ${where} ORDER BY id ASC LIMIT ? OFFSET ?`)
++      .prepare(`SELECT * FROM orders ${where} ORDER BY ${orderBy} LIMIT ? OFFSET ?`)
+       .all(...params, pageSize, (page - 1) * pageSize) as Order[];
+ 
+     return { items, page, pageSize, total };

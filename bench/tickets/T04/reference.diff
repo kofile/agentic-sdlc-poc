@@ -1,0 +1,20 @@
+diff --git a/src/inventory/service.ts b/src/inventory/service.ts
+index a9188e3..f1a560c 100644
+--- a/src/inventory/service.ts
++++ b/src/inventory/service.ts
+@@ -46,9 +46,13 @@ export class InventoryService {
+ 
+   list(query: Record<string, unknown> = {}): { items: Product[]; page: number; pageSize: number; total: number } {
+     const { page, pageSize } = parsePagination(query);
+-    const total = (this.db.prepare("SELECT COUNT(*) as count FROM products").get() as { count: number }).count;
++    const lowStock = query.lowStock === "true" || query.lowStock === true;
++    const where = lowStock ? "WHERE stock_qty < 10" : "";
++    const total = (
++      this.db.prepare(`SELECT COUNT(*) as count FROM products ${where}`).get() as { count: number }
++    ).count;
+     const items = this.db
+-      .prepare("SELECT * FROM products ORDER BY id ASC LIMIT ? OFFSET ?")
++      .prepare(`SELECT * FROM products ${where} ORDER BY id ASC LIMIT ? OFFSET ?`)
+       .all(pageSize, (page - 1) * pageSize) as Product[];
+     return { items, page, pageSize, total };
+   }

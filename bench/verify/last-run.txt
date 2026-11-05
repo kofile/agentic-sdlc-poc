@@ -1,0 +1,20 @@
+Benchmark reference verification — 2026-11-05T18:29:12.920Z
+Execution: sequential, one ticket/repo-leg/vitest-process at a time.
+
+Ticket | Repo | Canary | Visible/base | Hidden fails/base | Diff applies | Reference passes | Hidden x5 stable | Tests | Result
+-------|------|--------|--------------|--------------------|--------------|-------------------|-------------------|-------|-------
+T01 | orderdesk | yes | pass | fails (ok) | clean | pass | stable | 156p/0f | PASS
+T02 | orderdesk | yes | pass | fails (ok) | clean | pass | stable | 155p/0f | PASS
+T03 | orderdesk | yes | pass | fails (ok) | clean | pass | stable | 155p/0f | PASS
+T04 | orderdesk | yes | pass | fails (ok) | clean | pass | stable | 156p/0f | PASS
+T05 | orderdesk | yes | pass | fails (ok) | clean | pass | stable | 158p/0f | PASS
+T06 | orderdesk | yes | pass | fails (ok) | clean | pass | stable | 160p/0f | PASS
+T07 | orderdesk | yes | pass | fails (ok) | clean | pass | stable | 159p/0f | PASS
+T08 | orderdesk | yes | pass | fails (ok) | clean | pass | stable | 157p/0f | PASS
+T09 | orderdesk-web | yes | pass | fails (ok) | clean | pass | stable | 47p/0f | PASS
+T10 | orderdesk | yes | pass | fails (ok) | clean | pass | stable | 158p/0f | PASS
+T10 | orderdesk-web | yes | pass | fails (ok) | clean | pass | stable | 48p/0f | PASS
+T11 | orderdesk | yes | pass | fails (ok) | clean | pass | stable | 158p/0f | PASS
+T11 | orderdesk-web | yes | pass | fails (ok) | clean | pass | stable | 48p/0f | PASS
+
+Overall: 11/11 tickets verified clean.

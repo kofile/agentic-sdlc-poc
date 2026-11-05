@@ -1,0 +1,216 @@
+# DRAFT by Claude. Not a grade. Humans grade independently; do not show
+# graders this file before they finish (per notes/02-benchmark-spec.md
+# section 3's ticket-writing rules: Decision D3 — the operator and Cesar
+# grade independently and reconcile before any run; Claude drafts tickets
+# but is not a grader of record).
+#
+# This is my intended design per ticket: class, difficulty, the trap I built
+# in, and the gate outcome I expect triage to produce. Reconcile against the
+# two human graders' independent grades in grading-sheet.md; where they
+# disagree with each other on the pass/fail gate, the spec says drop the
+# ticket from the set.
+
+benchmark_version: v0.1
+tickets:
+  T01:
+    class: trivial
+    intended_grade: A
+    gate: pass
+    route: [orderdesk]
+    intended_trap: none
+    notes: >
+      One-file addition (customers/routes.ts) reusing the existing
+      OrderService.list filter. The only edge worth checking is the 404 on
+      an unknown customer id vs. an empty list, which the acceptance
+      criteria states explicitly so there is no real ambiguity.
+
+  T02:
+    class: trivial
+    intended_grade: A
+    gate: pass
+    route: [orderdesk]
+    intended_trap: none
+    notes: >
+      One-file change to the CSV export's header/row construction. AC pins
+      down column position ("added as the last column") to avoid an
+      unstated-order trap creeping into a ticket meant to have none.
+
+  T03:
+    class: trivial
+    intended_grade: A
+    gate: pass
+    route: [orderdesk]
+    intended_trap: none
+    notes: One-file change to the /health handler.
+
+  T04:
+    class: trivial
+    intended_grade: A
+    gate: pass
+    route: [orderdesk]
+    intended_trap: none
+    notes: >
+      One-file change to InventoryService.list. AC pins the boundary
+      (stock_qty = 10 is not low) so there is no real ambiguity, just a
+      boundary a careless implementation could get backwards.
+
+  T05:
+    class: medium
+    intended_grade: A
+    gate: pass
+    route: [orderdesk]
+    intended_trap: implicit edge case
+    notes: >
+      Implicit edge case: sorting must apply before pagination, and an
+      unrecognized sort value must 400 rather than silently falling back to
+      the default — neither is spelled out as a numbered "gotcha," both are
+      covered by hidden tests (sortable-orders.hidden.test.ts).
+
+  T06:
+    class: medium
+    intended_grade: A
+    gate: pass
+    route: [orderdesk]
+    intended_trap: implicit edge case
+    notes: >
+      Implicit edge case: the day boundary (23:59:59.999 inclusive) and
+      rejecting an impossible calendar date like 2026-02-30 (which
+      `Date.parse` alone would silently roll over to March — the reference
+      implementation has to validate the calendar explicitly).
+
+  T07:
+    class: medium
+    intended_grade: A
+    gate: pass
+    route: [orderdesk]
+    intended_trap: implicit edge case (discount stacking order)
+    notes: >
+      The named "discount stacking rule" example from the spec's medium
+      tier. Trap: percent must apply to the original subtotal and fixed to
+      what *remains*, not the original subtotal again — a naive
+      implementation that sums both discounts against the original subtotal
+      independently will overdiscount. This is the dev-set anchor for that
+      trap.
+
+  T08:
+    class: medium
+    intended_grade: A
+    gate: pass
+    route: [orderdesk]
+    intended_trap: implicit edge case (which statuses count)
+    notes: >
+      Trap: naive "total spent" sums every order regardless of status,
+      double-counting cancelled orders that released their stock. AC states
+      the correct rule (paid + fulfilled only) explicitly enough that this
+      is "implicit" only in the sense that a careless read misses it, not
+      that it's genuinely unresolvable — kept as medium, not ambiguous.
+
+  T09:
+    class: medium
+    intended_grade: A
+    gate: pass
+    route: [orderdesk-web]
+    intended_trap: implicit edge case (empty list)
+    notes: >
+      Web-routed medium (per the composition table: api x4, web x1). Trap:
+      showing "$0.00" instead of hiding the total when the list is empty —
+      easy to get backwards if you treat the total as conditional on
+      having orders.
+
+  T10:
+    class: cross-repo
+    intended_grade: A
+    gate: pass
+    route: [orderdesk, orderdesk-web]
+    intended_trap: contract mismatch if order wrong
+    notes: >
+      Producer-then-client: the API's `notes` field must exist (and be
+      returned on GET) before the web form/detail view can depend on it.
+      Reference ships as two diffs in that order; a contender that builds
+      the web side first, or guesses a different field name/shape, hits the
+      contract mismatch the spec calls for.
+
+  T11:
+    class: cross-repo
+    intended_grade: B
+    gate: pass
+    route: [orderdesk, orderdesk-web]
+    intended_trap: contract mismatch if order wrong; richer client logic
+    notes: >
+      Grade B rather than A: the client side has a genuine design choice
+      (how to get a subtotal without the form knowing prices) that the AC
+      resolves concretely (look up each product, skip the preview silently
+      if any id doesn't resolve yet) specifically so it stays buildable
+      rather than ambiguous, but it is still the more elaborate of the two
+      cross-repo tickets. Same producer-first contract trap as T10.
+
+  T12:
+    class: ambiguous
+    intended_grade: D
+    gate: fail
+    route: not asserted
+    intended_trap: no acceptance criteria, no definition of "fast" or "slow"
+    notes: >
+      Dev-set ambiguous anchor. "Orders are fast" as the sole AC is not
+      testable; the right triage action is to ask what "slow" means and
+      where (which endpoint, what latency target), not to guess and start
+      optimizing.
+
+  T13:
+    class: ambiguous
+    intended_grade: D
+    gate: fail
+    route: not asserted
+    intended_trap: directly contradictory acceptance criteria
+    notes: >
+      AC #1 ("customer can change quantity after paid") directly
+      contradicts AC #2 ("financial details are locked once paid, must
+      never change"). This is a flat self-contradiction, not just missing
+      detail — the right action is to ask which rule actually holds, not
+      to pick a side silently.
+
+  T14:
+    class: ambiguous
+    intended_grade: C
+    gate: fail
+    route: not asserted
+    intended_trap: vague scope, no stated rules
+    notes: >
+      "Support partial refunds" with no stated rule for how much can be
+      refunded, who can authorize it, or how it interacts with order status
+      — plausible-sounding but not implementable without the missing
+      decisions. Graded C rather than D since the feature concept itself is
+      coherent (unlike T12's empty AC or T13's direct contradiction); still
+      a correct stop.
+
+  T15:
+    class: reject
+    intended_grade: D
+    gate: fail
+    route: not asserted
+    intended_trap: empty body
+    notes: Title, description, and acceptance criteria are all empty.
+
+  T16:
+    class: reject
+    intended_grade: D
+    gate: fail
+    route: not asserted
+    intended_trap: out-of-remit and contradicts a decided design (storing SSNs)
+    notes: >
+      Two independent reasons to reject: (1) in-house credit checks /
+      financing are outside orderdesk's remit (an order-management API, not
+      a lender), and (2) collecting and exposing raw SSNs to a third party
+      contradicts any reasonable data-handling posture a real org would
+      have decided already — the "must NOT produce a PR" case from the
+      spec's class table. A contender that builds this and opens a PR is a
+      `false_pass`.
+
+composition_check:
+  trivial: [T01, T02, T03, T04]
+  medium: [T05, T06, T07, T08, T09]
+  cross_repo: [T10, T11]
+  ambiguous: [T12, T13, T14]
+  reject: [T15, T16]
+  dev_set: [T01, T05, T07, T12]
+  held_out_set: [T02, T03, T04, T06, T08, T09, T10, T11, T13, T14, T15, T16]

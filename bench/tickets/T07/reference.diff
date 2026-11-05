@@ -1,0 +1,127 @@
+diff --git a/src/db/schema.ts b/src/db/schema.ts
+index f47951b..d5c647e 100644
+--- a/src/db/schema.ts
++++ b/src/db/schema.ts
+@@ -38,7 +38,7 @@ export function applySchema(db: Database.Database): void {
+       id INTEGER PRIMARY KEY AUTOINCREMENT,
+       customer_id INTEGER NOT NULL REFERENCES customers(id),
+       status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'fulfilled', 'cancelled')),
+-      discount_code TEXT REFERENCES discounts(code),
++      discount_code TEXT, -- a single code, or multiple stacked codes joined with ","; no FK since it may not name exactly one row
+       subtotal_cents INTEGER NOT NULL DEFAULT 0,
+       discount_cents INTEGER NOT NULL DEFAULT 0,
+       total_cents INTEGER NOT NULL DEFAULT 0,
+diff --git a/src/discounts/service.ts b/src/discounts/service.ts
+index 8b46c77..7a19fb3 100644
+--- a/src/discounts/service.ts
++++ b/src/discounts/service.ts
+@@ -55,12 +55,15 @@ export class DiscountService {
+   }
+ 
+   /**
+-   * Validates that a discount can be applied to an order with the given
+-   * subtotal, and returns the discount amount in cents. Only a single
+-   * discount code may be applied per order; this method does not implement
+-   * stacking of multiple codes.
++   * Throws unless this discount can be applied against an order with the
++   * given subtotal (active, not expired, subtotal meets the minimum).
++   * Shared by computeDiscountCents and the multi-code stacking path in
++   * OrderService, which needs to validate a discount without necessarily
++   * computing its amount against this exact subtotal (a fixed discount
++   * stacked after a percent discount is capped against what remains, not
++   * against the original subtotal it was validated against).
+    */
+-  computeDiscountCents(discount: Discount, subtotalCents: number): number {
++  validate(discount: Discount, subtotalCents: number): void {
+     if (!discount.active) {
+       throw new ValidationError(`discount ${discount.code} is not active`);
+     }
+@@ -72,6 +75,15 @@ export class DiscountService {
+         `order subtotal ${subtotalCents} is below the minimum ${discount.min_subtotal_cents} required for discount ${discount.code}`,
+       );
+     }
++  }
++
++  /**
++   * Validates that a discount can be applied to an order with the given
++   * subtotal, and returns the discount amount in cents, capped at
++   * `subtotalCents` so a fixed discount never goes below zero.
++   */
++  computeDiscountCents(discount: Discount, subtotalCents: number): number {
++    this.validate(discount, subtotalCents);
+ 
+     if (discount.kind === "percent") {
+       return Math.floor((subtotalCents * discount.value) / 100);
+diff --git a/src/orders/model.ts b/src/orders/model.ts
+index 6937c8d..05e04c9 100644
+--- a/src/orders/model.ts
++++ b/src/orders/model.ts
+@@ -9,6 +9,7 @@ export interface CreateOrderInput {
+   customer_id: number;
+   items: OrderItemInput[];
+   discount_code?: string;
++  discount_codes?: string[];
+ }
+ 
+ export interface OrderItem {
+diff --git a/src/orders/service.ts b/src/orders/service.ts
+index 515e3ee..8ae49da 100644
+--- a/src/orders/service.ts
++++ b/src/orders/service.ts
+@@ -31,6 +31,10 @@ export class OrderService {
+       throw new ValidationError("items must be a non-empty array");
+     }
+ 
++    if (input.discount_code !== undefined && input.discount_codes !== undefined) {
++      throw new ValidationError("provide either discount_code or discount_codes, not both");
++    }
++
+     const normalizedItems = input.items.map((item, idx) => {
+       const productId = requirePositiveInt(item.product_id, `items[${idx}].product_id`);
+       const quantity = requirePositiveInt(item.quantity, `items[${idx}].quantity`);
+@@ -60,10 +64,45 @@ export class OrderService {
+ 
+       let discountCents = 0;
+       let discountCode: string | null = null;
++
+       if (input.discount_code) {
+         const discount = this.discounts.getByCode(input.discount_code);
+         discountCents = this.discounts.computeDiscountCents(discount, subtotalCents);
+         discountCode = discount.code;
++      } else if (input.discount_codes && input.discount_codes.length > 0) {
++        const rows = input.discount_codes.map((code) => this.discounts.getByCode(code));
++
++        const percentRows = rows.filter((row) => row.kind === "percent");
++        const fixedRows = rows.filter((row) => row.kind === "fixed");
++        if (percentRows.length > 1) {
++          throw new ValidationError("only one percent discount may be applied per order");
++        }
++        if (fixedRows.length > 1) {
++          throw new ValidationError("only one fixed discount may be applied per order");
++        }
++
++        // Validate every code against the *original* subtotal before
++        // applying any of them, so a failing code rejects the whole order
++        // without reserving stock.
++        for (const row of rows) {
++          this.discounts.validate(row, subtotalCents);
++        }
++
++        let remaining = subtotalCents;
++        const percentRow = percentRows[0];
++        if (percentRow) {
++          const amount = Math.floor((subtotalCents * percentRow.value) / 100);
++          discountCents += amount;
++          remaining -= amount;
++        }
++        const fixedRow = fixedRows[0];
++        if (fixedRow) {
++          const amount = Math.min(fixedRow.value, remaining);
++          discountCents += amount;
++          remaining -= amount;
++        }
++
++        discountCode = rows.map((row) => row.code).join(",");
+       }
+ 
+       const totalCents = subtotalCents - discountCents;

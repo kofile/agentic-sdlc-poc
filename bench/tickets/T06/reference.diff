@@ -1,0 +1,60 @@
+diff --git a/src/export/routes.ts b/src/export/routes.ts
+index bfd8650..6147c43 100644
+--- a/src/export/routes.ts
++++ b/src/export/routes.ts
+@@ -12,6 +12,7 @@ export function exportRoutes(db: Database.Database): Router {
+         from: req.query.from as string | undefined,
+         to: req.query.to as string | undefined,
+         status: req.query.status as string | undefined,
++        date: req.query.date as string | undefined,
+       });
+       res.setHeader("Content-Type", "text/csv");
+       res.setHeader("Content-Disposition", "attachment; filename=orders.csv");
+diff --git a/src/export/service.ts b/src/export/service.ts
+index d54f10e..cfcb0c9 100644
+--- a/src/export/service.ts
++++ b/src/export/service.ts
+@@ -5,6 +5,25 @@ export interface OrderExportFilters {
+   from?: string;
+   to?: string;
+   status?: string;
++  date?: string;
++}
++
++const ISO_DATE_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
++
++/** True only for a real calendar date in YYYY-MM-DD form — rejects
++ * rollover values like "2026-02-30" that `Date.parse` would silently
++ * normalize into March. */
++function isValidCalendarDate(value: string): boolean {
++  const match = ISO_DATE_RE.exec(value);
++  if (!match) return false;
++  const [, yearStr, monthStr, dayStr] = match;
++  const year = Number(yearStr);
++  const month = Number(monthStr);
++  const day = Number(dayStr);
++  const asDate = new Date(Date.UTC(year, month - 1, day));
++  return (
++    asDate.getUTCFullYear() === year && asDate.getUTCMonth() === month - 1 && asDate.getUTCDate() === day
++  );
+ }
+ 
+ interface ExportRow {
+@@ -56,6 +75,17 @@ export class ExportService {
+     const clauses: string[] = [];
+     const params: unknown[] = [];
+ 
++    if (filters.date !== undefined) {
++      if (filters.from !== undefined || filters.to !== undefined) {
++        throw new ValidationError("date cannot be combined with from or to");
++      }
++      if (!isValidCalendarDate(filters.date)) {
++        throw new ValidationError("date must be a valid calendar date in YYYY-MM-DD format");
++      }
++      clauses.push("o.created_at >= ? AND o.created_at <= ?");
++      params.push(`${filters.date}T00:00:00.000Z`, `${filters.date}T23:59:59.999Z`);
++    }
++
+     if (filters.from) {
+       if (Number.isNaN(Date.parse(filters.from))) {
+         throw new ValidationError("from must be a valid ISO date");

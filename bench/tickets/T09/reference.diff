@@ -1,0 +1,17 @@
+diff --git a/src/components/OrderList.tsx b/src/components/OrderList.tsx
+index 520617c..122a988 100644
+--- a/src/components/OrderList.tsx
++++ b/src/components/OrderList.tsx
+@@ -45,9 +45,12 @@ export function OrderList({ onSelect, refreshToken }: OrderListProps) {
+   }, [status, page, refreshToken]);
+ 
+   const totalPages = Math.max(1, Math.ceil(total / pageSize));
++  const pageTotalCents = orders.reduce((sum, order) => sum + order.total_cents, 0);
+ 
+   return (
+     <div data-testid="order-list">
++      <p>Total: {formatCents(pageTotalCents)}</p>
++
+       <div role="group" aria-label="status filter">
+         {STATUS_FILTERS.map((option) => (
+           <button

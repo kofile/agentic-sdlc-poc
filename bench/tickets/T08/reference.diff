@@ -1,0 +1,47 @@
+diff --git a/src/customers/routes.ts b/src/customers/routes.ts
+index 57cbfe6..0d39a7d 100644
+--- a/src/customers/routes.ts
++++ b/src/customers/routes.ts
+@@ -33,6 +33,14 @@ export function customerRoutes(db: Database.Database): Router {
+     }
+   });
+ 
++  router.get("/:id/summary", (req, res, next) => {
++    try {
++      res.json(service.summary(Number(req.params.id)));
++    } catch (err) {
++      next(err);
++    }
++  });
++
+   router.patch("/:id", (req, res, next) => {
+     try {
+       const customer = service.update(Number(req.params.id), req.body ?? {});
+diff --git a/src/customers/service.ts b/src/customers/service.ts
+index 5bd68e4..7723ba7 100644
+--- a/src/customers/service.ts
++++ b/src/customers/service.ts
+@@ -66,4 +66,23 @@ export class CustomerService {
+     }
+     this.db.prepare("DELETE FROM customers WHERE id = ?").run(id);
+   }
++
++  /**
++   * Summarizes a customer's business: order_count and total_spent_cents
++   * count only `paid` and `fulfilled` orders. `pending` orders haven't been
++   * paid yet and `cancelled` orders released their stock, so neither counts
++   * as business done.
++   */
++  summary(id: number): { customer_id: number; order_count: number; total_spent_cents: number } {
++    this.getById(id);
++    const row = this.db
++      .prepare(
++        `SELECT COUNT(*) as order_count, COALESCE(SUM(total_cents), 0) as total_spent_cents
++         FROM orders
++         WHERE customer_id = ? AND status IN ('paid', 'fulfilled')`,
++      )
++      .get(id) as { order_count: number; total_spent_cents: number };
++
++    return { customer_id: id, order_count: row.order_count, total_spent_cents: row.total_spent_cents };
++  }
+ }

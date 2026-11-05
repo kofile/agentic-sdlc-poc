@@ -1,0 +1,7 @@
+{
+  "_comment": "UNVERIFIED placeholder prices (USD per 1K tokens). The operator must verify against provider pricing pages before any scored benchmark run.",
+  "claude-sonnet-5": { "input_per_1k": 0.003, "output_per_1k": 0.015, "UNVERIFIED": true },
+  "claude-opus-5": { "input_per_1k": 0.015, "output_per_1k": 0.075, "UNVERIFIED": true },
+  "claude-haiku-4-5": { "input_per_1k": 0.0008, "output_per_1k": 0.004, "UNVERIFIED": true },
+  "default": { "input_per_1k": 0.003, "output_per_1k": 0.015, "UNVERIFIED": true }
+}

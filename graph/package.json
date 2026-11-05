@@ -1,0 +1,32 @@
+{
+  "name": "sdlc-graph-poc",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Walking skeleton: triage -> route -> design -> [gate] -> plan -> [gate] -> execute -> open-pr as a Temporal workflow, hexagonal core + ports + stub adapters.",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "worker": "node --import tsx src/workflow/worker.ts",
+    "run": "node --import tsx src/cli/run.ts",
+    "approve": "node --import tsx src/cli/approve.ts",
+    "reject": "node --import tsx src/cli/reject.ts",
+    "status": "node --import tsx src/cli/status.ts",
+    "test": "vitest run tests/unit",
+    "test:workflow": "vitest run tests/workflow",
+    "test:integration": "node --import tsx tests/integration/run-all.ts"
+  },
+  "dependencies": {
+    "@temporalio/activity": "1.25.0",
+    "@temporalio/client": "1.25.0",
+    "@temporalio/worker": "1.25.0",
+    "@temporalio/workflow": "1.25.0",
+    "zod": "3.24.1"
+  },
+  "devDependencies": {
+    "@temporalio/testing": "1.25.0",
+    "@types/node": "22.20.5",
+    "tsx": "4.23.15",
+    "typescript": "5.7.3",
+    "vitest": "2.1.8"
+  }
+}

@@ -1,0 +1,79 @@
+diff --git a/src/api/client.ts b/src/api/client.ts
+index 3e74aa4..0aef7b7 100644
+--- a/src/api/client.ts
++++ b/src/api/client.ts
+@@ -64,7 +64,12 @@ export const api = {
+     list: (filters: { page?: number; pageSize?: number; customer_id?: number; status?: string } = {}) =>
+       request<Paginated<Order>>(`/orders${query(filters)}`),
+     get: (id: number) => request<OrderWithItems>(`/orders/${id}`),
+-    create: (input: { customer_id: number; items: Array<{ product_id: number; quantity: number }>; discount_code?: string }) =>
++    create: (input: {
++      customer_id: number;
++      items: Array<{ product_id: number; quantity: number }>;
++      discount_code?: string;
++      notes?: string;
++    }) =>
+       request<OrderWithItems>("/orders", { method: "POST", body: JSON.stringify(input) }),
+     pay: (id: number) => request<OrderWithItems>(`/orders/${id}/pay`, { method: "POST" }),
+     fulfill: (id: number) => request<OrderWithItems>(`/orders/${id}/fulfill`, { method: "POST" }),
+diff --git a/src/api/types.ts b/src/api/types.ts
+index 405dc3d..f6cf6a1 100644
+--- a/src/api/types.ts
++++ b/src/api/types.ts
+@@ -33,6 +33,7 @@ export interface Order {
+   customer_id: number;
+   status: OrderStatus;
+   discount_code: string | null;
++  notes: string | null;
+   subtotal_cents: number;
+   discount_cents: number;
+   total_cents: number;
+diff --git a/src/components/NewOrderForm.tsx b/src/components/NewOrderForm.tsx
+index 2be3114..ed1feea 100644
+--- a/src/components/NewOrderForm.tsx
++++ b/src/components/NewOrderForm.tsx
+@@ -17,6 +17,7 @@ function emptyLine(): LineItemDraft {
+ export function NewOrderForm({ onCreated }: NewOrderFormProps) {
+   const [customerId, setCustomerId] = useState("");
+   const [discountCode, setDiscountCode] = useState("");
++  const [notes, setNotes] = useState("");
+   const [lines, setLines] = useState<LineItemDraft[]>([emptyLine()]);
+   const [error, setError] = useState<string | null>(null);
+   const [submitting, setSubmitting] = useState(false);
+@@ -64,10 +65,12 @@ export function NewOrderForm({ onCreated }: NewOrderFormProps) {
+         customer_id: customerIdNum,
+         items,
+         discount_code: discountCode.trim() || undefined,
++        notes: notes.trim() || undefined,
+       });
+       onCreated(order.id);
+       setCustomerId("");
+       setDiscountCode("");
++      setNotes("");
+       setLines([emptyLine()]);
+     } catch (err) {
+       setError(err instanceof ApiError ? err.message : "failed to create order");
+@@ -125,6 +128,11 @@ export function NewOrderForm({ onCreated }: NewOrderFormProps) {
+         <input type="text" value={discountCode} onChange={(e) => setDiscountCode(e.target.value)} />
+       </label>
+ 
++      <label>
++        Notes (optional)
++        <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={1000} />
++      </label>
++
+       {error && <p role="alert">{error}</p>}
+ 
+       <button type="submit" disabled={submitting}>
+diff --git a/src/components/OrderDetail.tsx b/src/components/OrderDetail.tsx
+index 0ae9d22..219c820 100644
+--- a/src/components/OrderDetail.tsx
++++ b/src/components/OrderDetail.tsx
+@@ -70,6 +70,7 @@ export function OrderDetail({ orderId, onChanged, onClose }: OrderDetailProps) {
+     <div data-testid="order-detail">
+       <h2>Order #{order.id}</h2>
+       <p>Status: {formatStatus(order.status)}</p>
++      {order.notes && <p>Notes: {order.notes}</p>}
+       {error && <p role="alert">{error}</p>}
+ 
+       <table>

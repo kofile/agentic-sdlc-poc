@@ -1,0 +1,128 @@
+diff --git a/src/api/client.ts b/src/api/client.ts
+index 3e74aa4..68509cc 100644
+--- a/src/api/client.ts
++++ b/src/api/client.ts
+@@ -47,6 +47,12 @@ function query(params: Record<string, string | number | undefined>): string {
+   return `?${search.toString()}`;
+ }
+ 
++export interface DiscountPreview {
++  valid: boolean;
++  discount_cents: number;
++  reason: string | null;
++}
++
+ export const api = {
+   customers: {
+     list: (page = 1, pageSize = 20) => request<Paginated<Customer>>(`/customers${query({ page, pageSize })}`),
+@@ -60,6 +66,11 @@ export const api = {
+     get: (id: number) => request<Product>(`/products/${id}`),
+   },
+ 
++  discounts: {
++    preview: (code: string, subtotalCents: number) =>
++      request<DiscountPreview>(`/discounts/${encodeURIComponent(code)}/preview${query({ subtotal_cents: subtotalCents })}`),
++  },
++
+   orders: {
+     list: (filters: { page?: number; pageSize?: number; customer_id?: number; status?: string } = {}) =>
+       request<Paginated<Order>>(`/orders${query(filters)}`),
+diff --git a/src/components/NewOrderForm.tsx b/src/components/NewOrderForm.tsx
+index 2be3114..f9f11af 100644
+--- a/src/components/NewOrderForm.tsx
++++ b/src/components/NewOrderForm.tsx
+@@ -1,5 +1,6 @@
+-import { useState } from "react";
+-import { api, ApiError } from "../api/client.js";
++import { useEffect, useState } from "react";
++import { api, ApiError, type DiscountPreview } from "../api/client.js";
++import { formatCents } from "../format.js";
+ 
+ interface LineItemDraft {
+   product_id: string;
+@@ -20,6 +21,52 @@ export function NewOrderForm({ onCreated }: NewOrderFormProps) {
+   const [lines, setLines] = useState<LineItemDraft[]>([emptyLine()]);
+   const [error, setError] = useState<string | null>(null);
+   const [submitting, setSubmitting] = useState(false);
++  const [preview, setPreview] = useState<DiscountPreview | null>(null);
++
++  // Live discount preview: resolves each line item's product to compute the
++  // order's subtotal client-side, then calls the preview endpoint. Skips
++  // silently (no preview, no error) whenever the code is empty or any line
++  // item doesn't yet resolve to a real product — the user just hasn't
++  // finished entering valid line items.
++  useEffect(() => {
++    const trimmedCode = discountCode.trim();
++    if (!trimmedCode) {
++      setPreview(null);
++      return;
++    }
++
++    const parsedLines = lines.map((line) => ({
++      productId: Number(line.product_id),
++      quantity: Number(line.quantity),
++    }));
++    const allValid = parsedLines.every(
++      (line) => Number.isInteger(line.productId) && line.productId > 0 && Number.isInteger(line.quantity) && line.quantity > 0,
++    );
++    if (!allValid) {
++      setPreview(null);
++      return;
++    }
++
++    let cancelled = false;
++    (async () => {
++      try {
++        const products = await Promise.all(parsedLines.map((line) => api.products.get(line.productId)));
++        if (cancelled) return;
++        const subtotalCents = products.reduce(
++          (sum, product, i) => sum + product.price_cents * parsedLines[i].quantity,
++          0,
++        );
++        const result = await api.discounts.preview(trimmedCode, subtotalCents);
++        if (!cancelled) setPreview(result);
++      } catch {
++        if (!cancelled) setPreview(null);
++      }
++    })();
++
++    return () => {
++      cancelled = true;
++    };
++  }, [discountCode, lines]);
+ 
+   function updateLine(index: number, patch: Partial<LineItemDraft>) {
+     setLines((prev) => prev.map((line, i) => (i === index ? { ...line, ...patch } : line)));
+@@ -125,6 +172,13 @@ export function NewOrderForm({ onCreated }: NewOrderFormProps) {
+         <input type="text" value={discountCode} onChange={(e) => setDiscountCode(e.target.value)} />
+       </label>
+ 
++      {preview &&
++        (preview.valid ? (
++          <p>Discount preview: -{formatCents(preview.discount_cents)}</p>
++        ) : (
++          <p>Discount preview: {preview.reason}</p>
++        ))}
++
+       {error && <p role="alert">{error}</p>}
+ 
+       <button type="submit" disabled={submitting}>
+diff --git a/tests/NewOrderForm.test.tsx b/tests/NewOrderForm.test.tsx
+index a096318..b0127c5 100644
+--- a/tests/NewOrderForm.test.tsx
++++ b/tests/NewOrderForm.test.tsx
+@@ -80,7 +80,13 @@ describe("NewOrderForm", () => {
+     await userEvent.click(screen.getByRole("button", { name: /create order/i }));
+ 
+     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+-    const body = JSON.parse((global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body as string);
++    // Typing a discount code also triggers the live preview's own fetch
++    // calls (a product lookup and a preview call), so find the order
++    // creation POST specifically rather than assuming it was the first call.
++    const createCall = (global.fetch as ReturnType<typeof vi.fn>).mock.calls.find(
++      (call) => (call[1] as RequestInit | undefined)?.method === "POST",
++    );
++    const body = JSON.parse((createCall?.[1] as RequestInit).body as string);
+     expect(body.discount_code).toBe("SAVE10");
+   });
+ 

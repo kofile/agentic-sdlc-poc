@@ -1,0 +1,7 @@
+{
+  "team": "default",
+  "gates": { "design": "human", "merge": "auto" },
+  "humanTimeoutSec": 86400,
+  "onTimeout": "auto-reject",
+  "maxRejectRounds": 3
+}

@@ -1,0 +1,13 @@
+diff --git a/src/app.ts b/src/app.ts
+index 6f0917b..10dde79 100644
+--- a/src/app.ts
++++ b/src/app.ts
+@@ -12,7 +12,7 @@ export function createApp(db: Database.Database): Express {
+   app.use(express.json());
+ 
+   app.get("/health", (_req, res) => {
+-    res.json({ status: "ok" });
++    res.json({ status: "ok", uptimeSeconds: process.uptime() });
+   });
+ 
+   app.use("/customers", customerRoutes(db));
