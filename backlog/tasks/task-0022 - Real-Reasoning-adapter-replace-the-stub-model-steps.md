@@ -4,7 +4,7 @@ title: 'Real Reasoning adapter: replace the stub model steps'
 status: In Progress
 assignee: []
 created_date: '2026-11-05 20:51'
-updated_date: '2026-11-05 21:50'
+updated_date: '2026-11-05 21:52'
 labels:
   - graph
   - adapter
@@ -45,6 +45,10 @@ Spec: specs/005-reasoning-adapter
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 2026-11-05 phase 1 done: build ok, unit 36, workflow 10, versioning 1 (orchestrator re-run). ReasoningOutputInvalid ctor is positional (message, stage, kind, attempts, usage).
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+2026-11-05 phase 2 done: build ok, unit 56, workflow 10 (orchestrator re-run). zod bumped to 3.25.76 (SDK peer). npm audit shows 7 findings, identical on main (pre-existing, not introduced).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
