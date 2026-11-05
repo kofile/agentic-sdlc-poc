@@ -1,9 +1,10 @@
 ---
 id: TASK-0019
 title: Verify the per-model price table before any scored run
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-05 20:51'
+updated_date: '2026-11-05 21:07'
 labels:
   - harness
   - cost
@@ -21,6 +22,8 @@ ordinal: 19000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 graph/config/prices.json holds placeholder prices marked UNVERIFIED. Cost is computed by price lookup on model_served, so a wrong table corrupts every cost chart. Verify each model's input, output and cache prices against the vendor's pricing page and record the retrieval date and source.
+
+Spec: specs/001-price-table
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
