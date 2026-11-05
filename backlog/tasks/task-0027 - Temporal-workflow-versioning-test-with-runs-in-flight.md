@@ -33,10 +33,6 @@ Spec: specs/002-versioning-test
 - [x] #4 Spec phase: Evidence
 <!-- AC:END -->
 
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -47,6 +43,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 2026-11-05 phase 2 done: notes/spike-04-versioning.md + D7 follow-up note in the discovery log.
+
+spec-bridge sync: Fixtures and in-flight test: 5/5 · Evidence: 2/2 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
