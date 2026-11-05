@@ -29,9 +29,11 @@ Spec: specs/002-versioning-test
 <!-- AC:BEGIN -->
 - [x] #1 A test starts a run, deploys a changed workflow, and the old run completes correctly
 - [x] #2 Result and the method used recorded in notes/ as evidence
-- [ ] #3 Spec phase: Fixtures and in-flight test
+- [x] #3 Spec phase: Fixtures and in-flight test
 - [ ] #4 Spec phase: Evidence
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
