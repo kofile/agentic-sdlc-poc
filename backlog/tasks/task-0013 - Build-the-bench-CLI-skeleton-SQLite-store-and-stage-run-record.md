@@ -4,7 +4,7 @@ title: 'Build the bench CLI skeleton, SQLite store and stage-run record'
 status: In Progress
 assignee: []
 created_date: '2026-11-05 20:51'
-updated_date: '2026-11-05 21:09'
+updated_date: '2026-11-05 21:12'
 labels:
   - harness
   - bench
@@ -36,7 +36,13 @@ Spec: specs/003-bench-harness
 - [ ] #7 Spec phase: Report, export and end-to-end
 <!-- AC:END -->
 
+## Implementation Notes
 
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+2026-11-05 phase 1 done: build ok, 13 tests (orchestrator re-run). node:sqlite loaded via process.getBuiltinModule because vitest cannot resolve the static import.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
