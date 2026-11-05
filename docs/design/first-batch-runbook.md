@@ -253,3 +253,18 @@ TASK-0010 does not start until the operator rules.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
+| 2026-11-05 | TASK-0021 | #1 | 474e2f6 | haiku ×1: ~91k subagent tokens | escape line; 4/4 pass. Post-merge the test failed on main from orphaned workers → TASK-0043 |
+| 2026-11-05 | TASK-0019 | #2 | f784e3c | sonnet ×1: ~89k | all six prices spot-checked by independent fetch; old table had Sonnet 5 wrong (3/15 → 2/10) |
+| 2026-11-05 | TASK-0027 | #3 | 0df22f0 | sonnet ×2: ~104k + ~101k | phases 1, 2; patch placed before design loop (plan.md deviation, accepted) |
+| 2026-11-05 | TASK-0013 | #4 | 7acbdd8 | sonnet ×3: ~94k + ~96k + ~103k | phases 1, 2, 3; spec R3a (no silent zeros) added after phase 2; canary false positive from spec text, fixed |
+
+**Lane 1 closed 2026-11-05.** Gates re-run on merged `main` by the orchestrator: graph
+build ok, unit 32, workflow 10, versioning 1, integration 4/4 (after killing orphaned
+workers); harness build ok, 41 tests. Merges were done by the operator (the session's
+`gh pr merge` was refused by the permission classifier).
+
+**Proposed amendment (needs operator OK):** add TASK-0043 (integration test leaks worker
+processes) to Lane 2, merging before TASK-0022, because TASK-0022 touches
+`graph/src/workflow/` and so must pass `test:integration`, which is unreliable until the
+leak is fixed. Tier: sonnet (`claude-sonnet-5-5`, fallback `claude-sonnet-5`) — the fix is
+specified by the card's ACs.
