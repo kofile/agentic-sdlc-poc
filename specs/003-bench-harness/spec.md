@@ -26,6 +26,12 @@ and adapter contract are the load-bearing part.
   P|N|G|stub (`stub` is the only addition; it is excluded from `bench report` contender
   tables unless `--include-stub`). Every record is validated on write; an invalid record
   fails the run with the zod error, it is never stored.
+- **R3a No silent zeros** (clarified 2026-11-05 after phase 2, from spec section 7: "a
+  contender with missing numbers is shown with the gap named on the chart, not zeros").
+  The core never defaults `telemetry_gaps`: an adapter event without it fails validation.
+  Every measurement field the core fills with a default because the adapter omitted it
+  (timings, `tokens.*`, `cost_usd.*`, `llm_calls`, `tool_calls`, `model_served`) has its
+  name appended to `telemetry_gaps` (e.g. `defaulted:tokens.input`).
 - **R4 Store.** `bench.sqlite` (path overridable by `BENCH_DB`) with tables `runs`,
   `stage_runs`, `scores`, `interventions`; schema created idempotently on open. `stage_runs`
   stores the full validated record as JSON plus indexed columns (run_id, contender, ticket_id,
