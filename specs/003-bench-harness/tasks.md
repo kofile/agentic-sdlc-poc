@@ -2,10 +2,10 @@
 
 ## Phase 1: Package, schema and store
 
-- [ ] T001 Scaffold `bench/harness/` (package.json with exact versions, tsconfig, lockfile via `npm install`)
-- [ ] T002 `src/record.ts`: zod stage-run record matching spec section 7, stage enum and range parser, contender enum incl. `stub`
-- [ ] T003 `src/run-id.ts` and `src/store.ts` (node:sqlite; four tables; idempotent schema; validated insert)
-- [ ] T004 `tests/record.test.ts` and `tests/store.test.ts` green
+- [x] T001 Scaffold `bench/harness/` (package.json with exact versions, tsconfig, lockfile via `npm install`)
+- [x] T002 `src/record.ts`: zod stage-run record matching spec section 7, stage enum and range parser, contender enum incl. `stub`
+- [x] T003 `src/run-id.ts` and `src/store.ts` (node:sqlite; four tables; idempotent schema; validated insert)
+- [x] T004 `tests/record.test.ts` and `tests/store.test.ts` green
 
 ## Phase 2: Adapter contract, stub and run command
 
