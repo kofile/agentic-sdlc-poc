@@ -27,3 +27,6 @@ spikes/*/node_modules/
 
 .DS_Store
 .handoff/
+
+# sweep task worktrees
+.worktrees/
