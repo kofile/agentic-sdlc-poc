@@ -2,10 +2,10 @@
 
 ## Phase 1: Process-tree kill and per-run queue
 
-- [ ] T001 `startWorker()` spawns `node --import tsx src/workflow/worker.ts` detached (own process group) with `TEMPORAL_TASK_QUEUE` set to the per-run queue
-- [ ] T002 `killTree()` group-kills with SIGKILL, tolerates ESRCH, awaits exit (bounded); replaces every `worker.kill`
-- [ ] T003 Live-worker set plus `try/finally` in `main()`, and `exit`/`SIGINT`/`SIGTERM` fallbacks, so every path kills every tree
-- [ ] T004 Per-run queue name used by every `workflow.start` / `workflow.execute`; logged at startup
+- [x] T001 `startWorker()` spawns `node --import tsx src/workflow/worker.ts` detached (own process group) with `TEMPORAL_TASK_QUEUE` set to the per-run queue
+- [x] T002 `killTree()` group-kills with SIGKILL, tolerates ESRCH, awaits exit (bounded); replaces every `worker.kill`
+- [x] T003 Live-worker set plus `try/finally` in `main()`, and `exit`/`SIGINT`/`SIGTERM` fallbacks, so every path kills every tree
+- [x] T004 Per-run queue name used by every `workflow.start` / `workflow.execute`; logged at startup
 
 ## Phase 2: Verification
 
