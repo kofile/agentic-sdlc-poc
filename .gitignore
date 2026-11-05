@@ -1,0 +1,28 @@
+# secrets and local config
+.env
+.env.*
+*.env
+*.pem
+*.key
+*oauth*
+*token*
+secrets/
+
+# benchmark outputs (regenerable, may contain transcripts)
+bench.sqlite
+bench.sqlite-*
+artifacts/
+hidden-tests/
+
+# dependencies and build output
+node_modules/
+dist/
+.venv/
+__pycache__/
+
+# spike scratch repos and raw run output
+spikes/*/scratch/
+spikes/*/raw/
+spikes/*/node_modules/
+
+.DS_Store
