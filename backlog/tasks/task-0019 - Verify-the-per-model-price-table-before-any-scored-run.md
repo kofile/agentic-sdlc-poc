@@ -1,10 +1,10 @@
 ---
 id: TASK-0019
 title: Verify the per-model price table before any scored run
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-05 20:51'
-updated_date: '2026-11-05 21:11'
+updated_date: '2026-11-05 21:35'
 labels:
   - harness
   - cost
@@ -41,6 +41,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 2026-11-05: all six prices spot-checked by the orchestrator against https://platform.claude.com/docs/en/about-claude/pricing (independent fetch): match. Old placeholder had Sonnet 5 at 3/15; the page says 2/10 is now standard. Haiku 5.5 over-100K tier not recorded (in _comment). Gates re-run by orchestrator: build ok, unit 32/32, workflow 10/10.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Source the prices: 2/2 · Rewrite the table and test it: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
