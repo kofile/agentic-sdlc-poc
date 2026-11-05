@@ -36,12 +36,6 @@ Spec: specs/003-bench-harness
 - [x] #7 Spec phase: Report, export and end-to-end
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -56,6 +50,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 2026-11-05 phase 3 done: build ok, 41 tests; orchestrator smoke run stub T02 triage..open-pr → 6 rows, report and export from SQLite only.
+
+spec-bridge sync: Package, schema and store: 4/4 · Adapter contract, stub and run command: 3/3 · Report, export and end-to-end: 4/4 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
