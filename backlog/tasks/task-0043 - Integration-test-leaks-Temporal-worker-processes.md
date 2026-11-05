@@ -4,7 +4,7 @@ title: Integration test leaks Temporal worker processes
 status: In Progress
 assignee: []
 created_date: '2026-11-05 21:35'
-updated_date: '2026-11-05 21:41'
+updated_date: '2026-11-05 21:42'
 labels:
   - graph
   - verify
@@ -32,7 +32,11 @@ Spec: specs/004-integration-worker-leak
 - [ ] #5 Spec phase: Verification
 <!-- AC:END -->
 
+## Implementation Notes
 
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
