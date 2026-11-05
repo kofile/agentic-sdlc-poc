@@ -264,6 +264,9 @@ TASK-0010 does not start until the operator rules.
 | 2026-11-05 | TASK-0019 | #2 | f784e3c | sonnet ×1: ~89k | all six prices spot-checked by independent fetch; old table had Sonnet 5 wrong (3/15 → 2/10) |
 | 2026-11-05 | TASK-0027 | #3 | 0df22f0 | sonnet ×2: ~104k + ~101k | phases 1, 2; patch placed before design loop (plan.md deviation, accepted) |
 | 2026-11-05 | TASK-0013 | #4 | 7acbdd8 | sonnet ×3: ~94k + ~96k + ~103k | phases 1, 2, 3; spec R3a (no silent zeros) added after phase 2; canary false positive from spec text, fixed |
+| 2026-11-05 | TASK-0043 | #5 | — | sonnet ×1: ~81k | in flight: phases 1-2 done (spec 004), PR open awaiting operator merge |
+| 2026-11-05 | TASK-0022 | — | — | sonnet ×1 so far: ~97k | in flight: spec 005; phase 1 done, phase 2 dispatched |
+| 2026-11-05 | TASK-0018 | — | — | — | in flight: spec 006; phase 1 dispatched. Scripted approvals vs §5.5 interventions settled in spec R4 → D13 |
 
 **Lane 1 closed 2026-11-05.** Gates re-run on merged `main` by the orchestrator: graph
 build ok, unit 32, workflow 10, versioning 1, integration 4/4 (after killing orphaned
