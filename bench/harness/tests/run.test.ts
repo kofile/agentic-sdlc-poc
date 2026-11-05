@@ -19,6 +19,60 @@ afterEach(() => {
   for (const d of dirs.splice(0)) fs.rmSync(d, { recursive: true, force: true });
 });
 
+describe('R3a no silent zeros', () => {
+  const adapterOf = (ev: object): ContenderAdapter => ({
+    id: 'stub',
+    version: async () => 'v',
+    async *run() {
+      yield { stage: 'triage', ...ev } as never;
+    },
+  });
+
+  it('an event without telemetry_gaps fails validation and stores nothing', async () => {
+    const store = openStore(':memory:');
+    const res = await executeRun({ store, adapter: adapterOf({}), ticket: 'T01', rep: 1, stages: ['triage'], seedOrder: 1, artifactsRoot: tmp() });
+    expect(res.status).toBe('failed');
+    expect(res.error).toMatch(/telemetry_gaps/);
+    expect(store.listStageRuns()).toHaveLength(0);
+    store.close();
+  });
+
+  it('every defaulted measurement field is named in telemetry_gaps', async () => {
+    const store = openStore(':memory:');
+    const res = await executeRun({ store, adapter: adapterOf({ telemetry_gaps: ['mine'] }), ticket: 'T01', rep: 1, stages: ['triage'], seedOrder: 1, artifactsRoot: tmp() });
+    expect(res.status).toBe('completed');
+    const [rec] = store.listStageRuns();
+    const expected = [
+      'started_at', 'ended_at', 'wall_ms', 'active_ms', 'waiting_ms', 'cold_start_ms', 'llm_calls', 'tool_calls', 'model_served',
+      'tokens.input', 'tokens.output', 'tokens.cache_read', 'tokens.cache_write',
+      'cost_usd.tokens', 'cost_usd.compute', 'cost_usd.orchestration',
+    ].map((f) => `defaulted:${f}`);
+    expect(rec.telemetry_gaps).toEqual(['mine', ...expected]);
+    store.close();
+  });
+
+  it('supplied fields are not marked defaulted (zero is a real value)', async () => {
+    const store = openStore(':memory:');
+    await executeRun({
+      store, ticket: 'T01', rep: 1, stages: ['triage'], seedOrder: 1, artifactsRoot: tmp(),
+      adapter: adapterOf({ telemetry_gaps: [], wall_ms: 0, model_served: 'm', tokens: { input: 0, output: 0, cache_read: 0, cache_write: 0, source: 'reported' } }),
+    });
+    const gaps = store.listStageRuns()[0].telemetry_gaps;
+    expect(gaps).not.toContain('defaulted:wall_ms');
+    expect(gaps).not.toContain('defaulted:model_served');
+    expect(gaps.filter((g) => g.startsWith('defaulted:tokens'))).toEqual([]);
+    expect(gaps).toContain('defaulted:cost_usd.tokens');
+    store.close();
+  });
+
+  it('the stub supplies telemetry_gaps and defaults nothing', async () => {
+    const store = openStore(':memory:');
+    await executeRun({ store, adapter: stubAdapter, ticket: 'T01', rep: 1, stages: ['triage'], seedOrder: 1, artifactsRoot: tmp() });
+    expect(store.listStageRuns()[0].telemetry_gaps.some((g) => g.startsWith('defaulted:'))).toBe(false);
+    store.close();
+  });
+});
+
 describe('executeRun', () => {
   it('stub run stores one run row and N stage rows, writes the artifact', async () => {
     const d = tmp();
@@ -45,7 +99,7 @@ describe('executeRun', () => {
       id: 'stub',
       version: async () => 'v',
       async *run() {
-        yield { stage: 'triage', ...({ run_id: 'evil', rep: 99, benchmark_version: 'v9' } as object) };
+        yield { stage: 'triage', telemetry_gaps: [], ...({ run_id: 'evil', rep: 99, benchmark_version: 'v9' } as object) };
       },
     };
     const res = await executeRun({ store, adapter: sneaky, ticket: 'T02', rep: 3, stages: ['triage'], seedOrder: 1, artifactsRoot: d });
@@ -61,9 +115,9 @@ describe('executeRun', () => {
       id: 'stub',
       version: async () => 'v',
       async *run() {
-        yield { stage: 'triage' };
+        yield { stage: 'triage', telemetry_gaps: [] };
         yield { stage: 'route', ...({ telemetry_gaps: undefined } as object) } as never;
-        yield { stage: 'design' };
+        yield { stage: 'design', telemetry_gaps: [] };
       },
     };
     const res = await executeRun({ store, adapter: bad, ticket: 'T01', rep: 1, stages: ['triage', 'route', 'design'], seedOrder: 1, artifactsRoot: d });

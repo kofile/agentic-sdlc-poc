@@ -55,11 +55,12 @@ describe('bench cli', () => {
     expect(r.code).toBe(0);
     expect(r.out[0]).toMatch(/stub-T01-r1 completed \(4 stage records\)/);
   });
-  it('report and export are stubbed with exit 2', async () => {
-    for (const cmd of ['report', 'export']) {
-      const r = await bench([cmd]);
-      expect(r.code).toBe(2);
-      expect(r.err[0]).toMatch(/not implemented \(phase 3\)/);
-    }
+  it('export without --out and report with bad --format are one-line errors', async () => {
+    const e = await bench(['export']);
+    expect(e.code).toBe(1);
+    expect(e.err[0]).toMatch(/missing --out/);
+    const r = await bench(['report', '--format', 'xml']);
+    expect(r.code).toBe(1);
+    expect(r.err[0]).toMatch(/invalid --format "xml"/);
   });
 });

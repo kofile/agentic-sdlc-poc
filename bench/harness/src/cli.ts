@@ -1,10 +1,13 @@
-// bench CLI. `run` is implemented; `report` and `export` are stubs until phase 3.
+// bench CLI: run, report, export.
 import { parseArgs } from 'node:util';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseStageRange } from './record.ts';
 import { getAdapter, listContenders } from './adapters/registry.ts';
+import fs from 'node:fs';
 import { executeRun } from './core/run.ts';
+import { buildReport, renderReport } from './report.ts';
+import { exportJsonl } from './export.ts';
 
 export interface CliIO {
   out: (s: string) => void;
@@ -23,7 +26,8 @@ export function filterSqliteWarning(): void {
 }
 
 const USAGE = `usage: bench run --contender <id> --ticket <Tnn> --rep <n> --stages <from>..<to> --seed-order <n> [--set dev|heldout]
-       bench report | bench export (not implemented, phase 3)`;
+       bench report [--format md|json] [--include-stub]
+       bench export --out <file>`;
 
 async function runCommand(argv: string[], env: NodeJS.ProcessEnv, io: CliIO): Promise<number> {
   const fail = (msg: string): number => {
@@ -91,6 +95,47 @@ async function runCommand(argv: string[], env: NodeJS.ProcessEnv, io: CliIO): Pr
   }
 }
 
+async function readCommand(cmd: 'report' | 'export', argv: string[], env: NodeJS.ProcessEnv, io: CliIO): Promise<number> {
+  const fail = (msg: string): number => {
+    io.err(`bench ${cmd}: ${msg}`);
+    return 1;
+  };
+  let values;
+  try {
+    ({ values } = parseArgs({
+      args: argv,
+      options:
+        cmd === 'report'
+          ? { format: { type: 'string', default: 'md' }, 'include-stub': { type: 'boolean', default: false } }
+          : { out: { type: 'string' } },
+      strict: true,
+    }));
+  } catch (e) {
+    return fail((e as Error).message.split('\n')[0]);
+  }
+  const v = values as { format?: string; 'include-stub'?: boolean; out?: string };
+  if (cmd === 'report' && v.format !== 'md' && v.format !== 'json') return fail(`invalid --format "${v.format}" (expected md or json)`);
+  if (cmd === 'export' && !v.out) return fail('missing --out');
+  filterSqliteWarning();
+  const { openStore } = await import('./store.ts');
+  const store = openStore(env.BENCH_DB ?? './bench.sqlite');
+  try {
+    if (cmd === 'report') {
+      io.out(renderReport(buildReport(store, { includeStub: v['include-stub'] }), v.format as 'md' | 'json'));
+    } else {
+      const lines = exportJsonl(store);
+      fs.mkdirSync(path.dirname(path.resolve(v.out!)), { recursive: true });
+      fs.writeFileSync(v.out!, lines.map((l) => l + '\n').join(''));
+      io.out(`exported ${lines.length} records to ${v.out}`);
+    }
+    return 0;
+  } catch (e) {
+    return fail((e as Error).message.split('\n')[0]);
+  } finally {
+    store.close();
+  }
+}
+
 export async function main(argv: string[], env: NodeJS.ProcessEnv = process.env, io?: CliIO): Promise<number> {
   const out: CliIO = io ?? { out: (s) => console.log(s), err: (s) => console.error(s) };
   const [cmd, ...rest] = argv;
@@ -99,8 +144,7 @@ export async function main(argv: string[], env: NodeJS.ProcessEnv = process.env,
       return runCommand(rest, env, out);
     case 'report':
     case 'export':
-      out.err(`bench ${cmd}: not implemented (phase 3)`);
-      return 2;
+      return readCommand(cmd, rest, env, out);
     default:
       out.err(cmd ? `bench: unknown command "${cmd}"\n${USAGE}` : USAGE);
       return 1;

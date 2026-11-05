@@ -42,7 +42,21 @@ export function normalise(
   base: { run_id: string; contender: StageRunRecord['contender']; contender_version: string; ticket: string; rep: number; set: TicketSet },
   nowIso: string,
 ): Record<string, unknown> {
-  return {
+  const evAny = ev as Record<string, unknown>;
+  const has = (k: string): boolean => evAny[k] !== undefined;
+  const sub = (k: string, f: string): boolean => {
+    const o = evAny[k];
+    return !!o && typeof o === 'object' && (o as Record<string, unknown>)[f] !== undefined;
+  };
+  // R3a: every measurement field the core defaults is named in telemetry_gaps.
+  const defaulted: string[] = [];
+  for (const k of ['started_at', 'ended_at', 'wall_ms', 'active_ms', 'waiting_ms', 'cold_start_ms', 'llm_calls', 'tool_calls', 'model_served']) {
+    if (!has(k)) defaulted.push(`defaulted:${k}`);
+  }
+  for (const f of ['input', 'output', 'cache_read', 'cache_write']) if (!sub('tokens', f)) defaulted.push(`defaulted:tokens.${f}`);
+  for (const f of ['tokens', 'compute', 'orchestration']) if (!sub('cost_usd', f)) defaulted.push(`defaulted:cost_usd.${f}`);
+
+  const rec: Record<string, unknown> = {
     ticket_class: '',
     repo: '',
     base_sha: '',
@@ -56,8 +70,6 @@ export function normalise(
     model_served: '',
     llm_calls: 0,
     tool_calls: 0,
-    tokens: { input: 0, output: 0, cache_read: 0, cache_write: 0, source: 'estimated' },
-    cost_usd: { tokens: 0, compute: 0, orchestration: 0 },
     status: 'completed',
     gate: null,
     output: { schema_valid: true, artifact_refs: [] },
@@ -68,9 +80,10 @@ export function normalise(
     failure_label: null,
     failure_note: null,
     scores: { hidden_tests_passed: 0, hidden_tests_total: 0, gates_green: false, rubric: null },
-    telemetry_gaps: [],
     canary_leak: false,
     ...ev,
+    tokens: { input: 0, output: 0, cache_read: 0, cache_write: 0, source: 'estimated', ...(ev.tokens ?? {}) },
+    cost_usd: { tokens: 0, compute: 0, orchestration: 0, ...(ev.cost_usd ?? {}) },
     // harness-owned: always last so adapters cannot override them
     run_id: base.run_id,
     benchmark_version: BENCHMARK_VERSION,
@@ -80,6 +93,9 @@ export function normalise(
     rep: base.rep,
     set: base.set,
   };
+  // telemetry_gaps is never defaulted: absent stays absent and fails validation.
+  if (Array.isArray(ev.telemetry_gaps)) rec.telemetry_gaps = [...ev.telemetry_gaps, ...defaulted];
+  return rec;
 }
 
 export async function executeRun(opts: RunOptions): Promise<RunResult> {
