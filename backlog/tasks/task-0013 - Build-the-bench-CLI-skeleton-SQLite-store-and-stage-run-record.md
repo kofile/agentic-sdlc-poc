@@ -31,10 +31,12 @@ Spec: specs/003-bench-harness
 - [x] #2 The stage-run record schema matches spec section 7 and is validated (zod) on write
 - [x] #3 bench report reads only from SQLite
 - [x] #4 Unit tests cover the schema and the store
-- [ ] #5 Spec phase: Package, schema and store
+- [x] #5 Spec phase: Package, schema and store
 - [ ] #6 Spec phase: Adapter contract, stub and run command
 - [ ] #7 Spec phase: Report, export and end-to-end
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
