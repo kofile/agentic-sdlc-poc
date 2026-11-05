@@ -2,10 +2,10 @@
 
 ## Phase 1: Port, cost and telemetry
 
-- [ ] T001 `ports/reasoning.ts`: usage cache fields + `source`, `prompt_version`, `ReasoningOutputInvalid`
-- [ ] T002 `core/telemetry.ts`: `PriceEntry` with cache prices, `estimateCostUsd` over all four token kinds returning `{ usd, priceKey }`; `ports/config.ts` typed
-- [ ] T003 `adapters/stub-reasoning.ts`: typed error after the bound; `source: 'estimated'`, zero cache tokens
-- [ ] T004 Unit tests updated (telemetry, prices, stub-reasoning) and green; `npm run build` green
+- [x] T001 `ports/reasoning.ts`: usage cache fields + `source`, `prompt_version`, `ReasoningOutputInvalid`
+- [x] T002 `core/telemetry.ts`: `PriceEntry` with cache prices, `estimateCostUsd` over all four token kinds returning `{ usd, priceKey }`; `ports/config.ts` typed
+- [x] T003 `adapters/stub-reasoning.ts`: typed error after the bound; `source: 'estimated'`, zero cache tokens
+- [x] T004 Unit tests updated (telemetry, prices, stub-reasoning) and green; `npm run build` green
 
 ## Phase 2: Anthropic adapter, prompts and fixtures
 

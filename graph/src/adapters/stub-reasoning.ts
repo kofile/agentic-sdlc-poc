@@ -1,7 +1,7 @@
 // STUB reasoning adapter: no real model call, no network. Deterministic/ticket-derived output
 // so workflow tests are repeatable. Exercises the real contract: zod validation + bound
 // retries on schema failure, so swapping in a real model adapter later needs no core change.
-import type { Reasoning, ReasoningRequest, ReasoningCallResult } from '../ports/reasoning.ts';
+import { ReasoningOutputInvalid, type Reasoning, type ReasoningRequest, type ReasoningCallResult, type ReasoningUsage } from '../ports/reasoning.ts';
 import { TicketSchema } from '../core/schemas.ts';
 
 export interface StubKnobs {
@@ -13,8 +13,11 @@ export interface StubKnobs {
   forceRepos?: string[];
 }
 
-function fakeUsage(modelRequested: string, inputTokens: number, outputTokens: number) {
-  return { input_tokens: inputTokens, output_tokens: outputTokens, model_requested: modelRequested, model_served: modelRequested };
+function fakeUsage(modelRequested: string, inputTokens: number, outputTokens: number): ReasoningUsage {
+  return {
+    input_tokens: inputTokens, output_tokens: outputTokens, cache_read_tokens: 0, cache_write_tokens: 0,
+    source: 'estimated', model_requested: modelRequested, model_served: modelRequested,
+  };
 }
 
 /** Deterministically shape stub output by stage from the ticket text + knobs. No LLM involved. */
@@ -82,6 +85,9 @@ export class StubReasoning implements Reasoning {
       }
       lastError = parsed.error;
     }
-    throw new Error(`reasoning call for stage=${req.stage} failed schema validation after ${attempts} attempts: ${String(lastError)}`);
+    throw new ReasoningOutputInvalid(
+      `reasoning call for stage=${req.stage} failed schema validation after ${attempts} attempts: ${String(lastError)}`,
+      req.stage, 'schema_invalid', attempts, fakeUsage(req.modelRequested, 120 * attempts, 60 * attempts),
+    );
   }
 }

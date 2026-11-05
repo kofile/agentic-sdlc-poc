@@ -26,7 +26,7 @@ async function recordStage(args: {
   status: StageRunRecord['status']; gate?: StageRunRecord['gate']; schemaValid: boolean; artifactRefs?: string[];
 }) {
   const prices = await config.loadPriceTable();
-  const costUsd = args.modelRequested ? estimateCostUsd(prices, args.modelRequested, args.tokens.input, args.tokens.output) : 0;
+  const costUsd = args.modelRequested ? estimateCostUsd(prices, args.modelRequested, { ...args.tokens, cache_read: 0, cache_write: 0 }).usd : 0;
   const record: StageRunRecord = {
     run_id: args.runId,
     benchmark_version: 'v0.1',
