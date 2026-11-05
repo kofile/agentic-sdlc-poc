@@ -9,11 +9,11 @@
 
 ## Phase 2: Anthropic adapter, prompts and fixtures
 
-- [ ] T005 Add `@anthropic-ai/sdk` 1.1.0 exact (zod 3.25.76 only if the peer conflict appears); lockfile
-- [ ] T006 `adapters/anthropic-schemas.ts` + drift-guard test
-- [ ] T007 `adapters/anthropic-reasoning.ts` (injectable client, `fromEnv`, stop-reason checks, retries, summed usage, served model from response)
-- [ ] T008 `prompts/{triage,route,design,plan}.md`
-- [ ] T009 Synthetic fixtures + README; `tests/unit/anthropic-reasoning.test.ts` covering every R8 case; green
+- [x] T005 Add `@anthropic-ai/sdk` 1.1.0 exact (zod 3.25.76 only if the peer conflict appears); lockfile
+- [x] T006 `adapters/anthropic-schemas.ts` + drift-guard test
+- [x] T007 `adapters/anthropic-reasoning.ts` (injectable client, `fromEnv`, stop-reason checks, retries, summed usage, served model from response)
+- [x] T008 `prompts/{triage,route,design,plan}.md`
+- [x] T009 Synthetic fixtures + README; `tests/unit/anthropic-reasoning.test.ts` covering every R8 case; green
 
 ## Phase 3: Wiring, fail-closed workflow and docs
 
