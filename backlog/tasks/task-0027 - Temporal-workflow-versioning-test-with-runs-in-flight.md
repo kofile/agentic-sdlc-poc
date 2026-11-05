@@ -4,7 +4,7 @@ title: Temporal workflow-versioning test with runs in flight
 status: In Progress
 assignee: []
 created_date: '2026-11-05 20:51'
-updated_date: '2026-11-05 21:09'
+updated_date: '2026-11-05 21:12'
 labels:
   - graph
   - temporal
@@ -33,7 +33,13 @@ Spec: specs/002-versioning-test
 - [ ] #4 Spec phase: Evidence
 <!-- AC:END -->
 
+## Implementation Notes
 
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+2026-11-05 phase 1 done: test:versioning 1/1 (orchestrator re-run), unit 21, workflow 10. Deviation: patched step placed before the design loop, not before plan (see plan.md).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
