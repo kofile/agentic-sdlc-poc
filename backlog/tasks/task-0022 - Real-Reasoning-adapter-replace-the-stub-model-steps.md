@@ -4,7 +4,7 @@ title: 'Real Reasoning adapter: replace the stub model steps'
 status: In Progress
 assignee: []
 created_date: '2026-11-05 20:51'
-updated_date: '2026-11-05 21:47'
+updated_date: '2026-11-05 21:50'
 labels:
   - graph
   - adapter
@@ -39,7 +39,13 @@ Spec: specs/005-reasoning-adapter
 - [ ] #7 Spec phase: Wiring, fail-closed workflow and docs
 <!-- AC:END -->
 
+## Implementation Notes
 
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+2026-11-05 phase 1 done: build ok, unit 36, workflow 10, versioning 1 (orchestrator re-run). ReasoningOutputInvalid ctor is positional (message, stage, kind, attempts, usage).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
