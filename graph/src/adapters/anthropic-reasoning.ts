@@ -4,6 +4,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import Anthropic from '@anthropic-ai/sdk';
 import {
   ReasoningOutputInvalid,
@@ -17,7 +18,7 @@ export interface AnthropicReasoningOptions {
   promptsDir: string;
 }
 
-const DEFAULT_PROMPTS_DIR = new URL('../../prompts', import.meta.url).pathname;
+const DEFAULT_PROMPTS_DIR = fileURLToPath(new URL('../../prompts', import.meta.url));
 
 export class AnthropicReasoning implements Reasoning {
   private readonly client: { create: (params: any) => Promise<any> };

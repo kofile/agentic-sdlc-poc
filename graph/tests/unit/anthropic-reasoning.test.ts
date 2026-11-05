@@ -84,7 +84,7 @@ describe('AnthropicReasoning', () => {
   });
 
   it('fails closed on max_tokens without retrying', async () => {
-    const f = fake([fx('max-tokens'), fx('valid-triage')]);
+    const f = fake([fx('stop-max-output'), fx('valid-triage')]);
     const err = await adapter(f).call(req('triage')).catch((e) => e);
     expect(err).toMatchObject({ kind: 'max_tokens', attempts: 1 });
     expect(err.usage.output_tokens).toBe(16000);
