@@ -4,7 +4,7 @@ title: 'G adapter: start and observe a graph run from bench'
 status: In Progress
 assignee: []
 created_date: '2026-11-05 20:51'
-updated_date: '2026-11-05 21:56'
+updated_date: '2026-11-05 21:58'
 labels:
   - adapter
   - contender-g
@@ -29,8 +29,8 @@ Spec: specs/006-g-adapter
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 bench run --contender G executes the walking skeleton and emits stage-run records
-- [ ] #2 Gate approvals are driven by the team policy (auto, default, strict) and recorded as interventions
+- [x] #1 bench run --contender G executes the walking skeleton and emits stage-run records
+- [x] #2 Gate approvals are driven by the team policy (auto, default, strict) and recorded as interventions
 - [ ] #3 Spec phase: Contract extension and pure pieces
 - [ ] #4 Spec phase: Worker, gates, adapter and registration
 <!-- AC:END -->
@@ -45,6 +45,10 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 2026-11-05 phase 2 done: harness build ok, 68 passed + 1 skipped e2e (orchestrator re-run).
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+2026-11-05 fix-up done (gate-line gaps). Orchestrator verified end to end on temporal-dev with stub reasoning: 6 records, 1 scripted_approval, cancel after last requested stage works, 0 stray workers. 69 passed + 1 skipped; test:g 1 passed.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
