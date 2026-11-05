@@ -1,6 +1,6 @@
 // Activities = every non-deterministic / side-effecting thing, per Temporal's determinism rule
 // (workflows.ts must stay pure). Thin wrappers over ports/adapters wired in container.ts.
-import { heartbeat } from '@temporalio/activity';
+import { heartbeat, ApplicationFailure } from '@temporalio/activity';
 import {
   TicketSchema, TriageOutputSchema, RouteOutputSchema, DesignOutputSchema, PlanOutputSchema,
   type Ticket, type TriageOutput, type RouteOutput, type DesignOutput, type PlanOutput,
@@ -8,6 +8,7 @@ import {
 import type { GatePolicy } from '../core/gates.ts';
 import { appendTelemetry, estimateCostUsd, type StageRunRecord } from '../core/telemetry.ts';
 import { reasoning, tracker, docs, vcs, config, executeHost, TELEMETRY_FILE, CONTENDER_VERSION } from './container.ts';
+import { ReasoningOutputInvalid, type ReasoningRequest } from '../ports/reasoning.ts';
 import type { JobSpec } from '../ports/execute-host.ts';
 import { TERMINAL } from '../ports/execute-host.ts';
 import fs from 'node:fs';
@@ -17,16 +18,32 @@ import { execSync } from 'node:child_process';
 
 export const loadPolicy = (team: string): Promise<GatePolicy> => config.loadGatePolicy(team);
 
-export interface StageCallResult<T> { output: T; usage: { input: number; output: number; model_requested: string; model_served: string }; llm_calls: number }
+export interface StageCallResult<T> {
+  output: T;
+  usage: { input: number; output: number; cache_read: number; cache_write: number; model_requested: string; model_served: string };
+  llm_calls: number;
+}
 
 async function recordStage(args: {
   runId: string; ticketId: string; stage: StageRunRecord['stage'];
   startedAt: string; wallMs: number; llmCalls: number; toolCalls?: number;
-  tokens: { input: number; output: number }; modelRequested?: string; modelServed?: string;
+  tokens: { input: number; output: number; cache_read?: number; cache_write?: number };
+  tokensSource?: 'reported' | 'estimated';
+  modelRequested?: string; modelServed?: string;
   status: StageRunRecord['status']; gate?: StageRunRecord['gate']; schemaValid: boolean; artifactRefs?: string[];
+  failureLabel?: string | null;
 }) {
   const prices = await config.loadPriceTable();
-  const costUsd = args.modelRequested ? estimateCostUsd(prices, args.modelRequested, args.tokens.input, args.tokens.output) : 0;
+  const tokens = { input: args.tokens.input, output: args.tokens.output, cache_read: args.tokens.cache_read ?? 0, cache_write: args.tokens.cache_write ?? 0 };
+  const gaps: string[] = args.modelRequested ? [] : ['no_model_call'];
+  let costUsd = 0;
+  // Cost is priced on the model that actually served, falling back to the requested one.
+  const pricedModel = args.modelServed ?? args.modelRequested;
+  if (pricedModel) {
+    const priced = estimateCostUsd(prices, pricedModel, tokens);
+    costUsd = priced.usd;
+    if (priced.priceKey === 'default') gaps.push(`price_fallback:${pricedModel}`);
+  }
   const record: StageRunRecord = {
     run_id: args.runId,
     benchmark_version: 'v0.1',
@@ -44,7 +61,7 @@ async function recordStage(args: {
     model_served: args.modelServed,
     llm_calls: args.llmCalls,
     tool_calls: args.toolCalls ?? 0,
-    tokens: { input: args.tokens.input, output: args.tokens.output, cache_read: 0, cache_write: 0, source: 'estimated' },
+    tokens: { ...tokens, source: args.tokensSource ?? 'estimated' },
     cost_usd: { tokens: costUsd, compute: 0, orchestration: 0 },
     status: args.status,
     gate: args.gate ?? null,
@@ -53,31 +70,67 @@ async function recordStage(args: {
     infra_retries: 0,
     interventions: 0,
     assisted: false,
-    failure_label: null,
+    failure_label: args.failureLabel ?? null,
     failure_note: null,
     scores: { hidden_tests_passed: 0, hidden_tests_total: 0, gates_green: true, rubric: null },
-    telemetry_gaps: args.modelRequested ? [] : ['no_model_call'],
+    telemetry_gaps: gaps,
     canary_leak: false,
   };
   appendTelemetry(TELEMETRY_FILE, record);
 }
 
-const MODEL_REQUESTED = 'claude-sonnet-5';
+export const MODEL_REQUESTED = 'claude-sonnet-5-5';
 
-export async function triage(runId: string, ticket: Ticket): Promise<StageCallResult<TriageOutput>> {
+/** Shared body of the four model stages: call, record (success or failure), return. A
+ * ReasoningOutputInvalid is recorded as a failed stage and rethrown as a non-retryable
+ * Temporal failure so the activity is not retried and the workflow can fail closed. */
+async function callModelStage<T>(args: {
+  runId: string; ticketId: string; stage: 'triage' | 'route' | 'design' | 'plan';
+  req: Omit<ReasoningRequest<T>, 'stage' | 'modelRequested'>;
+  /** Optional side effect (e.g. publishing a doc) run after a valid output; returns artifact refs. */
+  after?: (output: T) => Promise<string[]>;
+}): Promise<StageCallResult<T>> {
   const startedAt = new Date().toISOString();
   const t0 = Date.now();
-  const res = await reasoning.call({
-    stage: 'triage', prompt: JSON.stringify({ ticket }), schema: TriageOutputSchema,
-    modelRequested: MODEL_REQUESTED, idempotencyKey: `${runId}:triage`,
-  });
+  let res;
+  try {
+    res = await reasoning.call({ ...args.req, stage: args.stage, modelRequested: MODEL_REQUESTED });
+  } catch (err) {
+    if (err instanceof ReasoningOutputInvalid) {
+      await recordStage({
+        runId: args.runId, ticketId: args.ticketId, stage: args.stage, startedAt, wallMs: Date.now() - t0, llmCalls: err.attempts,
+        tokens: { input: err.usage.input_tokens, output: err.usage.output_tokens, cache_read: err.usage.cache_read_tokens, cache_write: err.usage.cache_write_tokens },
+        tokensSource: err.usage.source, modelRequested: err.usage.model_requested, modelServed: err.usage.model_served,
+        status: 'failed', schemaValid: false, failureLabel: err.kind,
+      });
+      throw ApplicationFailure.nonRetryable(err.message, 'ReasoningOutputInvalid', { stage: err.stage, kind: err.kind });
+    }
+    throw err;
+  }
+  const refs = args.after ? await args.after(res.output) : [];
+  if (res.prompt_version) refs.push(`prompt:${args.stage}@${res.prompt_version}`);
   await recordStage({
-    runId, ticketId: ticket.id, stage: 'triage', startedAt, wallMs: Date.now() - t0, llmCalls: res.llm_calls,
-    tokens: { input: res.usage.input_tokens, output: res.usage.output_tokens },
-    modelRequested: res.usage.model_requested, modelServed: res.usage.model_served,
-    status: 'completed', schemaValid: true,
+    runId: args.runId, ticketId: args.ticketId, stage: args.stage, startedAt, wallMs: Date.now() - t0, llmCalls: res.llm_calls,
+    tokens: { input: res.usage.input_tokens, output: res.usage.output_tokens, cache_read: res.usage.cache_read_tokens, cache_write: res.usage.cache_write_tokens },
+    tokensSource: res.usage.source, modelRequested: res.usage.model_requested, modelServed: res.usage.model_served,
+    status: 'completed', schemaValid: true, artifactRefs: refs,
   });
-  return { output: res.output, usage: { input: res.usage.input_tokens, output: res.usage.output_tokens, model_requested: res.usage.model_requested, model_served: res.usage.model_served }, llm_calls: res.llm_calls };
+  return {
+    output: res.output,
+    usage: {
+      input: res.usage.input_tokens, output: res.usage.output_tokens,
+      cache_read: res.usage.cache_read_tokens, cache_write: res.usage.cache_write_tokens,
+      model_requested: res.usage.model_requested, model_served: res.usage.model_served,
+    },
+    llm_calls: res.llm_calls,
+  };
+}
+
+export function triage(runId: string, ticket: Ticket): Promise<StageCallResult<TriageOutput>> {
+  return callModelStage({
+    runId, ticketId: ticket.id, stage: 'triage',
+    req: { prompt: JSON.stringify({ ticket }), schema: TriageOutputSchema, idempotencyKey: `${runId}:triage` },
+  });
 }
 
 export async function recordGateOutcome(runId: string, ticketId: string, stage: StageRunRecord['stage'], gateName: string, decision: 'pass' | 'fail', reason: string) {
@@ -88,54 +141,33 @@ export async function recordGateOutcome(runId: string, ticketId: string, stage: 
   });
 }
 
-export async function route(runId: string, ticket: Ticket): Promise<StageCallResult<RouteOutput>> {
-  const startedAt = new Date().toISOString();
-  const t0 = Date.now();
-  const res = await reasoning.call({
-    stage: 'route', prompt: JSON.stringify({ ticket }), schema: RouteOutputSchema,
-    modelRequested: MODEL_REQUESTED, idempotencyKey: `${runId}:route`,
+export function route(runId: string, ticket: Ticket): Promise<StageCallResult<RouteOutput>> {
+  return callModelStage({
+    runId, ticketId: ticket.id, stage: 'route',
+    req: { prompt: JSON.stringify({ ticket }), schema: RouteOutputSchema, idempotencyKey: `${runId}:route` },
   });
-  await recordStage({
-    runId, ticketId: ticket.id, stage: 'route', startedAt, wallMs: Date.now() - t0, llmCalls: res.llm_calls,
-    tokens: { input: res.usage.input_tokens, output: res.usage.output_tokens },
-    modelRequested: res.usage.model_requested, modelServed: res.usage.model_served,
-    status: 'completed', schemaValid: true,
-  });
-  return { output: res.output, usage: { input: res.usage.input_tokens, output: res.usage.output_tokens, model_requested: res.usage.model_requested, model_served: res.usage.model_served }, llm_calls: res.llm_calls };
 }
 
-export async function design(runId: string, ticket: Ticket, feedback: string | null, round: number): Promise<StageCallResult<DesignOutput>> {
-  const startedAt = new Date().toISOString();
-  const t0 = Date.now();
-  const res = await reasoning.call({
-    stage: 'design', prompt: JSON.stringify({ ticket, feedback, round }), schema: DesignOutputSchema,
-    modelRequested: MODEL_REQUESTED, idempotencyKey: `${runId}:design:${round}`,
+export function design(runId: string, ticket: Ticket, feedback: string | null, round: number): Promise<StageCallResult<DesignOutput>> {
+  return callModelStage({
+    runId, ticketId: ticket.id, stage: 'design',
+    req: { prompt: JSON.stringify({ ticket, feedback, round }), schema: DesignOutputSchema, idempotencyKey: `${runId}:design:${round}` },
+    after: async (output) => {
+      const { page } = await docs.upsertPageByTitle(`${ticket.id} — Architecture Design`, JSON.stringify(output, null, 2), `${runId}:design-doc:${round}`);
+      return [`confluence:${page.id}`];
+    },
   });
-  const { page } = await docs.upsertPageByTitle(`${ticket.id} — Architecture Design`, JSON.stringify(res.output, null, 2), `${runId}:design-doc:${round}`);
-  await recordStage({
-    runId, ticketId: ticket.id, stage: 'design', startedAt, wallMs: Date.now() - t0, llmCalls: res.llm_calls,
-    tokens: { input: res.usage.input_tokens, output: res.usage.output_tokens },
-    modelRequested: res.usage.model_requested, modelServed: res.usage.model_served,
-    status: 'completed', schemaValid: true, artifactRefs: [`confluence:${page.id}`],
-  });
-  return { output: res.output, usage: { input: res.usage.input_tokens, output: res.usage.output_tokens, model_requested: res.usage.model_requested, model_served: res.usage.model_served }, llm_calls: res.llm_calls };
 }
 
-export async function plan(runId: string, ticket: Ticket, designOutput: DesignOutput): Promise<StageCallResult<PlanOutput>> {
-  const startedAt = new Date().toISOString();
-  const t0 = Date.now();
-  const res = await reasoning.call({
-    stage: 'plan', prompt: JSON.stringify({ ticket, design: designOutput }), schema: PlanOutputSchema,
-    modelRequested: MODEL_REQUESTED, idempotencyKey: `${runId}:plan`,
+export function plan(runId: string, ticket: Ticket, designOutput: DesignOutput): Promise<StageCallResult<PlanOutput>> {
+  return callModelStage({
+    runId, ticketId: ticket.id, stage: 'plan',
+    req: { prompt: JSON.stringify({ ticket, design: designOutput }), schema: PlanOutputSchema, idempotencyKey: `${runId}:plan` },
+    after: async (output) => {
+      const { page } = await docs.upsertPageByTitle(`${ticket.id} — Implementation Plan`, JSON.stringify(output, null, 2), `${runId}:plan-doc`);
+      return [`confluence:${page.id}`];
+    },
   });
-  const { page } = await docs.upsertPageByTitle(`${ticket.id} — Implementation Plan`, JSON.stringify(res.output, null, 2), `${runId}:plan-doc`);
-  await recordStage({
-    runId, ticketId: ticket.id, stage: 'plan', startedAt, wallMs: Date.now() - t0, llmCalls: res.llm_calls,
-    tokens: { input: res.usage.input_tokens, output: res.usage.output_tokens },
-    modelRequested: res.usage.model_requested, modelServed: res.usage.model_served,
-    status: 'completed', schemaValid: true, artifactRefs: [`confluence:${page.id}`],
-  });
-  return { output: res.output, usage: { input: res.usage.input_tokens, output: res.usage.output_tokens, model_requested: res.usage.model_requested, model_served: res.usage.model_served }, llm_calls: res.llm_calls };
 }
 
 export interface ExecuteResult { branch: string; commit: string; jobId: string; state: string }

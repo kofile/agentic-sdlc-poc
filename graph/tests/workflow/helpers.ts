@@ -4,6 +4,7 @@
 import { TestWorkflowEnvironment } from '@temporalio/testing';
 import { Worker } from '@temporalio/worker';
 import { fileURLToPath } from 'node:url';
+import { ApplicationFailure } from '@temporalio/activity';
 import type { GatePolicy } from '../../src/core/gates.ts';
 import type { Ticket } from '../../src/core/schemas.ts';
 
@@ -12,6 +13,10 @@ export const TEST_TICKET: Ticket = { id: 'T-TEST-1', title: 'Add a thing', descr
 export interface MockActivityState {
   policy: GatePolicy;
   triageGrade: 'A' | 'B' | 'C' | 'D';
+  /** Stages whose mock activity throws a non-retryable ReasoningOutputInvalid. */
+  invalidOutputAt: Array<'triage' | 'route' | 'design' | 'plan'>;
+  /** Activity invocations per model stage, to prove a failed stage is not retried. */
+  stageCalls: Record<string, number>;
   routeRepos: string[];
   designCalls: number;
   gateOutcomes: Array<{ stage: string; gate: string; decision: string; reason: string }>;
@@ -23,10 +28,17 @@ export interface MockActivityState {
 
 export function freshState(policy: GatePolicy, overrides: Partial<MockActivityState> = {}): MockActivityState {
   return {
-    policy, triageGrade: 'A', routeRepos: ['repo-a'], designCalls: 0, gateOutcomes: [],
+    policy, triageGrade: 'A', invalidOutputAt: [], stageCalls: {}, routeRepos: ['repo-a'], designCalls: 0, gateOutcomes: [],
     executeCalled: false, prOpened: false, transitions: [], comments: [],
     ...overrides,
   };
+}
+
+function maybeInvalid(state: MockActivityState, stage: 'triage' | 'route' | 'design' | 'plan') {
+  state.stageCalls[stage] = (state.stageCalls[stage] ?? 0) + 1;
+  if (state.invalidOutputAt.includes(stage)) {
+    throw ApplicationFailure.nonRetryable(`mock invalid output at ${stage}`, 'ReasoningOutputInvalid', { stage, kind: 'schema_invalid' });
+  }
 }
 
 export function buildMockActivities(state: MockActivityState) {
@@ -35,25 +47,26 @@ export function buildMockActivities(state: MockActivityState) {
     recordGateOutcome: async (_runId: string, _ticketId: string, stage: string, gate: string, decision: 'pass' | 'fail', reason: string) => {
       state.gateOutcomes.push({ stage, gate, decision, reason });
     },
-    triage: async (_runId: string, _ticket: Ticket) => ({
+    triage: async (_runId: string, _ticket: Ticket) => (maybeInvalid(state, 'triage'), {
       output: { grade: state.triageGrade, reason: 'mock', issues: [] },
       usage: { input: 10, output: 10, model_requested: 'mock-model', model_served: 'mock-model' },
       llm_calls: 1,
     }),
-    route: async (_runId: string, _ticket: Ticket) => ({
+    route: async (_runId: string, _ticket: Ticket) => (maybeInvalid(state, 'route'), {
       output: { repos: state.routeRepos.map((name) => ({ name, role: 'implementer', confidence: 0.9 })), order: state.routeRepos },
       usage: { input: 10, output: 10, model_requested: 'mock-model', model_served: 'mock-model' },
       llm_calls: 1,
     }),
     design: async (_runId: string, _ticket: Ticket, feedback: string | null, round: number) => {
       state.designCalls++;
+      maybeInvalid(state, 'design');
       return {
         output: { summary: `design r${round}${feedback ? ` fb=${feedback}` : ''}`, approach: 'mock approach', interfaces: [], risks: [], round },
         usage: { input: 10, output: 10, model_requested: 'mock-model', model_served: 'mock-model' },
         llm_calls: 1,
       };
     },
-    plan: async (_runId: string, _ticket: Ticket, _design: unknown) => ({
+    plan: async (_runId: string, _ticket: Ticket, _design: unknown) => (maybeInvalid(state, 'plan'), {
       output: { tasks: [{ id: 'T1', title: 'do it', files: [], steps: ['step 1'] }] },
       usage: { input: 10, output: 10, model_requested: 'mock-model', model_served: 'mock-model' },
       llm_calls: 1,

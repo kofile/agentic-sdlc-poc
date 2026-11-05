@@ -51,11 +51,20 @@ export function appendTelemetry(filePath: string, record: StageRunRecord): void 
   fs.appendFileSync(filePath, JSON.stringify(parsed) + '\n');
 }
 
-export interface PriceEntry { input_per_1k: number; output_per_1k: number; UNVERIFIED: boolean }
+export interface PriceEntry { input_per_1k: number; output_per_1k: number; cache_read_per_1k: number; cache_write_per_1k: number }
 export type PriceTable = Record<string, PriceEntry>;
 
-export function estimateCostUsd(prices: PriceTable, model: string, inputTokens: number, outputTokens: number): number {
-  const p = prices[model] ?? prices['default'];
-  if (!p) return 0;
-  return +(((inputTokens / 1000) * p.input_per_1k) + ((outputTokens / 1000) * p.output_per_1k)).toFixed(6);
+export interface TokenCounts { input: number; output: number; cache_read: number; cache_write: number }
+
+/** Cost over all four token kinds. `priceKey` says which table entry priced it: the model
+ * itself, `'default'` (a fallback the caller should flag), or null when nothing matched. */
+export function estimateCostUsd(prices: PriceTable, model: string, tokens: TokenCounts): { usd: number; priceKey: string | null } {
+  const exact = prices[model];
+  const p = exact ?? prices['default'];
+  if (!p) return { usd: 0, priceKey: null };
+  const usd = ((tokens.input / 1000) * p.input_per_1k)
+    + ((tokens.output / 1000) * p.output_per_1k)
+    + ((tokens.cache_read / 1000) * p.cache_read_per_1k)
+    + ((tokens.cache_write / 1000) * p.cache_write_per_1k);
+  return { usd: +usd.toFixed(6), priceKey: exact ? model : 'default' };
 }
