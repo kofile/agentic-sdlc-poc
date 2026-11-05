@@ -4,7 +4,7 @@ title: 'G adapter: start and observe a graph run from bench'
 status: In Progress
 assignee: []
 created_date: '2026-11-05 20:51'
-updated_date: '2026-11-05 21:49'
+updated_date: '2026-11-05 21:53'
 labels:
   - adapter
   - contender-g
@@ -35,7 +35,13 @@ Spec: specs/006-g-adapter
 - [ ] #4 Spec phase: Worker, gates, adapter and registration
 <!-- AC:END -->
 
+## Implementation Notes
 
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+2026-11-05 phase 1 done: harness build ok, 58 tests (orchestrator re-run). Spec amendment R6a: gate.expected/correct optional in the harness record (scoring is TASK-0014; defaulting would fabricate a grade).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
