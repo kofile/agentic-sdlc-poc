@@ -1,10 +1,10 @@
 ---
 id: TASK-0027
 title: Temporal workflow-versioning test with runs in flight
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-05 20:51'
-updated_date: '2026-11-05 21:14'
+updated_date: '2026-11-05 21:35'
 labels:
   - graph
   - temporal
@@ -44,6 +44,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 2026-11-05 phase 2 done: notes/spike-04-versioning.md + D7 follow-up note in the discovery log.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Fixtures and in-flight test: 5/5 · Evidence: 2/2). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
