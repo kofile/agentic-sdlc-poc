@@ -1,10 +1,10 @@
 ---
 id: TASK-0013
 title: 'Build the bench CLI skeleton, SQLite store and stage-run record'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-05 20:51'
-updated_date: '2026-11-05 21:16'
+updated_date: '2026-11-05 21:35'
 labels:
   - harness
   - bench
@@ -51,6 +51,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 2026-11-05 phase 3 done: build ok, 41 tests; orchestrator smoke run stub T02 triage..open-pr → 6 rows, report and export from SQLite only.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Package, schema and store: 4/4 · Adapter contract, stub and run command: 3/3 · Report, export and end-to-end: 4/4). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
