@@ -1,9 +1,10 @@
 ---
 id: TASK-0021
 title: Re-run the graph Docker integration test and record the result
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-05 20:51'
+updated_date: '2026-11-05 21:10'
 labels:
   - graph
   - verify
@@ -24,9 +25,17 @@ npm test (21) and npm run test:workflow (10) in graph/ were re-run by the orches
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 npm run test:integration run by a person or this repo's tooling, result recorded in notes/HANDOFF.md
-- [ ] #2 Any failure fixed or carded
+- [x] #1 npm run test:integration run by a person or this repo's tooling, result recorded in notes/HANDOFF.md
+- [x] #2 Any failure fixed or carded
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=haiku pinned=claude-haiku-5-5 served=claude-haiku-5-5
+
+2026-11-05: integration test exit 0, 4 PASS / 0 FAIL; re-run by the orchestrator in this worktree: ALL PASS. Needs the temporal-dev container up first (README step 1); first agent attempt failed with the server down. No failures to card.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
