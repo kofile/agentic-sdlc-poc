@@ -1,9 +1,10 @@
 ---
 id: TASK-0022
 title: 'Real Reasoning adapter: replace the stub model steps'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-05 20:51'
+updated_date: '2026-11-05 21:46'
 labels:
   - graph
   - adapter
@@ -23,6 +24,8 @@ ordinal: 22000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 graph/ currently runs triage, route, design and plan with stub model steps. Build the real Reasoning port adapter (Claude Code headless or the API; first real adapter to build). The model is a typed function: output validated with zod, gates made by code and fail-closed, the model never decides control flow. Pin Sonnet 5.5 (D1), verify the served model from the response, record per-step tokens. Keep prompts and graph versioned so G can be frozen by tag.
+
+Spec: specs/005-reasoning-adapter
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
