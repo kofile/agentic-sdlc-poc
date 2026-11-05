@@ -1,7 +1,102 @@
 {
-  "_comment": "UNVERIFIED placeholder prices (USD per 1K tokens). The operator must verify against provider pricing pages before any scored benchmark run.",
-  "claude-sonnet-5": { "input_per_1k": 0.003, "output_per_1k": 0.015, "UNVERIFIED": true },
-  "claude-opus-5": { "input_per_1k": 0.015, "output_per_1k": 0.075, "UNVERIFIED": true },
-  "claude-haiku-4-5": { "input_per_1k": 0.0008, "output_per_1k": 0.004, "UNVERIFIED": true },
-  "default": { "input_per_1k": 0.003, "output_per_1k": 0.015, "UNVERIFIED": true }
+  "_comment": "Standard-tier prices, USD per 1K tokens (per_million kept for audit), 5-minute cache writes, from Anthropic pricing docs. Haiku 5.5 is the up-to-100K-prompt tier; batch and long-context tiers are not recorded.",
+  "claude-sonnet-5-5": {
+    "input_per_1k": 0.002,
+    "output_per_1k": 0.01,
+    "cache_read_per_1k": 0.0001,
+    "cache_write_per_1k": 0.0025,
+    "per_million": {
+      "input": 2,
+      "output": 10,
+      "cache_read": 0.1,
+      "cache_write": 2.5
+    },
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "retrieved": "2026-11-05"
+  },
+  "claude-opus-5-5": {
+    "input_per_1k": 0.004,
+    "output_per_1k": 0.02,
+    "cache_read_per_1k": 0.0002,
+    "cache_write_per_1k": 0.005,
+    "per_million": {
+      "input": 4,
+      "output": 20,
+      "cache_read": 0.2,
+      "cache_write": 5
+    },
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "retrieved": "2026-11-05"
+  },
+  "claude-haiku-5-5": {
+    "input_per_1k": 0.0001,
+    "output_per_1k": 0.0005,
+    "cache_read_per_1k": 0.00001,
+    "cache_write_per_1k": 0.000125,
+    "per_million": {
+      "input": 0.1,
+      "output": 0.5,
+      "cache_read": 0.01,
+      "cache_write": 0.125
+    },
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "retrieved": "2026-11-05"
+  },
+  "claude-sonnet-5": {
+    "input_per_1k": 0.002,
+    "output_per_1k": 0.01,
+    "cache_read_per_1k": 0.0002,
+    "cache_write_per_1k": 0.0025,
+    "per_million": {
+      "input": 2,
+      "output": 10,
+      "cache_read": 0.2,
+      "cache_write": 2.5
+    },
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "retrieved": "2026-11-05"
+  },
+  "claude-opus-5": {
+    "input_per_1k": 0.005,
+    "output_per_1k": 0.025,
+    "cache_read_per_1k": 0.0005,
+    "cache_write_per_1k": 0.00625,
+    "per_million": {
+      "input": 5,
+      "output": 25,
+      "cache_read": 0.5,
+      "cache_write": 6.25
+    },
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "retrieved": "2026-11-05"
+  },
+  "claude-haiku-4-5": {
+    "input_per_1k": 0.001,
+    "output_per_1k": 0.005,
+    "cache_read_per_1k": 0.0001,
+    "cache_write_per_1k": 0.00125,
+    "per_million": {
+      "input": 1,
+      "output": 5,
+      "cache_read": 0.1,
+      "cache_write": 1.25
+    },
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "retrieved": "2026-11-05"
+  },
+  "default": {
+    "input_per_1k": 0.002,
+    "output_per_1k": 0.01,
+    "cache_read_per_1k": 0.0001,
+    "cache_write_per_1k": 0.0025,
+    "per_million": {
+      "input": 2,
+      "output": 10,
+      "cache_read": 0.1,
+      "cache_write": 2.5
+    },
+    "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+    "retrieved": "2026-11-05",
+    "note": "default equals claude-sonnet-5-5 (D1 pin)"
+  }
 }
