@@ -33,8 +33,10 @@ Spec: specs/003-bench-harness
 - [x] #4 Unit tests cover the schema and the store
 - [x] #5 Spec phase: Package, schema and store
 - [x] #6 Spec phase: Adapter contract, stub and run command
-- [ ] #7 Spec phase: Report, export and end-to-end
+- [x] #7 Spec phase: Report, export and end-to-end
 <!-- AC:END -->
+
+
 
 
 
