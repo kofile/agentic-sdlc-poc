@@ -119,7 +119,9 @@ post-conditions, plus a graph around it.
 
 | # | Decision | Date | A: AICOE maint. | B: customer ease | C: adaptability | Status |
 |---|---|---|---|---|---|---|
-| — | none yet | | | | | |
+| D1 | Benchmark runs the plugin two ways: as shipped (headline) and pinned to Sonnet (anchors only); N and G pinned to Sonnet 5.5 | 2026-11-05 | Med: two P configs to run | High: honest cost story | High | Decided |
+| D2 | n8n baseline: use execution history for triage-to-plan; live sandbox copies only if Cesar can do it in about a day | 2026-11-05 | High: avoids n8n rework | Med | Med | Decided |
+| D3 | Second independent grader of expected ticket outcomes is Cesar (operator is first); Claude drafts but does not grade | 2026-11-05 | Med | High: Cesar owns fairness | Med | Decided |
 
 ## 8. Vocabulary and presentation rules
 
@@ -184,6 +186,10 @@ Coverage matrix (what exists to compare, to be confirmed):
 | validate | yes | partly (review workflow; gates unknown) | build |
 | review | yes | yes (`PR Reviewer & Approver`) | build |
 | merge / deploy | yes | **missing** | out of PoC scope unless time allows |
+
+## 9c. Spec review round 1 (2026-11-05, sections 0-4)
+
+Raised, not yet decided: H1 is under-powered (4 anchors at k=5; consider 6-8 anchors, cheap because triage-only runs cost little); plugin may not run unattended under `claude -p` (spike 1); schedule is aggressive (Day 1 is 2026-11-05; repo, tickets, hidden tests and seeded PRs need a few days before G exists); $2.50 mean per run is likely low, replace after the first pilot; dev set lacks cross-repo and reject tickets; H2 falsification clause mixes two conditions; no live-demo script yet; freeze the spec with a git tag before the first scored run. Sections 5-9 not yet reviewed.
 
 ## 10. Open questions
 

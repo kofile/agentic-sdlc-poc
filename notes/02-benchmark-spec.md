@@ -74,6 +74,13 @@ pr-review, merge, deploy.
 | pr-review | yes | yes | build | If time |
 | merge, deploy | yes | missing | out | **Out of scope**, stated on the demo slide |
 
+**n8n baseline plan (Decision D2, 2026-11-05): historical first.** N's triage-through-plan figures
+come from its existing execution history (WF2.1, WF2.2, WF3; hundreds of runs) with live sandbox
+runs only if Cesar can copy the workflows to the sandbox in about a day. N's execute and review are
+compared live only if that is cheap; otherwise they are `n/a`. Historical runs are not on the benchmark
+tickets, so they are reported as a separate "production baseline" series, never pooled with the
+controlled runs.
+
 **Gap handling:** compare only on stages a contender covers, per stage. A contender with a gap
 gets `n/a` for that stage, never zero. End-to-end totals are shown only for the stage set all
 compared contenders cover, plus a separate "full ladder" figure for each contender's own
@@ -130,7 +137,8 @@ Dev set: 1 trivial, 2 medium, 1 ambiguous. Ticket-writing rules (so expected out
 known): every ticket is a fixed template (title, description, acceptance criteria, optional
 component/label); each has a sidecar `expected.yaml` (grade, gate pass/fail, route set and
 order, difficulty, hidden-test ids, trap description); expected grades are assigned by two
-people independently and reconciled **before** any run; a ticket is rejected from the set if
+people independently (**Decision D3: the operator and Cesar**; Claude may draft tickets but is not a grader)
+and reconciled **before** any run; a ticket is rejected from the set if
 the two disagree on the pass/fail gate after discussion. For grading, A/B vs C/D is the gate
 and the primary label; exact bucket (A vs B, C vs D) is secondary, with half credit when off by
 one inside the same side of the gate.
@@ -157,7 +165,7 @@ by Day 6 this tier is dropped (cut line).
 
 | Control | Rule |
 |---|---|
-| Model | Pin **Sonnet 5.5** for every LLM step in every contender where the contender allows it (matches the current n8n reviewer). Reasoning setting: adaptive thinking, effort medium, everywhere. Any deviation is logged per run in `model_served`. Verify the served model from the response, never from config (see model-tier rule in project doctrine). |
+| Model | **Decision D1 (2026-11-05):** P runs two ways. **P-shipped** (its own Opus/Sonnet/Haiku mix) is the headline baseline; **P-pinned** (Sonnet 5.5 on every agent) runs on the anchor tickets only, to isolate the model effect on cost. N and G pin **Sonnet 5.5** (matches the current n8n reviewer); report G's cost against both P variants and say which gap is model choice. Pin **Sonnet 5.5** for every LLM step in N and G, and in P-pinned. Reasoning setting: adaptive thinking, effort medium, everywhere. Any deviation is logged per run in `model_served`. Verify the served model from the response, never from config (see model-tier rule in project doctrine). |
 | Prompts | Not harmonized. Each contender uses its own production prompts (the comparison is of systems, not of one prompt). G's prompts frozen at the held-out cut. |
 | Determinism | Temperature/seed are not controllable with adaptive thinking **[A]**; do not pretend otherwise. Variance is measured, not suppressed. Record whatever sampling params the API accepted. |
 | Tickets and snapshot | Identical ticket text per run. Repo reset to a tagged commit (`bench/base`) per run, in a fresh clone or container. Same base SHA for all contenders. |
