@@ -32,16 +32,14 @@ Spec: specs/004-integration-worker-leak
 - [x] #5 Spec phase: Verification
 <!-- AC:END -->
 
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 2026-11-05 verified by orchestrator: 2 consecutive integration runs ALL PASS, 0 worker.ts processes after each; stray worker on default queue does not affect a run; SIGINT path kills the tree. build ok, unit 32, workflow 10.
+
+spec-bridge sync: Process-tree kill and per-run queue: 4/4 · Verification: 3/3 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
