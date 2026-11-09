@@ -29,8 +29,10 @@ Spec: specs/004-integration-worker-leak
 - [x] #2 Two consecutive runs leave zero worker processes behind (checked with ps)
 - [x] #3 The test uses a per-run task queue name so a stray worker cannot steal its tasks
 - [x] #4 Spec phase: Process-tree kill and per-run queue
-- [ ] #5 Spec phase: Verification
+- [x] #5 Spec phase: Verification
 <!-- AC:END -->
+
+
 
 
 
