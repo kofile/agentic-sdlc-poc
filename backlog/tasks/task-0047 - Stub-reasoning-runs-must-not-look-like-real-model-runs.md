@@ -1,10 +1,10 @@
 ---
 id: TASK-0047
 title: Stub reasoning runs must not look like real model runs
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-09 19:37'
-updated_date: '2026-11-09 19:44'
+updated_date: '2026-11-09 19:45'
 labels:
   - graph
   - harness
@@ -42,6 +42,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 2026-11-09 phases 1 (graph) and 2 (harness) dispatched in parallel on disjoint directories; orchestrator re-ran all gates and real CLI runs (see specs/007 tasks.md verification record).
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Graph reports stub honestly: 3/3 · Harness refuses or labels stub-backed G runs: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
