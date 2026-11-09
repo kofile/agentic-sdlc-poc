@@ -8,6 +8,7 @@ import type { Stage } from '../../record.ts';
 import type { AdapterEvent, ContenderAdapter, RunContext } from '../types.ts';
 import { GRAPH_ROOT, GRAPH_TELEMETRY_FILE, REPO_ROOT, TICKETS_ROOT } from './paths.ts';
 import { validateGStages } from './stages.ts';
+import { checkStubPolicy, ensureNoRealModelGap } from './stub-policy.ts';
 import { loadTicket } from './ticket.ts';
 import { readGraphTelemetry, toStageEvents, type GraphLine } from './telemetry.ts';
 import { newGateState, pollGates, type GateHandle } from './gates.ts';
@@ -60,6 +61,8 @@ export const gAdapter: ContenderAdapter = {
   },
 
   async *run(ctx: RunContext): AsyncGenerator<AdapterEvent> {
+    const refusal = checkStubPolicy(process.env);
+    if (refusal) throw new Error(refusal);
     const bad = validateGStages(ctx.stages);
     if (bad) throw new Error(bad);
     const team = resolveTeam(process.env);
@@ -137,7 +140,7 @@ export const gAdapter: ContenderAdapter = {
     }
 
     const lines = readGraphTelemetry(GRAPH_TELEMETRY_FILE, ctx.run_id);
-    const events = toStageEvents(lines, ctx.stages, { workflowResult });
+    const events = ensureNoRealModelGap(toStageEvents(lines, ctx.stages, { workflowResult }));
     if (events.length === 0 && workflowError) throw new Error(`G: workflow failed before any stage recorded: ${(workflowError as Error).message.split('\n')[0]}`);
     for (const ev of events) {
       const waited = gate.waitedMs.get(ev.stage);

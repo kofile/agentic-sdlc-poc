@@ -6,7 +6,7 @@ import {
   type Ticket, type TriageOutput, type RouteOutput, type DesignOutput, type PlanOutput,
 } from '../core/schemas.ts';
 import type { GatePolicy } from '../core/gates.ts';
-import { appendTelemetry, estimateCostUsd, type StageRunRecord } from '../core/telemetry.ts';
+import { appendTelemetry, costAndGaps, type StageRunRecord } from '../core/telemetry.ts';
 import { reasoning, tracker, docs, vcs, config, executeHost, TELEMETRY_FILE, CONTENDER_VERSION } from './container.ts';
 import { ReasoningOutputInvalid, type ReasoningRequest } from '../ports/reasoning.ts';
 import type { JobSpec } from '../ports/execute-host.ts';
@@ -35,15 +35,7 @@ async function recordStage(args: {
 }) {
   const prices = await config.loadPriceTable();
   const tokens = { input: args.tokens.input, output: args.tokens.output, cache_read: args.tokens.cache_read ?? 0, cache_write: args.tokens.cache_write ?? 0 };
-  const gaps: string[] = args.modelRequested ? [] : ['no_model_call'];
-  let costUsd = 0;
-  // Cost is priced on the model that actually served, falling back to the requested one.
-  const pricedModel = args.modelServed ?? args.modelRequested;
-  if (pricedModel) {
-    const priced = estimateCostUsd(prices, pricedModel, tokens);
-    costUsd = priced.usd;
-    if (priced.priceKey === 'default') gaps.push(`price_fallback:${pricedModel}`);
-  }
+  const { usd: costUsd, gaps } = costAndGaps(prices, args.modelRequested, args.modelServed, tokens);
   const record: StageRunRecord = {
     run_id: args.runId,
     benchmark_version: 'v0.1',

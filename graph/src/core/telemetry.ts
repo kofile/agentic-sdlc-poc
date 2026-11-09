@@ -4,6 +4,7 @@
 import { z } from 'zod';
 import fs from 'node:fs';
 import path from 'node:path';
+import { NO_MODEL_SERVED } from '../ports/reasoning.ts';
 
 export const StageRunRecordSchema = z.object({
   run_id: z.string(),
@@ -67,4 +68,20 @@ export function estimateCostUsd(prices: PriceTable, model: string, tokens: Token
     + ((tokens.cache_read / 1000) * p.cache_read_per_1k)
     + ((tokens.cache_write / 1000) * p.cache_write_per_1k);
   return { usd: +usd.toFixed(6), priceKey: exact ? model : 'default' };
+}
+
+/** Token cost and telemetry gaps for one stage record. A stub-served stage (NO_MODEL_SERVED) is
+ * never priced: cost 0 with `no_real_model` + `cost_not_measured`. No model at all keeps
+ * `no_model_call`. Otherwise price on the served model, falling back to the requested one, and
+ * flag a default-table fallback with `price_fallback:<model>`. */
+export function costAndGaps(
+  prices: PriceTable, modelRequested: string | undefined, modelServed: string | undefined, tokens: TokenCounts,
+): { usd: number; gaps: string[] } {
+  if (modelServed === NO_MODEL_SERVED) return { usd: 0, gaps: ['no_real_model', 'cost_not_measured'] };
+  const gaps: string[] = modelRequested ? [] : ['no_model_call'];
+  const pricedModel = modelServed ?? modelRequested;
+  if (!pricedModel) return { usd: 0, gaps };
+  const priced = estimateCostUsd(prices, pricedModel, tokens);
+  if (priced.priceKey === 'default') gaps.push(`price_fallback:${pricedModel}`);
+  return { usd: priced.usd, gaps };
 }

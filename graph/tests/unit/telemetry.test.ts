@@ -2,7 +2,7 @@ import { describe, it, expect, afterEach } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { appendTelemetry, estimateCostUsd, type StageRunRecord } from '../../src/core/telemetry.ts';
+import { appendTelemetry, costAndGaps, estimateCostUsd, type StageRunRecord } from '../../src/core/telemetry.ts';
 
 const tmpFiles: string[] = [];
 afterEach(() => { for (const f of tmpFiles.splice(0)) fs.rmSync(f, { force: true }); });
@@ -57,5 +57,33 @@ describe('estimateCostUsd', () => {
   });
   it('falls back to 0 with a null key when the model is unknown and there is no default', () => {
     expect(estimateCostUsd({}, 'unknown', t(1000, 1000))).toEqual({ usd: 0, priceKey: null });
+  });
+});
+
+describe('costAndGaps', () => {
+  const entry = { input_per_1k: 1, output_per_1k: 2, cache_read_per_1k: 0, cache_write_per_1k: 0 };
+  const prices = { 'real-model': entry, default: { ...entry, input_per_1k: 10 } };
+  const tokens = { input: 1000, output: 1000, cache_read: 0, cache_write: 0 };
+
+  it('does not price a stub-served stage and flags it', () => {
+    const r = costAndGaps(prices, 'real-model', 'stub', tokens);
+    expect(r).toEqual({ usd: 0, gaps: ['no_real_model', 'cost_not_measured'] });
+    expect(r.gaps.some((g) => g.startsWith('price_fallback'))).toBe(false);
+  });
+
+  it('reports no_model_call when no model is involved', () => {
+    expect(costAndGaps(prices, undefined, undefined, tokens)).toEqual({ usd: 0, gaps: ['no_model_call'] });
+  });
+
+  it('prices on the served model with no gaps when the price is known', () => {
+    expect(costAndGaps(prices, 'other', 'real-model', tokens)).toEqual({ usd: 3, gaps: [] });
+  });
+
+  it('falls back to the requested model when none served', () => {
+    expect(costAndGaps(prices, 'real-model', undefined, tokens)).toEqual({ usd: 3, gaps: [] });
+  });
+
+  it('flags price_fallback:<model> when the default entry priced it', () => {
+    expect(costAndGaps(prices, 'real-model', 'unknown-model', tokens)).toEqual({ usd: 12, gaps: ['price_fallback:unknown-model'] });
   });
 });

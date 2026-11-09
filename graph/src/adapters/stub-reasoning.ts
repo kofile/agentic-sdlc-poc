@@ -1,7 +1,7 @@
 // STUB reasoning adapter: no real model call, no network. Deterministic/ticket-derived output
 // so workflow tests are repeatable. Exercises the real contract: zod validation + bound
 // retries on schema failure, so swapping in a real model adapter later needs no core change.
-import { ReasoningOutputInvalid, type Reasoning, type ReasoningRequest, type ReasoningCallResult, type ReasoningUsage } from '../ports/reasoning.ts';
+import { NO_MODEL_SERVED, ReasoningOutputInvalid, type Reasoning, type ReasoningRequest, type ReasoningCallResult, type ReasoningUsage } from '../ports/reasoning.ts';
 import { TicketSchema } from '../core/schemas.ts';
 
 export interface StubKnobs {
@@ -16,7 +16,7 @@ export interface StubKnobs {
 function fakeUsage(modelRequested: string, inputTokens: number, outputTokens: number): ReasoningUsage {
   return {
     input_tokens: inputTokens, output_tokens: outputTokens, cache_read_tokens: 0, cache_write_tokens: 0,
-    source: 'estimated', model_requested: modelRequested, model_served: modelRequested,
+    source: 'estimated', model_requested: modelRequested, model_served: NO_MODEL_SERVED,
   };
 }
 

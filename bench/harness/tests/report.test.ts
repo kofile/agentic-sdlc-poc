@@ -45,6 +45,19 @@ describe('report', () => {
     store.close();
   });
 
+  it('excludes whole runs with any no_real_model stage unless includeStub', () => {
+    const store = seed();
+    store.insertStageRun(rec({ run_id: 'g1', contender: 'G', stage: 'triage', telemetry_gaps: ['no_real_model'] }));
+    store.insertStageRun(rec({ run_id: 'g1', contender: 'G', stage: 'route', telemetry_gaps: [] }));
+    store.insertStageRun(rec({ run_id: 'g2', contender: 'G', stage: 'route', telemetry_gaps: [] }));
+    const rows = buildReport(store);
+    expect(rows.filter((r) => r.contender === 'G').map((r) => `${r.stage}:${r.runs}`)).toEqual(['route:1']);
+    const inc = buildReport(store, { includeStub: true });
+    expect(inc.filter((r) => r.contender === 'G').map((r) => `${r.stage}:${r.runs}`)).toEqual(['triage:1', 'route:2']);
+    expect(exportJsonl(store)).toHaveLength(8);
+    store.close();
+  });
+
   it('renders md and json', () => {
     const store = seed();
     const rows = buildReport(store);
