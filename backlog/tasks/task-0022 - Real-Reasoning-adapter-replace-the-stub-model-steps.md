@@ -36,8 +36,10 @@ Spec: specs/005-reasoning-adapter
 - [x] #4 Unit and workflow tests updated; npm test and npm run test:workflow pass
 - [x] #5 Spec phase: Port, cost and telemetry
 - [x] #6 Spec phase: Anthropic adapter, prompts and fixtures
-- [ ] #7 Spec phase: Wiring, fail-closed workflow and docs
+- [x] #7 Spec phase: Wiring, fail-closed workflow and docs
 <!-- AC:END -->
+
+
 
 
 
