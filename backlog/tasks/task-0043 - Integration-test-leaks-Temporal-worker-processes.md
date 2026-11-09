@@ -28,9 +28,11 @@ Spec: specs/004-integration-worker-leak
 - [x] #1 run-all.ts kills every worker process tree it starts, on success and on failure
 - [x] #2 Two consecutive runs leave zero worker processes behind (checked with ps)
 - [x] #3 The test uses a per-run task queue name so a stray worker cannot steal its tasks
-- [ ] #4 Spec phase: Process-tree kill and per-run queue
+- [x] #4 Spec phase: Process-tree kill and per-run queue
 - [ ] #5 Spec phase: Verification
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
