@@ -264,8 +264,8 @@ TASK-0010 does not start until the operator rules.
 | 2026-11-05 | TASK-0019 | #2 | f784e3c | sonnet ×1: ~89k | all six prices spot-checked by independent fetch; old table had Sonnet 5 wrong (3/15 → 2/10) |
 | 2026-11-05 | TASK-0027 | #3 | 0df22f0 | sonnet ×2: ~104k + ~101k | phases 1, 2; patch placed before design loop (plan.md deviation, accepted) |
 | 2026-11-05 | TASK-0013 | #4 | 7acbdd8 | sonnet ×3: ~94k + ~96k + ~103k | phases 1, 2, 3; spec R3a (no silent zeros) added after phase 2; canary false positive from spec text, fixed |
-| 2026-11-05 | TASK-0043 | #5 | — | sonnet ×1: ~81k | in flight: phases 1-2 done (spec 004), PR open awaiting operator merge |
-| 2026-11-05 | TASK-0022 | #6 | — | sonnet ×3: ~97k + ~102k + ~117k | in flight: spec 005; phases 1-3 done, PR open, merges after #5 (rebase + re-gate then) |
+| 2026-11-09 | TASK-0043 | #5 | f7a4223 | sonnet ×1: ~81k | spec 004; phases 1-2; 2 consecutive integration runs 0 leftover workers; Done via spec-bridge sync; merged by operator |
+| 2026-11-05 | TASK-0022 | #6 | — | sonnet ×3: ~97k + ~102k + ~117k | in flight: spec 005; phases 1-3 done, PR open; main merged in after #5 (merge, not rebase: C1 bars force-push), re-gated green 2026-11-09 |
 | 2026-11-05 | TASK-0018 | #7 | — | sonnet ×3: ~114k + ~125k + ~97k | in flight: spec 006; phases 1-2 + fix-up done, PR open, merges after #6. Spec R4 → D13; amendment R6a (gate.expected/correct optional). Follow-ups carded: TASK-0044, TASK-0045 |
 
 **Lane 1 closed 2026-11-05.** Gates re-run on merged `main` by the orchestrator: graph
