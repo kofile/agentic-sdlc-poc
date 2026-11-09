@@ -291,3 +291,16 @@ TASK-0044 (run-id collision), TASK-0045 (npm audit), TASK-0046 (human review of
 `graph/prompts/` before freeze), TASK-0047 (stub reasoning runs look like real Sonnet runs —
 high, benchmark integrity). No live model call yet (C4). **Lane 3 (TASK-0010) still parked on
 C5**, so this runbook stays open; status not flipped to done.
+
+**Amendment A2 — approved by the operator 2026-11-09 ("Yes, amend and run it"):** add
+TASK-0047 (stub reasoning runs look like real Sonnet runs) as Lane 2b, after Lane 2, before
+Lane 3. Reason: since TASK-0022 a stub-backed G run carries `model_served: claude-sonnet-5-5`
+and a priced cost, and TASK-0018 files it as contender G, so it can pass as a real run in a
+scored database — a benchmark-integrity defect in code this sweep just merged. Tier: sonnet
+(`claude-sonnet-5-5`, fallback `claude-sonnet-5`) — the fix is specified in spec 007 with no
+open judgment call. Footprint: `graph/src/ports/reasoning.ts`, `graph/src/adapters/stub-reasoning.ts`,
+`graph/src/workflow/activities.ts`, `graph/tests/unit/`, `graph/docs/stage-contracts.md`,
+`bench/harness/src/adapters/g/`, `bench/harness/src/report.ts`, `bench/harness/tests/`,
+`bench/harness/README.md`. Gates: both the `graph/` and `bench/harness/` lists above, plus
+`test:integration` (activities.ts changes) and `test:g`.
+
