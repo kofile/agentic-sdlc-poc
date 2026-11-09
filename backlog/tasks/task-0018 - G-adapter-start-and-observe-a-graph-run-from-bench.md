@@ -35,10 +35,6 @@ Spec: specs/006-g-adapter
 - [x] #4 Spec phase: Worker, gates, adapter and registration
 <!-- AC:END -->
 
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -55,6 +51,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 2026-11-05 fix-up done (gate-line gaps). Orchestrator verified end to end on temporal-dev with stub reasoning: 6 records, 1 scripted_approval, cancel after last requested stage works, 0 stray workers. 69 passed + 1 skipped; test:g 1 passed.
 
 2026-11-09 orchestrator: merged origin/main (TASK-0043, TASK-0022) into branch (merge, not rebase: C1), decision-log conflict resolved D12 then D13. Re-gated: harness build ok, 69 passed + 1 skipped, test:g 1 passed; real G run on T02 and T03 against the merged graph: 6 records each, model_served claude-sonnet-5-5, 1 scripted_approval.
+
+spec-bridge sync: Contract extension and pure pieces: 4/4 · Worker, gates, adapter and registration: 7/7 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
