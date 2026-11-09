@@ -1,10 +1,10 @@
 ---
 id: TASK-0043
 title: Integration test leaks Temporal worker processes
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-05 21:35'
-updated_date: '2026-11-05 21:44'
+updated_date: '2026-11-09 19:30'
 labels:
   - graph
   - verify
@@ -39,6 +39,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 2026-11-05 verified by orchestrator: 2 consecutive integration runs ALL PASS, 0 worker.ts processes after each; stray worker on default queue does not affect a run; SIGINT path kills the tree. build ok, unit 32, workflow 10.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Process-tree kill and per-run queue: 4/4 · Verification: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
