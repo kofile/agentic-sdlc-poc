@@ -30,8 +30,10 @@ Spec: specs/007-stub-not-real
 - [x] #3 bench refuses to store a G run backed by stub reasoning in a scored database, or labels it so report excludes it by default
 - [x] #4 Tests cover both
 - [x] #5 Spec phase: Graph reports stub honestly
-- [ ] #6 Spec phase: Harness refuses or labels stub-backed G runs
+- [x] #6 Spec phase: Harness refuses or labels stub-backed G runs
 <!-- AC:END -->
+
+
 
 
 
