@@ -44,11 +44,18 @@ describe('appendTelemetry', () => {
 });
 
 describe('estimateCostUsd', () => {
-  const prices = { 'model-a': { input_per_1k: 1, output_per_1k: 2, UNVERIFIED: true } };
+  const prices = { 'model-a': { input_per_1k: 1, output_per_1k: 2, cache_read_per_1k: 0.1, cache_write_per_1k: 1.25 }, default: { input_per_1k: 5, output_per_1k: 5, cache_read_per_1k: 5, cache_write_per_1k: 5 } };
+  const t = (input: number, output: number, cache_read = 0, cache_write = 0) => ({ input, output, cache_read, cache_write });
   it('computes input+output cost from the price table', () => {
-    expect(estimateCostUsd(prices, 'model-a', 1000, 1000)).toBe(3);
+    expect(estimateCostUsd(prices, 'model-a', t(1000, 1000))).toEqual({ usd: 3, priceKey: 'model-a' });
   });
-  it('falls back to 0 when the model is unknown and there is no default', () => {
-    expect(estimateCostUsd({}, 'unknown', 1000, 1000)).toBe(0);
+  it('prices cache read and cache write tokens', () => {
+    expect(estimateCostUsd(prices, 'model-a', t(0, 0, 10000, 2000))).toEqual({ usd: 3.5, priceKey: 'model-a' });
+  });
+  it('reports the default entry when the model is unknown', () => {
+    expect(estimateCostUsd(prices, 'unknown', t(1000, 1000))).toEqual({ usd: 10, priceKey: 'default' });
+  });
+  it('falls back to 0 with a null key when the model is unknown and there is no default', () => {
+    expect(estimateCostUsd({}, 'unknown', t(1000, 1000))).toEqual({ usd: 0, priceKey: null });
   });
 });

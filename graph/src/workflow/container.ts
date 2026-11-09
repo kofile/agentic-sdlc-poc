@@ -1,6 +1,8 @@
 // Process-level composition root (worker side only — never imported by workflows.ts, which
 // runs in Temporal's deterministic sandbox). Wires ports to stub/in-memory adapters. Swapping
 // a real adapter in later means changing only this file.
+import { AnthropicReasoning } from '../adapters/anthropic-reasoning.ts';
+import type { Reasoning } from '../ports/reasoning.ts';
 import { StubReasoning } from '../adapters/stub-reasoning.ts';
 import { MemoryTracker } from '../adapters/memory-tracker.ts';
 import { MemoryDocs } from '../adapters/memory-docs.ts';
@@ -15,7 +17,14 @@ import { fileURLToPath } from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const GRAPH_ROOT = path.resolve(here, '../..');
 
-export const reasoning = new StubReasoning();
+function selectReasoning(): Reasoning {
+  const kind = process.env.GRAPH_REASONING ?? 'stub';
+  if (kind === 'anthropic') return AnthropicReasoning.fromEnv();
+  if (kind === 'stub') return new StubReasoning();
+  throw new Error(`GRAPH_REASONING must be 'stub' or 'anthropic', got '${kind}'`);
+}
+
+export const reasoning: Reasoning = selectReasoning();
 export const tracker = new MemoryTracker();
 export const docs = new MemoryDocs();
 export const vcs = new MemoryVcs();

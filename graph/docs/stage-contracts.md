@@ -58,3 +58,20 @@ Stage names and the ladder (triage -> route -> design -> plan -> execute -> open
 - **Input:** `Ticket`, the `execute` result.
 - **Output:** `{ number, url }` from the Vcs port.
 - **Gate:** none. Comments the PR link on the ticket and transitions it to `Ready for PR`.
+
+## Invalid output (all model stages)
+
+Applies to triage, route, design and plan, the four typed-function LLM calls.
+
+- **Trigger:** the Reasoning adapter ends a call without schema-valid output and throws
+  `ReasoningOutputInvalid` (`kind`: `schema_invalid` after the retry bound, `refusal`, or
+  `max_tokens`). Transport errors are not this case: they stay retryable under the activity's
+  retry policy.
+- **Activity side:** `callModelStage` records the stage (`status: failed`,
+  `output.schema_valid: false`, `failure_label` = the kind, tokens from the error's usage), then
+  throws `ApplicationFailure.nonRetryable(msg, 'ReasoningOutputInvalid', { stage, kind })` so
+  Temporal does not retry it.
+- **Workflow side:** `modelStage` in `workflows.ts` catches that failure, records a gate outcome
+  `Output valid?` = `fail` for the stage, transitions the ticket to `Waiting for Info`, and
+  returns `{ status: 'stopped-invalid-output', at: <stage>, reason, log }`. No later stage runs.
+- **Never** falls back to another model or to unvalidated output.

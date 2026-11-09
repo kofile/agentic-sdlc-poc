@@ -17,11 +17,12 @@
     "test:integration": "node --import tsx tests/integration/run-all.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "1.1.0",
     "@temporalio/activity": "1.25.0",
     "@temporalio/client": "1.25.0",
     "@temporalio/worker": "1.25.0",
     "@temporalio/workflow": "1.25.0",
-    "zod": "3.24.1"
+    "zod": "3.25.76"
   },
   "devDependencies": {
     "@temporalio/testing": "1.25.0",

@@ -27,7 +27,7 @@ A 2-week proof of concept, Day 1 = Thu 2026-11-05, to convince the operator's ma
 1. Operator review of Lane A and Lane B (read tickets and reference diffs; re-run `graph` Docker integration test); commit what passes (Day 2 checkpoint).
 2. Operator and Cesar grade tickets independently from `bench/tickets/grading-sheet.md` (do not show anyone `expected.draft.yaml` first); reconcile.
 3. Build the `bench` harness (TypeScript CLI, SQLite, uniform stage-run record, spec section 7) with adapters for P (headless `claude -p`, isolated from user plugins, stream parsing, scripted answer driver), N (history first, then webhook/API), G.
-4. Real adapters for G: Reasoning (Claude Code headless or API), Tracker (Jira sandbox via MCP), Docs (Confluence sandbox), Vcs. First real adapter to build: Reasoning.
+4. Real adapters for G: Reasoning (Claude Code headless or API), Tracker (Jira sandbox via MCP), Docs (Confluence sandbox), Vcs. Reasoning adapter now exists (`graph/src/adapters/anthropic-reasoning.ts`, behind `GRAPH_REASONING=anthropic`, default stays the stub); its live smoke call (C4) is pending an API key and is UNVERIFIED against the live API. Next real adapter: Tracker.
 5. Day 3: Temporal workflow-versioning test with runs in flight (open caveat on D7). Verify the price table in `graph/config/prices.json` against vendor pages before any scored run.
 6. Dev-set pilot (Days 4-5), then freeze and tag; held-out runs; charts; demo script; write-up.
 
