@@ -41,6 +41,16 @@ describe('cost recomputation', () => {
   it('prices a recorded sonnet-5-5 sample exactly', () => {
     // 12345 in, 6789 out on claude-sonnet-5-5 ($2 / $10 per MTok = 0.002 / 0.01 per 1K):
     // 12.345 * 0.002 = 0.02469; 6.789 * 0.01 = 0.06789; total = 0.09258 USD
-    expect(estimateCostUsd(entries as unknown as PriceTable, 'claude-sonnet-5-5', 12345, 6789)).toBe(0.09258);
+    const tokens = { input: 12345, output: 6789, cache_read: 0, cache_write: 0 };
+    expect(estimateCostUsd(entries as unknown as PriceTable, 'claude-sonnet-5-5', tokens)).toEqual({ usd: 0.09258, priceKey: 'claude-sonnet-5-5' });
+  });
+  it('prices cache tokens from the table', () => {
+    // 100K cache read * 0.0001 = 0.01; 40K cache write * 0.0025 = 0.1
+    const tokens = { input: 0, output: 0, cache_read: 100000, cache_write: 40000 };
+    expect(estimateCostUsd(entries as unknown as PriceTable, 'claude-sonnet-5-5', tokens).usd).toBe(0.11);
+  });
+  it('flags an unknown model as priced by default', () => {
+    const tokens = { input: 1000, output: 0, cache_read: 0, cache_write: 0 };
+    expect(estimateCostUsd(entries as unknown as PriceTable, 'claude-future-9', tokens)).toEqual({ usd: 0.002, priceKey: 'default' });
   });
 });

@@ -2,7 +2,7 @@
 // triage -> route -> design -> [human gate] -> plan -> [human gate] -> execute -> open-pr.
 // Pattern (gate keying, condition()+timer, reject-redo as a loop) follows spike-02's proven
 // design; see notes/spike-02-engine.md section "Evidence" (B, C, D).
-import { proxyActivities, defineSignal, defineQuery, setHandler, condition } from '@temporalio/workflow';
+import { proxyActivities, defineSignal, defineQuery, setHandler, condition, ActivityFailure, ApplicationFailure } from '@temporalio/workflow';
 import type * as A from './activities.ts';
 import { triageGate, routeGate } from '../core/gates.ts';
 import type { Ticket } from '../core/schemas.ts';
@@ -41,14 +41,46 @@ export interface PipelineInput {
 export type PipelineResult =
   | { status: 'stopped-at-triage'; grade: string; reason: string; log: string[] }
   | { status: 'stopped-at-route'; reason: string; log: string[] }
+  | { status: 'stopped-invalid-output'; at: string; reason: string; log: string[] }
   | { status: 'escalated-timeout'; at: string; round: number; log: string[] }
   | { status: 'rejected'; at: string; log: string[] }
   | { status: 'rejected-max-rounds'; at: string; log: string[] }
   | { status: 'opened-pr'; pr: { number: number; url: string }; designRounds: number; log: string[] };
 
+class InvalidOutputStop extends Error {
+  constructor(public readonly stage: string, public readonly reason: string) { super(reason); }
+}
+
+/** Runs a model-backed stage; a non-retryable ReasoningOutputInvalid becomes InvalidOutputStop
+ * (fail closed). Anything else propagates unchanged. */
+async function modelStage<T>(stage: string, fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn();
+  } catch (err) {
+    if (err instanceof ActivityFailure && err.cause instanceof ApplicationFailure && err.cause.type === 'ReasoningOutputInvalid') {
+      throw new InvalidOutputStop(stage, err.cause.message);
+    }
+    throw err;
+  }
+}
+
 export async function pipeline(inp: PipelineInput): Promise<PipelineResult> {
-  const { runId, ticket, team } = inp;
+  const { runId, ticket } = inp;
   const log: string[] = [];
+  try {
+    return await runPipeline(inp, log);
+  } catch (err) {
+    if (err instanceof InvalidOutputStop) {
+      await std.recordGateOutcome(runId, ticket.id, err.stage as 'triage' | 'route' | 'design' | 'plan', 'Output valid?', 'fail', err.reason);
+      await std.transitionTicket(runId, ticket.id, 'Waiting for Info');
+      return { status: 'stopped-invalid-output', at: err.stage, reason: err.reason, log };
+    }
+    throw err;
+  }
+}
+
+async function runPipeline(inp: PipelineInput, log: string[]): Promise<PipelineResult> {
+  const { runId, ticket, team } = inp;
   // Gate keying: `${gate}#${round}` => first decision wins; duplicate/stale ones are dropped
   // and logged (spike-02 B: this keying is what made duplicate/concurrent approvals safe).
   const decisions = new Map<string, Decision>();
@@ -94,7 +126,7 @@ export async function pipeline(inp: PipelineInput): Promise<PipelineResult> {
   }
 
   step = 'triage';
-  const tri = await model.triage(runId, ticket);
+  const tri = await modelStage('triage', () => model.triage(runId, ticket));
   const tGate = triageGate(tri.output.grade);
   await std.recordGateOutcome(runId, ticket.id, 'triage', 'A or B?', tGate.pass ? 'pass' : 'fail', tGate.reason);
   if (!tGate.pass) {
@@ -103,7 +135,7 @@ export async function pipeline(inp: PipelineInput): Promise<PipelineResult> {
   }
 
   step = 'route';
-  const rt = await model.route(runId, ticket);
+  const rt = await modelStage('route', () => model.route(runId, ticket));
   const rGate = routeGate(rt.output);
   await std.recordGateOutcome(runId, ticket.id, 'route', 'Repo identified?', rGate.pass ? 'pass' : 'fail', rGate.reason);
   if (!rGate.pass) {
@@ -117,7 +149,7 @@ export async function pipeline(inp: PipelineInput): Promise<PipelineResult> {
   let designOut: Awaited<ReturnType<typeof model.design>>['output'] | undefined;
   for (;;) {
     step = `design:r${round}`;
-    const d = await model.design(runId, ticket, feedback, round);
+    const d = await modelStage('design', () => model.design(runId, ticket, feedback, round));
     designOut = d.output;
     const decision = await gate('design', round);
     if (decision.approved) break;
@@ -133,7 +165,7 @@ export async function pipeline(inp: PipelineInput): Promise<PipelineResult> {
   }
 
   step = 'plan';
-  const pl = await model.plan(runId, ticket, designOut!);
+  const pl = await modelStage('plan', () => model.plan(runId, ticket, designOut!));
   const pg = await gate('plan', 1);
   if (!pg.approved) {
     if (pg.by === 'timer' && policy.onTimeout === 'escalate') return { status: 'escalated-timeout', at: 'plan', round: 1, log };
