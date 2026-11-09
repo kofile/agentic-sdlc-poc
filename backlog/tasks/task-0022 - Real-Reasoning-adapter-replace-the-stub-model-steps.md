@@ -34,10 +34,12 @@ Spec: specs/005-reasoning-adapter
 - [x] #2 Invalid output fails closed at a gate rather than advancing
 - [x] #3 Served model and token usage recorded per step
 - [x] #4 Unit and workflow tests updated; npm test and npm run test:workflow pass
-- [ ] #5 Spec phase: Port, cost and telemetry
+- [x] #5 Spec phase: Port, cost and telemetry
 - [ ] #6 Spec phase: Anthropic adapter, prompts and fixtures
 - [ ] #7 Spec phase: Wiring, fail-closed workflow and docs
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
