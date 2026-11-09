@@ -267,7 +267,7 @@ TASK-0010 does not start until the operator rules.
 | 2026-11-09 | TASK-0043 | #5 | f7a4223 | sonnet ×1: ~81k | spec 004; phases 1-2; 2 consecutive integration runs 0 leftover workers; Done via spec-bridge sync; merged by operator |
 | 2026-11-09 | TASK-0022 | #6 | 4ba7bf4 | sonnet ×3: ~97k + ~102k + ~117k | spec 005; phases 1-3; D12; main merged in after #5 (merge, not rebase: C1), integration 4/4; Done via spec-bridge sync; merged by operator. Follow-up TASK-0046: human review of graph/prompts before freeze |
 | 2026-11-09 | TASK-0018 | #7 | cf55cfb | sonnet ×3: ~114k + ~125k + ~97k | spec 006; phases 1-2 + fix-up; D13; amendment R6a (gate.expected/correct optional); real G runs T01-T03 on temporal-dev with stub reasoning; Done via spec-bridge sync; merged by operator |
-| 2026-11-09 | TASK-0047 | #8 | — | sonnet ×2: ~92k + ~91k | in flight (A2): spec 007; phases 1-2 parallel on disjoint dirs; all gates + real CLI runs green; PR open awaiting operator merge |
+| 2026-11-09 | TASK-0047 | #8 | 918087d | sonnet ×2: ~92k + ~91k | A2; spec 007; phases 1-2 parallel on disjoint dirs; stub runs report model_served stub, unpriced, refused by bench without BENCH_G_ALLOW_STUB=1, excluded from report; Done via spec-bridge sync; merged by operator |
 
 **Lane 1 closed 2026-11-05.** Gates re-run on merged `main` by the orchestrator: graph
 build ok, unit 32, workflow 10, versioning 1, integration 4/4 (after killing orphaned
@@ -304,4 +304,10 @@ open judgment call. Footprint: `graph/src/ports/reasoning.ts`, `graph/src/adapte
 `bench/harness/src/adapters/g/`, `bench/harness/src/report.ts`, `bench/harness/tests/`,
 `bench/harness/README.md`. Gates: both the `graph/` and `bench/harness/` lists above, plus
 `test:integration` (activities.ts changes) and `test:g`.
+
+**Lane 2b closed 2026-11-09.** Gates re-run on merged `main` (`77759b5`): graph build ok,
+unit 61, workflow 12, versioning 1, integration ALL PASS; harness build ok, 73 passed + 1
+skipped, `test:g` 1 passed; 0 node `worker.ts` processes; `git worktree list` shows root only;
+spec-bridge check ok (7 linked tasks). Remaining in this runbook: Lane 3 (TASK-0010), parked
+until the operator rules on C5. Status stays signed-off (not done).
 
