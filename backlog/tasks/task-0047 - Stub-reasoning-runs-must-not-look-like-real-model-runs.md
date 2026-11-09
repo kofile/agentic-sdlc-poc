@@ -4,7 +4,7 @@ title: Stub reasoning runs must not look like real model runs
 status: In Progress
 assignee: []
 created_date: '2026-11-09 19:37'
-updated_date: '2026-11-09 19:40'
+updated_date: '2026-11-09 19:41'
 labels:
   - graph
   - harness
@@ -29,7 +29,11 @@ Spec: specs/007-stub-not-real
 - [ ] #2 Stub stages cost 0 or are flagged; no price lookup on a stub model
 - [ ] #3 bench refuses to store a G run backed by stub reasoning in a scored database, or labels it so report excludes it by default
 - [ ] #4 Tests cover both
+- [ ] #5 Spec phase: Graph reports stub honestly
+- [ ] #6 Spec phase: Harness refuses or labels stub-backed G runs
 <!-- AC:END -->
+
+
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
