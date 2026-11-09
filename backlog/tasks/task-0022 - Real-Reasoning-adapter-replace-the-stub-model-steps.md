@@ -1,10 +1,10 @@
 ---
 id: TASK-0022
 title: 'Real Reasoning adapter: replace the stub model steps'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-05 20:51'
-updated_date: '2026-11-05 21:58'
+updated_date: '2026-11-09 19:33'
 labels:
   - graph
   - adapter
@@ -56,6 +56,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 2026-11-05 orchestrator: integration ALL PASS (4/4) on stub; PR #6 opened, merges after #5.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Port, cost and telemetry: 4/4 · Anthropic adapter, prompts and fixtures: 5/5 · Wiring, fail-closed workflow and docs: 6/6). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
