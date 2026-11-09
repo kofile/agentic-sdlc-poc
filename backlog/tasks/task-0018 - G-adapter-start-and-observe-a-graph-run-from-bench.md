@@ -31,9 +31,11 @@ Spec: specs/006-g-adapter
 <!-- AC:BEGIN -->
 - [x] #1 bench run --contender G executes the walking skeleton and emits stage-run records
 - [x] #2 Gate approvals are driven by the team policy (auto, default, strict) and recorded as interventions
-- [ ] #3 Spec phase: Contract extension and pure pieces
+- [x] #3 Spec phase: Contract extension and pure pieces
 - [ ] #4 Spec phase: Worker, gates, adapter and registration
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
