@@ -4,7 +4,7 @@ title: Stub reasoning runs must not look like real model runs
 status: In Progress
 assignee: []
 created_date: '2026-11-09 19:37'
-updated_date: '2026-11-09 19:41'
+updated_date: '2026-11-09 19:44'
 labels:
   - graph
   - harness
@@ -25,15 +25,23 @@ Spec: specs/007-stub-not-real
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Stub reasoning reports model_served as a non-model value (e.g. 'stub') and a telemetry gap such as no_real_model
-- [ ] #2 Stub stages cost 0 or are flagged; no price lookup on a stub model
-- [ ] #3 bench refuses to store a G run backed by stub reasoning in a scored database, or labels it so report excludes it by default
-- [ ] #4 Tests cover both
+- [x] #1 Stub reasoning reports model_served as a non-model value (e.g. 'stub') and a telemetry gap such as no_real_model
+- [x] #2 Stub stages cost 0 or are flagged; no price lookup on a stub model
+- [x] #3 bench refuses to store a G run backed by stub reasoning in a scored database, or labels it so report excludes it by default
+- [x] #4 Tests cover both
 - [ ] #5 Spec phase: Graph reports stub honestly
 - [ ] #6 Spec phase: Harness refuses or labels stub-backed G runs
 <!-- AC:END -->
 
+## Implementation Notes
 
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+2026-11-09 phases 1 (graph) and 2 (harness) dispatched in parallel on disjoint directories; orchestrator re-ran all gates and real CLI runs (see specs/007 tasks.md verification record).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
