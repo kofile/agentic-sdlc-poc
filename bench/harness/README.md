@@ -15,7 +15,8 @@ npm run build && npm test
 
 `report` aggregates per contender x stage (runs, completed, median wall ms, total tokens,
 total cost, union of telemetry gaps) from SQLite only. The `stub` contender is excluded
-unless `--include-stub`. `export` writes one stored record per line.
+unless `--include-stub`; so is every run with at least one stage record carrying the `no_real_model`
+gap (stub-backed G runs). `--include-stub` includes both. `export` is a raw dump and is unchanged. `export` writes one stored record per line.
 
 ## Environment
 
@@ -58,6 +59,8 @@ npm run test:g     # opt-in end-to-end test (BENCH_G_E2E=1), needs the prerequis
   requested stage has its record the workflow is cancelled, so `triage..route` does not pay for design.
 - Env: `BENCH_G_TEAM` (`auto` | `default` | `strict`, default `auto`), `BENCH_G_BUDGET_SECONDS`
   (default 60), `GRAPH_REASONING` and `TEMPORAL_ADDRESS` (default `127.0.0.1:7233`) pass through to the worker.
+  A run with `GRAPH_REASONING` other than `anthropic` is refused unless `BENCH_G_ALLOW_STUB=1`; stub-backed
+  records carry `model_served: stub`, zero token cost and the `no_real_model` gap, and `report` omits them.
 - Prerequisites: a Temporal dev server (temporal-dev), `npm ci` in `graph/`, the execute-host image.
 - The adapter spawns its own graph worker (detached, per-run task queue) and kills its process group on
   every exit path. Do not run another worker on the same queue.

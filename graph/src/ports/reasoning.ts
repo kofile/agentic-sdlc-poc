@@ -3,6 +3,9 @@
 // so the telemetry record (core/telemetry.ts) can be filled without a second lookup.
 import type { ZodType } from 'zod';
 
+/** model_served value for adapters that call no model (the stub). Stages carrying it are unpriced. */
+export const NO_MODEL_SERVED = 'stub';
+
 export interface ReasoningUsage {
   input_tokens: number;
   output_tokens: number;

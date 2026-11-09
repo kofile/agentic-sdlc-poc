@@ -75,3 +75,11 @@ Applies to triage, route, design and plan, the four typed-function LLM calls.
   `Output valid?` = `fail` for the stage, transitions the ticket to `Waiting for Info`, and
   returns `{ status: 'stopped-invalid-output', at: <stage>, reason, log }`. No later stage runs.
 - **Never** falls back to another model or to unvalidated output.
+
+## Stub-backed stages are not real model runs
+
+`StubReasoning` reports `model_served: stub` (`NO_MODEL_SERVED` in `ports/reasoning.ts`) on
+success and on `ReasoningOutputInvalid` usage; `model_requested` still records what the activity
+asked for. `recordStage` (via `costAndGaps` in `core/telemetry.ts`) never prices such a stage:
+`cost_usd.tokens` is `0` and `telemetry_gaps` carries `no_real_model` and `cost_not_measured`,
+with no `price_fallback:stub`. Real adapters are priced on `model_served` as before.

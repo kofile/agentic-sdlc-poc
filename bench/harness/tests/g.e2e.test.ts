@@ -19,13 +19,20 @@ describe.skipIf(!enabled)('bench run --contender G (real Temporal)', () => {
       cwd: root,
       encoding: 'utf8',
       timeout: 240_000,
-      env: { ...process.env, BENCH_DB: db, BENCH_ARTIFACTS: path.join(tmp, 'art'), BENCH_G_TEAM: 'default', GRAPH_REASONING: 'stub' },
+      env: { ...process.env, BENCH_DB: db, BENCH_ARTIFACTS: path.join(tmp, 'art'), BENCH_G_TEAM: 'default', GRAPH_REASONING: 'stub', BENCH_G_ALLOW_STUB: '1' },
     });
     expect(r.status, r.stderr).toBe(0);
     const store = openStore(db);
     try {
       const recs = store.listStageRuns({ contender: 'G' });
       expect(recs).toHaveLength(6);
+      const modelStages = recs.filter((x) => ['triage', 'route', 'design', 'plan'].includes(x.stage));
+      expect(modelStages).toHaveLength(4);
+      for (const x of modelStages) {
+        expect(x.model_served).toBe('stub');
+        expect(x.cost_usd.tokens).toBe(0);
+        expect(x.telemetry_gaps).toContain('no_real_model');
+      }
       const ints = store.listInterventions();
       const approvals = ints.filter((i) => i.kind === 'scripted_approval');
       expect(approvals).toHaveLength(1);

@@ -25,8 +25,11 @@ function median(xs: number[]): number {
 
 export function buildReport(store: Pick<Store, 'listStageRuns'>, opts: ReportOptions = {}): ReportRow[] {
   const groups = new Map<string, StageRunRecord[]>();
-  for (const r of store.listStageRuns()) {
-    if (r.contender === 'stub' && !opts.includeStub) continue;
+  const all = store.listStageRuns();
+  // Spec 007 R4: a run with any no_real_model stage is not a benchmark run; drop all its stages.
+  const stubRuns = new Set(all.filter((r) => r.telemetry_gaps.includes('no_real_model')).map((r) => r.run_id));
+  for (const r of all) {
+    if (!opts.includeStub && (r.contender === 'stub' || stubRuns.has(r.run_id))) continue;
     const k = `${r.contender}\u0000${r.stage}`;
     (groups.get(k) ?? groups.set(k, []).get(k)!).push(r);
   }

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { StubReasoning } from '../../src/adapters/stub-reasoning.ts';
 import { TriageOutputSchema } from '../../src/core/schemas.ts';
-import { ReasoningOutputInvalid } from '../../src/ports/reasoning.ts';
+import { NO_MODEL_SERVED, ReasoningOutputInvalid } from '../../src/ports/reasoning.ts';
 
 describe('StubReasoning', () => {
   it('returns schema-valid output on the first attempt by default', async () => {
@@ -13,6 +13,9 @@ describe('StubReasoning', () => {
     expect(res.attempts).toBe(1);
     expect(res.usage).toMatchObject({ cache_read_tokens: 0, cache_write_tokens: 0, source: 'estimated' });
     expect(TriageOutputSchema.safeParse(res.output).success).toBe(true);
+    expect(NO_MODEL_SERVED).toBe('stub');
+    expect(res.usage.model_served).toBe('stub');
+    expect(res.usage.model_requested).toBe('claude-sonnet-5');
   });
 
   it('retries on induced schema failure up to the bound, then succeeds', async () => {
@@ -41,5 +44,7 @@ describe('StubReasoning', () => {
     expect(err).toBeInstanceOf(ReasoningOutputInvalid);
     expect(err).toMatchObject({ stage: 'triage', kind: 'schema_invalid', attempts: 2 });
     expect(err.usage.source).toBe('estimated');
+    expect(err.usage.model_served).toBe('stub');
+    expect(err.usage.model_requested).toBe('claude-sonnet-5');
   });
 });
