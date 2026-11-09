@@ -33,10 +33,6 @@ Spec: specs/007-stub-not-real
 - [x] #6 Spec phase: Harness refuses or labels stub-backed G runs
 <!-- AC:END -->
 
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -45,6 +41,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 2026-11-09 phases 1 (graph) and 2 (harness) dispatched in parallel on disjoint directories; orchestrator re-ran all gates and real CLI runs (see specs/007 tasks.md verification record).
+
+spec-bridge sync: Graph reports stub honestly: 3/3 · Harness refuses or labels stub-backed G runs: 3/3 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
