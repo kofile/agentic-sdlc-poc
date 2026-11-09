@@ -39,12 +39,6 @@ Spec: specs/005-reasoning-adapter
 - [x] #7 Spec phase: Wiring, fail-closed workflow and docs
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -61,6 +55,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 2026-11-05 phase 3 done: build ok, unit 56, workflow 12, versioning 1 (orchestrator re-run).
 
 2026-11-05 orchestrator: integration ALL PASS (4/4) on stub; PR #6 opened, merges after #5.
+
+spec-bridge sync: Port, cost and telemetry: 4/4 · Anthropic adapter, prompts and fixtures: 5/5 · Wiring, fail-closed workflow and docs: 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
