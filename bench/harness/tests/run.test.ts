@@ -144,6 +144,24 @@ describe('executeRun', () => {
     store.close();
   });
 
+  it('intervention events are written to the interventions table and are not stage records', async () => {
+    const store = openStore(':memory:');
+    const adapter: ContenderAdapter = {
+      id: 'stub',
+      version: async () => 'v',
+      async *run() {
+        yield { type: 'intervention', stage: 'design', at: '2026-11-05T12:00:00.000Z', kind: 'scripted_approval', note: 'design#1 team=default' };
+        yield { stage: 'design', telemetry_gaps: [] };
+      },
+    };
+    const res = await executeRun({ store, adapter, ticket: 'T01', rep: 1, stages: ['design'], seedOrder: 1, artifactsRoot: tmp() });
+    expect(res).toMatchObject({ status: 'completed', stored: 1 });
+    expect(store.listStageRuns()).toHaveLength(1);
+    expect(store.listStageRuns()[0]).toMatchObject({ interventions: 0, assisted: false });
+    expect(store.listInterventions(res.run_id)).toMatchObject([{ stage: 'design', kind: 'scripted_approval', note: 'design#1 team=default', at: '2026-11-05T12:00:00.000Z' }]);
+    store.close();
+  });
+
   it('registry knows only stub', () => {
     expect(getAdapter('stub')).toBe(stubAdapter);
     expect(getAdapter('P')).toBeUndefined();

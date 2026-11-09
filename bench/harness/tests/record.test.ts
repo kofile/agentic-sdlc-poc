@@ -41,4 +41,10 @@ describe('makeRunId', () => {
   it('matches the section 7 format', () => {
     expect(makeRunId(new Date('2026-11-12T02:31:45.123Z'), 'P', 'T07', 2)).toBe('2026-11-12T0231Z-P-T07-r2');
   });
+  it('accepts a gate without expected/correct (spec 006 R6a); an absent correct is not scored', () => {
+    const r = StageRunRecordSchema.parse({ ...SECTION7_EXAMPLE, gate: { name: 'A or B?', decision: 'pass' } });
+    expect(r.gate).toEqual({ name: 'A or B?', decision: 'pass' });
+    expect(r.gate?.correct).toBeUndefined();
+    expect(StageRunRecordSchema.safeParse({ ...SECTION7_EXAMPLE, gate: { name: 'x', decision: 'maybe' } }).success).toBe(false);
+  });
 });

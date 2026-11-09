@@ -4,13 +4,17 @@
   "type": "module",
   "version": "0.1.0",
   "description": "Benchmark harness: bench CLI, SQLite store and uniform stage-run record (notes/02-benchmark-spec.md section 7).",
-  "bin": { "bench": "src/cli.ts" },
+  "bin": {
+    "bench": "src/cli.ts"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
-    "bench": "node --import tsx src/cli.ts"
+    "bench": "node --import tsx src/cli.ts",
+    "test:g": "BENCH_G_E2E=1 vitest run tests/g.e2e.test.ts"
   },
   "dependencies": {
+    "@temporalio/client": "1.25.0",
     "zod": "3.24.1"
   },
   "devDependencies": {

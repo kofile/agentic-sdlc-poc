@@ -128,6 +128,10 @@ export async function executeRun(opts: RunOptions): Promise<RunResult> {
   let stored = 0;
   try {
     for await (const ev of adapter.run(ctx)) {
+      if ('type' in ev && ev.type === 'intervention') {
+        store.insertIntervention({ run_id, stage: ev.stage, at: ev.at, kind: ev.kind, note: ev.note ?? null });
+        continue;
+      }
       store.insertStageRun(normalise(ev, base, now().toISOString()));
       stored++;
     }
