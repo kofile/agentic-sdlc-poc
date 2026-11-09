@@ -266,7 +266,7 @@ TASK-0010 does not start until the operator rules.
 | 2026-11-05 | TASK-0013 | #4 | 7acbdd8 | sonnet ×3: ~94k + ~96k + ~103k | phases 1, 2, 3; spec R3a (no silent zeros) added after phase 2; canary false positive from spec text, fixed |
 | 2026-11-09 | TASK-0043 | #5 | f7a4223 | sonnet ×1: ~81k | spec 004; phases 1-2; 2 consecutive integration runs 0 leftover workers; Done via spec-bridge sync; merged by operator |
 | 2026-11-09 | TASK-0022 | #6 | 4ba7bf4 | sonnet ×3: ~97k + ~102k + ~117k | spec 005; phases 1-3; D12; main merged in after #5 (merge, not rebase: C1), integration 4/4; Done via spec-bridge sync; merged by operator. Follow-up TASK-0046: human review of graph/prompts before freeze |
-| 2026-11-05 | TASK-0018 | #7 | — | sonnet ×3: ~114k + ~125k + ~97k | in flight: spec 006; phases 1-2 + fix-up done, PR open; main merged in after #6, re-gated green incl. real G runs 2026-11-09. Spec R4 → D13; amendment R6a (gate.expected/correct optional). Follow-ups carded: TASK-0044, TASK-0045 |
+| 2026-11-09 | TASK-0018 | #7 | cf55cfb | sonnet ×3: ~114k + ~125k + ~97k | spec 006; phases 1-2 + fix-up; D13; amendment R6a (gate.expected/correct optional); real G runs T01-T03 on temporal-dev with stub reasoning; Done via spec-bridge sync; merged by operator |
 
 **Lane 1 closed 2026-11-05.** Gates re-run on merged `main` by the orchestrator: graph
 build ok, unit 32, workflow 10, versioning 1, integration 4/4 (after killing orphaned
@@ -278,3 +278,16 @@ processes) to Lane 2, merging before TASK-0022, because TASK-0022 touches
 `graph/src/workflow/` and so must pass `test:integration`, which is unreliable until the
 leak is fixed. Tier: sonnet (`claude-sonnet-5-5`, fallback `claude-sonnet-5`) — the fix is
 specified by the card's ACs.
+
+**Lane 2 closed 2026-11-09.** Gates re-run on merged `main` (`dea4815`) by the orchestrator:
+graph build ok, unit 56, workflow 12, versioning 1, integration ALL PASS; harness build ok,
+69 passed + 1 skipped, `test:g` 1 passed against temporal-dev; 0 node `worker.ts` processes
+afterwards. (An earlier "2 stray workers" reading was the orchestrator's own shell matching
+`grep worker.ts` because the same command ran `pkill -f 'src/workflow/worker.ts'`; corrected
+on PRs #6 and #7.) Branches merged by merge-in of `origin/main`, not rebase, because a rebase
+of a pushed branch needs a force-push, which C1 excludes; the doctrine's "pin-free branch
+rebases" line should read "merges main in" for this repo. Follow-ups carded:
+TASK-0044 (run-id collision), TASK-0045 (npm audit), TASK-0046 (human review of
+`graph/prompts/` before freeze), TASK-0047 (stub reasoning runs look like real Sonnet runs —
+high, benchmark integrity). No live model call yet (C4). **Lane 3 (TASK-0010) still parked on
+C5**, so this runbook stays open; status not flipped to done.
