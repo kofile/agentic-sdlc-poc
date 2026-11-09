@@ -267,6 +267,7 @@ TASK-0010 does not start until the operator rules.
 | 2026-11-09 | TASK-0043 | #5 | f7a4223 | sonnet ×1: ~81k | spec 004; phases 1-2; 2 consecutive integration runs 0 leftover workers; Done via spec-bridge sync; merged by operator |
 | 2026-11-09 | TASK-0022 | #6 | 4ba7bf4 | sonnet ×3: ~97k + ~102k + ~117k | spec 005; phases 1-3; D12; main merged in after #5 (merge, not rebase: C1), integration 4/4; Done via spec-bridge sync; merged by operator. Follow-up TASK-0046: human review of graph/prompts before freeze |
 | 2026-11-09 | TASK-0018 | #7 | cf55cfb | sonnet ×3: ~114k + ~125k + ~97k | spec 006; phases 1-2 + fix-up; D13; amendment R6a (gate.expected/correct optional); real G runs T01-T03 on temporal-dev with stub reasoning; Done via spec-bridge sync; merged by operator |
+| 2026-11-09 | TASK-0047 | #8 | — | sonnet ×2: ~92k + ~91k | in flight (A2): spec 007; phases 1-2 parallel on disjoint dirs; all gates + real CLI runs green; PR open awaiting operator merge |
 
 **Lane 1 closed 2026-11-05.** Gates re-run on merged `main` by the orchestrator: graph
 build ok, unit 32, workflow 10, versioning 1, integration 4/4 (after killing orphaned
