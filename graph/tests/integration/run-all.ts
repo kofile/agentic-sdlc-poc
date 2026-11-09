@@ -8,7 +8,7 @@
 //          and the execute-host image built: `docker build -t sdlc-graph-poc-execute-host:latest graph/container`
 // Run: npm run test:integration   (from graph/)
 import { spawn, type ChildProcess } from 'node:child_process';
-import { makeClient, TASK_QUEUE } from '../../src/workflow/client.ts';
+import { makeClient } from '../../src/workflow/client.ts';
 import { parseTicketFile } from '../../src/cli/parse-ticket.ts';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,16 +17,54 @@ import fs from 'node:fs';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const GRAPH_ROOT = path.resolve(here, '../..');
 
+// Per-run task queue: a stray worker on the default queue (or another run's) cannot steal this run's tasks.
+const RUN_QUEUE = `sdlc-graph-poc-it-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
 let failures = 0;
 function assert(cond: unknown, msg: string): void {
   if (!cond) { console.error(`FAIL: ${msg}`); failures++; } else { console.log(`PASS: ${msg}`); }
 }
 
+// Every worker still alive. Each is a process-group leader (detached), so killing the group takes
+// the whole tree; this set lets every exit path find and kill whatever is left.
+const liveWorkers = new Set<ChildProcess>();
+
 function startWorker(): ChildProcess {
-  const p = spawn('npx', ['tsx', 'src/workflow/worker.ts'], { cwd: GRAPH_ROOT, stdio: ['ignore', 'pipe', 'pipe'] });
+  const p = spawn(process.execPath, ['--import', 'tsx', 'src/workflow/worker.ts'], {
+    cwd: GRAPH_ROOT,
+    stdio: ['ignore', 'pipe', 'pipe'],
+    detached: true,
+    env: { ...process.env, TEMPORAL_TASK_QUEUE: RUN_QUEUE },
+  });
+  liveWorkers.add(p);
   p.stdout.on('data', (d) => process.stdout.write(`[worker] ${d}`));
   p.stderr.on('data', (d) => process.stderr.write(`[worker:err] ${d}`));
   return p;
+}
+
+// Synchronous group kill (SIGKILL to -pid); a group that is already gone (ESRCH) is fine.
+function killTreeNow(p: ChildProcess): void {
+  if (p.pid === undefined) return;
+  try { process.kill(-p.pid, 'SIGKILL'); } catch (e) { if ((e as NodeJS.ErrnoException).code !== 'ESRCH') throw e; }
+}
+
+async function killTree(p: ChildProcess, timeoutMs = 5_000): Promise<void> {
+  liveWorkers.delete(p);
+  const exited = p.exitCode !== null || p.signalCode !== null
+    ? Promise.resolve()
+    : new Promise<void>((resolve) => { p.once('exit', () => resolve()); });
+  killTreeNow(p);
+  await Promise.race([exited, sleep(timeoutMs)]);
+}
+
+function killAllNow(): void {
+  for (const p of liveWorkers) killTreeNow(p);
+  liveWorkers.clear();
+}
+
+process.on('exit', killAllNow);
+for (const sig of ['SIGINT', 'SIGTERM'] as const) {
+  process.on(sig, () => { killAllNow(); process.exit(1); });
 }
 
 async function waitForWorkerUp(p: ChildProcess, timeoutMs = 15_000): Promise<void> {
@@ -48,7 +86,7 @@ async function test1_killWorkerMidExecuteAndResume() {
   await waitForWorkerUp(worker);
 
   const handle = await client.workflow.start('pipeline', {
-    taskQueue: TASK_QUEUE,
+    taskQueue: RUN_QUEUE,
     workflowId: runId,
     args: [{ runId, ticket, team: 'auto', budgetSeconds: 25 }],
   });
@@ -63,7 +101,7 @@ async function test1_killWorkerMidExecuteAndResume() {
   }
 
   console.log('killing worker mid-execute...');
-  worker.kill('SIGKILL');
+  await killTree(worker);
   await sleep(2000); // simulate real downtime
 
   worker = startWorker();
@@ -71,7 +109,7 @@ async function test1_killWorkerMidExecuteAndResume() {
 
   const result = await handle.result();
   assert(result.status === 'opened-pr', `workflow resumed and completed after worker kill (status=${result.status})`);
-  worker.kill('SIGKILL');
+  await killTree(worker);
 }
 
 async function test2_dockerExecuteHostEndToEnd() {
@@ -83,7 +121,7 @@ async function test2_dockerExecuteHostEndToEnd() {
   const runId = `it-exec-${Date.now()}`;
 
   const result = await client.workflow.execute('pipeline', {
-    taskQueue: TASK_QUEUE,
+    taskQueue: RUN_QUEUE,
     workflowId: runId,
     args: [{ runId, ticket, team: 'auto', budgetSeconds: 25 }],
   });
@@ -96,16 +134,19 @@ async function test2_dockerExecuteHostEndToEnd() {
   const lines = fs.readFileSync(telemetryFile, 'utf8').trim().split('\n').map((l) => JSON.parse(l));
   const executeRecords = lines.filter((l) => l.run_id === runId && l.stage === 'execute');
   assert(executeRecords.length === 1, 'one execute-stage telemetry record was written');
-  worker.kill('SIGKILL');
+  await killTree(worker);
 }
 
 async function main() {
+  console.log(`task queue: ${RUN_QUEUE}`);
   try {
     await test2_dockerExecuteHostEndToEnd();
     await test1_killWorkerMidExecuteAndResume();
   } catch (e) {
     console.error('integration run crashed:', e);
     failures++;
+  } finally {
+    await Promise.all([...liveWorkers].map((p) => killTree(p)));
   }
   console.log(`\n${failures === 0 ? 'ALL PASS' : `${failures} FAILURE(S)`}`);
   process.exit(failures === 0 ? 0 : 1);
