@@ -1,9 +1,10 @@
 ---
 id: TASK-0047
 title: Stub reasoning runs must not look like real model runs
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-09 19:37'
+updated_date: '2026-11-09 19:40'
 labels:
   - graph
   - harness
@@ -18,6 +19,8 @@ ordinal: 47000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Found 2026-11-09 (side-agent note, confirmed by orchestrator): StubReasoning (graph/src/adapters/stub-reasoning.ts) sets model_served = model_requested (claude-sonnet-5-5). Since TASK-0022, cost is priced on model_served, so stub stages carry a plausible non-zero cost_usd. bench's G adapter files these runs as contender G, not stub, so a stub-backed G run in a scored bench.sqlite is indistinguishable from a real Sonnet run except tokens.source=estimated. Violates CLAUDE.md 'verify the served model from the response, never from config'. Lane 2 verification runs used scratchpad databases only (no repo bench.sqlite exists).
+
+Spec: specs/007-stub-not-real
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
