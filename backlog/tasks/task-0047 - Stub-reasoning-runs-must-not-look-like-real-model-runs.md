@@ -29,9 +29,11 @@ Spec: specs/007-stub-not-real
 - [x] #2 Stub stages cost 0 or are flagged; no price lookup on a stub model
 - [x] #3 bench refuses to store a G run backed by stub reasoning in a scored database, or labels it so report excludes it by default
 - [x] #4 Tests cover both
-- [ ] #5 Spec phase: Graph reports stub honestly
+- [x] #5 Spec phase: Graph reports stub honestly
 - [ ] #6 Spec phase: Harness refuses or labels stub-backed G runs
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
