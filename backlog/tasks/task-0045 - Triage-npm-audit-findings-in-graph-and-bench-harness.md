@@ -1,9 +1,10 @@
 ---
 id: TASK-0045
 title: Triage npm audit findings in graph/ and bench/harness
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-05 21:58'
+updated_date: '2026-11-11 16:22'
 labels:
   - graph
   - harness
@@ -17,6 +18,8 @@ ordinal: 45000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 npm audit in graph/ (2026-11-05, on main and on TASK-0022's branch alike) reports 7 findings: zod <4.6.6 (high, production), plus dev-only vitest/@vitest/mocker, esbuild, tinypool (2 critical). Not introduced by Lane 2. Decide per finding: upgrade (exact versions), accept with rationale, or not applicable (dev-only).
+
+Spec: specs/008-npm-audit
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
