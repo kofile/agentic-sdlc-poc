@@ -1,6 +1,0 @@
-{"t":1793894211832,"pid":38774,"runId":"E1-mw3qand0-0","step":"execute:write-file","file":"out/E1-mw3qand0-0.txt"}
-{"t":1793894211917,"pid":38774,"runId":"E1-mw3qand0-0","step":"open-pr","pr":"https://example.invalid/pr/E1-mw3qand0-0"}
-{"t":1793894211973,"pid":38774,"runId":"E1-mw3qand0-0","step":"merge"}
-{"t":1793894215072,"pid":39202,"runId":"E3-mw3qaptk-2","step":"execute:write-file","file":"out/E3-mw3qaptk-2.txt"}
-{"t":1793894215081,"pid":39202,"runId":"E3-mw3qaptk-2","step":"open-pr","pr":"https://example.invalid/pr/E3-mw3qaptk-2"}
-{"t":1793894215089,"pid":39202,"runId":"E3-mw3qaptk-2","step":"merge"}
