@@ -7,7 +7,7 @@ conflicts as routine. Direction is decided; do not re-litigate it: `notes/00-dis
 (Decisions D1–D11), `notes/02-benchmark-spec.md` and `notes/HANDOFF.md` win. Plan-of-record
 is the board; this file carries only ordering, doctrine, and the log.
 
-**Status:** signed-off · operator sign-off on lanes: 2026-11-05 (Evan Stern, "Sign off as
+**Status:** done (2026-11-11) · operator sign-off on lanes: 2026-11-05 (Evan Stern, "Sign off as
 proposed" in session; rulings recorded under Operator checkpoints)
 <!-- Only the OPERATOR flips draft → signed-off (the author never pre-fills it). An
      executing session must refuse a runbook whose status it cannot verify. -->
@@ -268,6 +268,7 @@ TASK-0010 does not start until the operator rules.
 | 2026-11-09 | TASK-0022 | #6 | 4ba7bf4 | sonnet ×3: ~97k + ~102k + ~117k | spec 005; phases 1-3; D12; main merged in after #5 (merge, not rebase: C1), integration 4/4; Done via spec-bridge sync; merged by operator. Follow-up TASK-0046: human review of graph/prompts before freeze |
 | 2026-11-09 | TASK-0018 | #7 | cf55cfb | sonnet ×3: ~114k + ~125k + ~97k | spec 006; phases 1-2 + fix-up; D13; amendment R6a (gate.expected/correct optional); real G runs T01-T03 on temporal-dev with stub reasoning; Done via spec-bridge sync; merged by operator |
 | 2026-11-09 | TASK-0047 | #8 | 918087d | sonnet ×2: ~92k + ~91k | A2; spec 007; phases 1-2 parallel on disjoint dirs; stub runs report model_served stub, unpriced, refused by bench without BENCH_G_ALLOW_STUB=1, excluded from report; Done via spec-bridge sync; merged by operator |
+| 2026-11-11 | TASK-0010 | #9 | d1ea144 | haiku ×1: ~88k | escape line + C5 ruling; READMEs (D7/D8/D9), `spikes/*/data/` gitignored, 02-engine/data untracked (root copy restored as ignored files); Done set by hand (unlinked escape-line task, as TASK-0021) |
 
 **Lane 1 closed 2026-11-05.** Gates re-run on merged `main` by the orchestrator: graph
 build ok, unit 32, workflow 10, versioning 1, integration 4/4 (after killing orphaned
@@ -318,4 +319,15 @@ keeps it) and add `spikes/*/data/` to `.gitignore` — this ruling is the operat
 of that `.gitignore` edit. Lane 3 (TASK-0010) is unblocked and runs under its signed escape
 line (stands in for the spec set: this ruling recorded on the card).
 
-| 2026-11-11 | TASK-0010 | #9 | — | haiku ×1: ~88k | in flight: escape line + C5 ruling; READMEs, `spikes/*/data/` gitignored, 02-engine/data untracked; PR open awaiting operator merge |
+**Lane 3 closed; sweep done 2026-11-11.** Gates re-run on merged `main` (`96026c8`), after
+restarting `temporal-dev` (container had exited): graph build ok, unit 61, workflow 12,
+versioning 1, integration ALL PASS; harness build ok, 73 passed + 1 skipped, `test:g` 1 passed;
+0 node `worker.ts` processes. Done means, checked: all nine scoped tasks (0021, 0019, 0027,
+0013, 0043, 0022, 0018, 0047, 0010) Done via their own merged PRs #1–#9; seven spec-linked
+cards keep their Spec marker and spec-bridge check is ok; every card carries `Dispatch:`
+lines; specs 001–007 each have spec/plan/tasks, 0021 and 0010 ran under signed escape lines;
+`prices.json` has no UNVERIFIED marker; D12 and D13 in the Decisions table; no canary hit in
+any PR diff (transcript hits were only the injected CLAUDE.md definition); `git worktree list`
+shows root only. Not done here and carried by the board: live smoke call (C4, needs the G key),
+TASK-0044, TASK-0045, TASK-0046.
+
