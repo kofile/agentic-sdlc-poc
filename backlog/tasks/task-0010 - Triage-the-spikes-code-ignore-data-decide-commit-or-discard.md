@@ -1,7 +1,7 @@
 ---
 id: TASK-0010
 title: 'Triage the spikes/ code: ignore data, decide commit or discard'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-05 20:51'
 updated_date: '2026-11-11 16:10'
