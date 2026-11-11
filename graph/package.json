@@ -12,6 +12,7 @@
     "reject": "node --import tsx src/cli/reject.ts",
     "status": "node --import tsx src/cli/status.ts",
     "test": "vitest run tests/unit",
+    "smoke:triage": "node --import tsx scripts/smoke-triage.ts",
     "test:workflow": "vitest run tests/workflow",
     "test:versioning": "vitest run tests/versioning",
     "test:integration": "node --import tsx tests/integration/run-all.ts"

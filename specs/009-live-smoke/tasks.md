@@ -2,9 +2,9 @@
 
 ## Phase 1: Launcher and smoke command
 
-- [ ] T001 `graph/scripts/with-g-key.sh` (Keychain → 0600 temp file → env → command; trap cleanup)
-- [ ] T002 `graph/scripts/smoke-triage.ts` and `npm run smoke:triage` (refuses without `GRAPH_REASONING=anthropic`)
-- [ ] T003 Unit tests with a fake `security` and dummy key; build and unit green
+- [x] T001 `graph/scripts/with-g-key.sh` (Keychain → 0600 temp file → env → command; trap cleanup)
+- [x] T002 `graph/scripts/smoke-triage.ts` and `npm run smoke:triage` (refuses without `GRAPH_REASONING=anthropic`)
+- [x] T003 Unit tests with a fake `security` and dummy key; build and unit green
 
 ## Phase 2: Live triage call
 
