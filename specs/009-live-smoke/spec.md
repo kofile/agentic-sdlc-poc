@@ -58,8 +58,10 @@ from the response is the one we priced.
 
 - No implementer reads, handles or runs anything with the real key. Implementers use the
   dummy service and the fake `security` only. The live call is the orchestrator's.
-- Key hygiene gate: `git diff origin/main...HEAD | grep -E 'sk-ant-'` returns nothing; the
-  evidence note and transcripts carry no key material.
+- Key hygiene gate: the runbook's "Key hygiene (TASK-0048)" grep over
+  `git diff origin/main...HEAD` (for the Anthropic key prefix) returns nothing; the
+  evidence note and transcripts carry no key material. Never write that prefix literally
+  into a tracked file, or the gate hits its own description.
 - Footprint: `graph/scripts/`, `graph/package.json` (one script line), `graph/tests/unit/`,
   `notes/spike-05-live-smoke.md`, `notes/00-discovery-log.md` (D12 row only), this spec dir.
 - No new dependencies.
