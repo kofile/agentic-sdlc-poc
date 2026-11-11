@@ -1,5 +1,5 @@
 export const SECTION7_EXAMPLE = {
-  run_id: '2026-11-12T0231Z-P-T07-r2',
+  run_id: '2026-11-12T023145Z-P-T07-r2',
   benchmark_version: 'v0.1',
   contender: 'P',
   contender_version: 'plugin 0.12.x',

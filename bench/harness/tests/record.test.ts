@@ -38,8 +38,19 @@ describe('parseStageRange', () => {
 });
 
 describe('makeRunId', () => {
-  it('matches the section 7 format', () => {
-    expect(makeRunId(new Date('2026-11-12T02:31:45.123Z'), 'P', 'T07', 2)).toBe('2026-11-12T0231Z-P-T07-r2');
+  it('matches the section 7 format (second resolution)', () => {
+    expect(makeRunId(new Date('2026-11-12T02:31:45.123Z'), 'P', 'T07', 2)).toBe('2026-11-12T023145Z-P-T07-r2');
+  });
+  it('differs for two starts in the same minute but different seconds', () => {
+    const a = makeRunId(new Date('2026-11-12T02:31:05Z'), 'P', 'T07', 2);
+    const b = makeRunId(new Date('2026-11-12T02:31:45Z'), 'P', 'T07', 2);
+    expect(a).not.toBe(b);
+    expect(a).toBe('2026-11-12T023105Z-P-T07-r2');
+  });
+  it('sorts lexicographically in time order across minutes, hours and days', () => {
+    const times = ['2026-11-11T23:59:59Z', '2026-11-12T00:00:00Z', '2026-11-12T00:00:09Z', '2026-11-12T00:01:00Z', '2026-11-12T02:31:45Z', '2026-11-12T02:31:46Z'];
+    const ids = times.map((t) => makeRunId(new Date(t), 'P', 'T07', 2));
+    expect([...ids].sort()).toEqual(ids);
   });
   it('accepts a gate without expected/correct (spec 006 R6a); an absent correct is not scored', () => {
     const r = StageRunRecordSchema.parse({ ...SECTION7_EXAMPLE, gate: { name: 'A or B?', decision: 'pass' } });

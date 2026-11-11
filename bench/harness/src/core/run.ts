@@ -21,6 +21,19 @@ export interface RunOptions {
   now?: () => Date;
 }
 
+/** Total insert attempts for one run_id (the base id plus suffixes -2 .. -99). */
+const MAX_RUN_ID_ATTEMPTS = 99;
+
+/** True only for a primary-key/UNIQUE violation on runs.run_id; anything else must propagate. */
+function isRunIdCollision(e: unknown): boolean {
+  if (!e || typeof e !== 'object') return false;
+  const msg = 'message' in e ? String((e as { message: unknown }).message) : '';
+  const code = 'code' in e ? String((e as { code: unknown }).code) : '';
+  const constraint = /UNIQUE constraint failed: runs\.run_id/.test(msg);
+  const pk = /SQLITE_CONSTRAINT/.test(code) && /runs\.run_id/.test(msg);
+  return constraint || pk;
+}
+
 export interface RunResult {
   run_id: string;
   status: 'completed' | 'failed';
@@ -103,25 +116,37 @@ export async function executeRun(opts: RunOptions): Promise<RunResult> {
   const set = opts.set ?? 'dev';
   const now = opts.now ?? (() => new Date());
   const startedAt = now();
-  const run_id = makeRunId(startedAt, adapter.id, ticket, rep);
-  const artifact_dir = path.join(opts.artifactsRoot, run_id);
-  fs.mkdirSync(artifact_dir, { recursive: true });
+  const baseId = makeRunId(startedAt, adapter.id, ticket, rep);
   const contender_version = await adapter.version();
 
-  store.insertRun({
-    run_id,
-    contender: adapter.id,
-    contender_version,
-    ticket_id: ticket,
-    rep,
-    set_name: set,
-    stages: stages.join(','),
-    seed_order: seedOrder,
-    started_at: startedAt.toISOString(),
-    ended_at: null,
-    status: 'running',
-    artifact_dir,
-  });
+  // Same-second runs of the same contender/ticket/rep collide on runs.run_id. Retry with -2, -3, ...
+  // (bounded); the artifact dir is named and created only after the insert settles the final id.
+  let run_id = baseId;
+  let artifact_dir = '';
+  for (let attempt = 1; ; attempt++) {
+    run_id = attempt === 1 ? baseId : `${baseId}-${attempt}`;
+    artifact_dir = path.join(opts.artifactsRoot, run_id);
+    try {
+      store.insertRun({
+        run_id,
+        contender: adapter.id,
+        contender_version,
+        ticket_id: ticket,
+        rep,
+        set_name: set,
+        stages: stages.join(','),
+        seed_order: seedOrder,
+        started_at: startedAt.toISOString(),
+        ended_at: null,
+        status: 'running',
+        artifact_dir,
+      });
+      break;
+    } catch (e) {
+      if (!isRunIdCollision(e) || attempt >= MAX_RUN_ID_ATTEMPTS) throw e;
+    }
+  }
+  fs.mkdirSync(artifact_dir, { recursive: true });
 
   const ctx: RunContext = { run_id, ticket_id: ticket, stages, rep, set, seed_order: seedOrder, artifact_dir };
   const base = { run_id, contender: adapter.id, contender_version, ticket, rep, set };

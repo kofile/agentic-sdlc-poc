@@ -81,7 +81,7 @@ describe('executeRun', () => {
       store, adapter: stubAdapter, ticket: 'T01', rep: 1, stages: parseStageRange('triage..plan'),
       seedOrder: 1, artifactsRoot: path.join(d, 'art'), now: () => new Date('2026-11-12T02:31:45Z'),
     });
-    expect(res).toMatchObject({ run_id: '2026-11-12T0231Z-stub-T01-r1', status: 'completed', stored: 4 });
+    expect(res).toMatchObject({ run_id: '2026-11-12T023145Z-stub-T01-r1', status: 'completed', stored: 4 });
     const rows = store.listStageRuns({ run_id: res.run_id });
     expect(rows.map((r) => r.stage)).toEqual(['triage', 'route', 'design', 'plan']);
     expect(rows[0]).toMatchObject({ benchmark_version: 'v0.1', contender: 'stub', rep: 1, set: 'dev', ticket_id: 'T01' });
@@ -89,6 +89,37 @@ describe('executeRun', () => {
     expect(store.listRuns()).toHaveLength(1);
     expect(store.listRuns()[0].status).toBe('completed');
     expect(fs.existsSync(path.join(d, 'art', res.run_id, 'stub.txt'))).toBe(true);
+    store.close();
+  });
+
+  it('two runs in the same second get distinct run ids and their own artifact dirs', async () => {
+    const d = tmp();
+    const store = openStore(':memory:');
+    const same = () => new Date('2026-11-12T02:31:45Z');
+    const args = { store, adapter: stubAdapter, ticket: 'T01', rep: 1, stages: parseStageRange('triage..plan'), seedOrder: 1, artifactsRoot: path.join(d, 'art'), now: same };
+    const first = await executeRun(args);
+    const second = await executeRun(args);
+    expect(first).toMatchObject({ run_id: '2026-11-12T023145Z-stub-T01-r1', status: 'completed', stored: 4 });
+    expect(second).toMatchObject({ run_id: '2026-11-12T023145Z-stub-T01-r1-2', status: 'completed', stored: 4 });
+    expect(store.listRuns().map((r) => r.run_id).sort()).toEqual([first.run_id, second.run_id].sort());
+    expect(store.listStageRuns({ run_id: second.run_id })).toHaveLength(4);
+    expect(store.listStageRuns({ run_id: first.run_id })).toHaveLength(4);
+    const dirs2 = store.listRuns().map((r) => r.artifact_dir).sort();
+    expect(dirs2).toEqual([path.join(d, 'art', first.run_id), path.join(d, 'art', second.run_id)].sort());
+    for (const dir of dirs2) expect(fs.existsSync(path.join(dir, 'stub.txt'))).toBe(true);
+    store.close();
+  });
+
+  it('a non-collision insert error is rethrown, not retried', async () => {
+    const store = openStore(':memory:');
+    const failing = Object.assign(Object.create(store), {
+      insertRun: () => {
+        throw new Error('disk I/O error');
+      },
+    });
+    await expect(
+      executeRun({ store: failing, adapter: stubAdapter, ticket: 'T01', rep: 1, stages: ['triage'], seedOrder: 1, artifactsRoot: tmp(), now: () => new Date('2026-11-12T02:31:45Z') }),
+    ).rejects.toThrow('disk I/O error');
     store.close();
   });
 
