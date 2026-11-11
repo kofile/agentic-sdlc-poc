@@ -188,3 +188,4 @@ complete and its status flipped to done.
 | 2026-11-11 | TASK-0044 | #10 | a83603f | haiku ×1: ~101k | escape line; second-resolution ids + `-2`… retry on collision; harness 77 passed + 1 skipped (orchestrator re-run) |
 | 2026-11-11 | TASK-0045 | #11 | c64fad5 | sonnet ×3: ~78k + ~80k + ~75k | spec 008; phases 1-2 parallel, 3; zod 4 needed no source edits; D14, D15; tinypool not fixed by 2.1.9 (accepted dev-only); gates re-run incl. integration and `test:g` |
 | 2026-11-11 | TASK-0048 | — | — | sonnet ×1: ~93k | spec 009; phase 1 (launcher + `smoke:triage`) done under C8's "launcher build does not wait"; unit 66; live call (phase 2) waits on C8; #11 merged, main merged into the branch |
+| 2026-11-11 | TASK-0049 | — | — | sonnet ×2 (phases 1, 2 in flight) | spec 010; amendment A1; phases 1-2 dispatched in parallel on disjoint files, phase 3 (wiring) after; merges before TASK-0048 |
