@@ -4,7 +4,7 @@ title: Live smoke call for G's Reasoning adapter (C4)
 status: In Progress
 assignee: []
 created_date: '2026-11-11 16:20'
-updated_date: '2026-11-11 16:26'
+updated_date: '2026-11-11 16:27'
 labels:
   - graph
   - reasoning
@@ -29,7 +29,12 @@ Spec: specs/009-live-smoke
 - [ ] #2 One triage call on graph/tickets/sample-ticket.md succeeds, output passes zod, and model_served from the response is claude-sonnet-5-5
 - [ ] #3 Tokens and computed cost recorded and checked against the Anthropic console usage page
 - [ ] #4 D12's UNVERIFIED note on live behaviour updated with the evidence
+- [ ] #5 Spec phase: Launcher and smoke command
+- [ ] #6 Spec phase: Live triage call
+- [ ] #7 Spec phase: Evidence recorded
 <!-- AC:END -->
+
+
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
