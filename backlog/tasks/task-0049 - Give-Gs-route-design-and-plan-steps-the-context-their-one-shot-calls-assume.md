@@ -1,10 +1,10 @@
 ---
 id: TASK-0049
 title: 'Give G''s route, design and plan steps the context their one-shot calls assume'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-11 19:59'
-updated_date: '2026-11-11 20:16'
+updated_date: '2026-11-11 20:28'
 labels:
   - graph
   - reasoning
@@ -28,7 +28,7 @@ Spec: specs/010-preloaded-context
 - [x] #1 Operator decision on the approach recorded as a decision-log row
 - [x] #2 Route receives the repository catalog; design and plan receive the agreed context
 - [x] #3 Plan file paths are checked by a code gate against the checkout (exist, or explicitly new)
-- [ ] #4 Lands before the spec-frozen tag; TASK-0046 reviews prompts after this change
+- [x] #4 Lands before the spec-frozen tag; TASK-0046 reviews prompts after this change
 - [x] #5 Spec phase: Context port, adapter and assembly
 - [x] #6 Spec phase: Plan schema and path gate
 - [x] #7 Spec phase: Wiring, prompts and docs
@@ -56,12 +56,20 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 2026-11-11 phase 3 done; orchestrator re-ran build ok, unit 90, workflow 14, versioning 1, integration ALL PASS, 0 workers; canary 0, key prefix 0, no bench/ changes. Versioning fixtures updated to mirror the preload block (negative control still fails on precheck).
+
+2026-11-11 merged via PR #12 (b7a1b62), before any spec-frozen tag and before TASK-0046. spec 010 tasks.md T001-T010 all ticked.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+D17 in code: route gets the repository catalog; design/plan get per-repo file tree, keyword/path-matched files and Spec Wiki (absent today, recorded as a telemetry gap). Context assembled in activities by deterministic core code; integrity guard refuses hidden-tests/tickets/reference.diff and canary-marked files. Plan tasks gain new_files; planPathGate stops plans with unknown paths (stopped-at-plan-paths), behind patched('context-preload-v1'). Orchestrator re-run: unit 90, workflow 14, versioning 1, integration ALL PASS. Live route/design/plan with context UNVERIFIED until the dev pilot. PR #12, merge b7a1b62.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 Tests are written (when applicable).
-- [ ] #2 All Tests pass (when available)
-- [ ] #3 All acceptance criteria (AC) are checked off or explicitly bypassed with note
-- [ ] #4 Spec-kit specifications have been written, and have been fully executed (when applicable)
+- [x] #1 Tests are written (when applicable).
+- [x] #2 All Tests pass (when available)
+- [x] #3 All acceptance criteria (AC) are checked off or explicitly bypassed with note
+- [x] #4 Spec-kit specifications have been written, and have been fully executed (when applicable)
 <!-- DOD:END -->
