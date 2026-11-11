@@ -161,3 +161,5 @@ complete and its status flipped to done.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
+| 2026-11-11 | TASK-0044 | #10 | (open) | haiku ×1: ~101k | escape line; second-resolution ids + `-2`… retry on collision; harness 77 passed + 1 skipped (orchestrator re-run) |
+| 2026-11-11 | TASK-0045 | — | — | sonnet: phases 1 (graph) + 2 (harness) dispatched in parallel | spec 008; in flight |
