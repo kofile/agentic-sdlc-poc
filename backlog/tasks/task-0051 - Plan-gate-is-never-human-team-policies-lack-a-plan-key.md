@@ -4,7 +4,7 @@ title: 'Plan gate is never human: team policies lack a plan key'
 status: In Progress
 assignee: []
 created_date: '2026-11-11 20:35'
-updated_date: '2026-11-11 20:45'
+updated_date: '2026-11-11 20:46'
 labels:
   - graph
   - bug
@@ -28,7 +28,10 @@ Spec: specs/011-plan-gate-policy
 - [ ] #1 Each team file states the plan gate explicitly (default and strict human, auto auto), or the README/contracts are corrected if plan is intentionally always auto
 - [ ] #2 A workflow test proves a human plan gate waits for a decide signal under the default policy
 - [ ] #3 The meaning of the 'merge' key is documented or removed
+- [ ] #4 Spec phase: Policy files, docs and tests
 <!-- AC:END -->
+
+
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
