@@ -114,6 +114,7 @@ post-conditions, plus a graph around it.
 | K6 | Gate policy is data, configurable per team. | Round 1 |
 | K7 | Architecture must plausibly scale company-wide; PoC need not demo tenancy. | Round 2 |
 | K8 | Prefer not to write our own coding harness. | Round 2 |
+| K9 | n8n is read-only for us: never create, update or publish a workflow through the n8n connector (connector updates auto-publish; `ad47NpL1Nf3VlZUM` especially). Clones only in the operator's personal space, with their own webhook URL. | Cesar, 2026-11-11 |
 
 ## 7. Decisions
 
@@ -202,6 +203,50 @@ Coverage matrix (what exists to compare, to be confirmed):
 ## 9c. Spec review round 1 (2026-11-05, sections 0-4)
 
 Raised, not yet decided: H1 is under-powered (4 anchors at k=5; consider 6-8 anchors, cheap because triage-only runs cost little); plugin may not run unattended under `claude -p` (spike 1); schedule is aggressive (Day 1 is 2026-11-05; repo, tickets, hidden tests and seeded PRs need a few days before G exists); $2.50 mean per run is likely low, replace after the first pilot; dev set lacks cross-repo and reject tickets; H2 falsification clause mixes two conditions; no live-demo script yet; freeze the spec with a git tag before the first scored run. Sections 5-9 reviewed 2026-11-05: added per-model price table and re-verify requirement, H5 framed as a capability comparison with equal fault types, freeze moved to Day 5, spikes added to Days 1-2, operating model (agent lanes, operator reviews at Days 2/5/7) and spot-check blindness limitation recorded in the spec. Still undecided: raise anchor-ticket count for H1, add cross-repo and reject tickets to dev set, split the H2 clause, add live-demo script and an at-scale architecture note, test the design-redesign loop with a scripted reject.
+
+## 9d. Cesar's answers and the operator's correction (2026-11-11)
+
+Source: Cesar's written reply relayed by the operator in session 2026-11-11, paraphrased;
+plus one operator statement the same day.
+
+- **The workflows shared on 2026-11-04 are examples, not part of the SDLC plugin's live
+  path.** Section 9b's reading of `PR Reviewer & Approver` and `ad47NpL1Nf3VlZUM` describes
+  examples, not the production n8n SDLC.
+- **The n8n workflow currently in use is `VvyhCzdxMvluqf7d`.** It is N's candidate baseline
+  (decision pending, see D13 below).
+- **Operator: n8n has no execute step for the SDLC yet; it runs only up to the
+  implementation plan.** So N covers triage → route → design → plan only.
+- **Merge and deploy workflows:** do not exist yet.
+- **Who opens the PR:** in the plugin, the execute stage creates the branch, commits and
+  opens the PR at its end.
+- **Validate / quality gates:** run by the target repo's CI/CD where it exists. Otherwise
+  the plugin should carry the skills to run them (possibly a config flag).
+- **Triage:** the Ticket Grader is triggered by a Jira webhook. We may copy the workflow
+  and drive it with our own test payload via n8n's test-webhook feature.
+- **Sandbox copies of n8n workflows:** not for now (plugin adoption first). Cloning into
+  the operator's personal space is allowed, provided any published copy gets a different
+  webhook URL to avoid conflicts.
+- **Reading past executions of WF2.1, WF2.2, WF3:** allowed.
+- **Token telemetry:** token usage is in each agent node's response, so it is in the
+  execution history, but not aggregated in any dashboard.
+- **Time cap:** the 40-minute cap is the plugin's. An n8n execution currently takes about
+  5 minutes (mostly deterministic steps). Cost per n8n execution was not answered.
+- **Constraint (K9 below):** `ad47NpL1Nf3VlZUM` is exposed to MCP, but it must never be
+  updated through the connector, because connector updates publish automatically.
+
+Coverage matrix, corrected (supersedes the n8n column in 9b):
+
+| Stage | Plugin | n8n (`VvyhCzdxMvluqf7d`) | New system |
+|---|---|---|---|
+| triage | yes | yes (webhook-triggered grader; test payload possible) | built |
+| route / design / plan | yes | yes | built |
+| execute / open PR | yes | **no** | built |
+| validate / review | yes (or repo CI) | **no** (review workflow is an example only) | partly |
+| merge / deploy | yes | no | out of PoC scope |
+
+**Open for the operator:** proposed D13 fixes N's scope as `VvyhCzdxMvluqf7d`, triage..plan
+only, history-first per D2. Its comparisons would be made on those four stages, and N would
+be reported as "does not cover" execute onward rather than as failing it. Not yet decided.
 
 ## 10. Open questions
 
