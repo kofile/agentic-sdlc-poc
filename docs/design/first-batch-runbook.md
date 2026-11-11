@@ -318,3 +318,4 @@ keeps it) and add `spikes/*/data/` to `.gitignore` — this ruling is the operat
 of that `.gitignore` edit. Lane 3 (TASK-0010) is unblocked and runs under its signed escape
 line (stands in for the spec set: this ruling recorded on the card).
 
+| 2026-11-11 | TASK-0010 | #9 | — | haiku ×1: ~88k | in flight: escape line + C5 ruling; READMEs, `spikes/*/data/` gitignored, 02-engine/data untracked; PR open awaiting operator merge |
