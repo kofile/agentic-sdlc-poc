@@ -311,3 +311,10 @@ skipped, `test:g` 1 passed; 0 node `worker.ts` processes; `git worktree list` sh
 spec-bridge check ok (7 linked tasks). Remaining in this runbook: Lane 3 (TASK-0010), parked
 until the operator rules on C5. Status stays signed-off (not done).
 
+**C5 ruled 2026-11-11 (operator, in session):** keep all three spikes (`01-plugin-headless`,
+`02-engine`, `03-execute-host`) committed as evidence, each with a README saying it is not
+product code; untrack `spikes/02-engine/data/` (`git rm --cached`; history on `origin`
+keeps it) and add `spikes/*/data/` to `.gitignore` — this ruling is the operator's approval
+of that `.gitignore` edit. Lane 3 (TASK-0010) is unblocked and runs under its signed escape
+line (stands in for the spec set: this ruling recorded on the card).
+
