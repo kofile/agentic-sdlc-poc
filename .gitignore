@@ -23,6 +23,7 @@ __pycache__/
 # spike scratch repos and raw run output
 spikes/*/scratch/
 spikes/*/raw/
+spikes/*/data/
 spikes/*/node_modules/
 
 .DS_Store

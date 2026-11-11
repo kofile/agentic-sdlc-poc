@@ -1,3 +1,0 @@
-{"t":1793893846740,"pid":29433,"runId":"C-mw3q2kh6-0","step":"execute:write-file","file":"out/C-mw3q2kh6-0.txt"}
-{"t":1793893846782,"pid":29433,"runId":"C-mw3q2kh6-0","step":"open-pr","pr":"https://example.invalid/pr/C-mw3q2kh6-0"}
-{"t":1793893846809,"pid":29433,"runId":"C-mw3q2kh6-0","step":"merge"}

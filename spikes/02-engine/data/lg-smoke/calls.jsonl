@@ -1,8 +1,0 @@
-{"t":1793894083083,"pid":35077,"runId":"smoke1","step":"triage"}
-{"t":1793894083291,"pid":35077,"runId":"smoke1","step":"route"}
-{"t":1793894083511,"pid":35077,"runId":"smoke1","step":"design","round":1,"feedback":null}
-{"t":1793894084673,"pid":35108,"runId":"smoke1","step":"plan"}
-{"t":1793894084890,"pid":35108,"runId":"smoke1","step":"execute:start"}
-{"t":1793894085199,"pid":35108,"runId":"smoke1","step":"execute:effect-done"}
-{"t":1793894085202,"pid":35108,"runId":"smoke1","step":"open-pr"}
-{"t":1793894085219,"pid":35108,"runId":"smoke1","step":"merge"}
