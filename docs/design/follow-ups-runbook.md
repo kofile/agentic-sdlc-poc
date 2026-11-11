@@ -26,7 +26,8 @@ proposed" in session; rulings below)
 - **Paused — untouched:** none.
 - **Next spec number:** check `specs/` on `origin/main` at claim time (005 was the last
   known one; take the next free).
-- **Queued, in merge order:** TASK-0044, TASK-0045, TASK-0048, TASK-0046.
+- **Queued, in merge order:** TASK-0044, TASK-0045, TASK-0048, TASK-0049 (amendment A1),
+  TASK-0046.
 - **Then (not in this runbook):** `pdlc:refactor-triage` over the merged range of both sweeps.
 
 ## Execution lanes
@@ -71,7 +72,25 @@ proposed" in session; rulings below)
   implementer builds and tests the launcher with a dummy Keychain service name.
   Spend cap: $1 for the whole task.
 
-**Lane 3 — after TASK-0048 merges (the reviewer should see one live output):**
+- **TASK-0049 (sonnet · model `claude-sonnet-5-5`, fallback `claude-sonnet-5`. D17 settles
+  the approach, so the implementer has no open judgment call.)** Added by **amendment A1**
+  (operator, 2026-11-11, "Yes, add it"). It pre-loads context for G's one-shot steps per D17:
+  - **Route** gets the repository catalog.
+  - **Design and plan** get the Spec Wiki, the target repo's file tree and keyword/path-matched
+    files. A deterministic context step in code assembles all of this before the call.
+  - **A code gate** fails plan task file paths that neither exist in the checkout nor are
+    marked new.
+
+  The Spec Wiki lives in the sandbox Confluence, which is not provisioned yet (M1). Read it
+  through a port with a file-backed adapter, and record its absence as a `telemetry_gaps`
+  entry, never as silent empty context. Never source context from `bench/hidden-tests/`,
+  `bench/tickets/expected.draft.yaml` or reference diffs. Footprint: `graph/src/workflow/`,
+  a new context port and adapter under `graph/src/`, `graph/prompts/{route,design,plan}.md`,
+  `graph/src/core/` (gate), and tests. It may develop in parallel with TASK-0048, but merges
+  after it, and before TASK-0046, whose review reads the context-aware prompts.
+
+**Lane 3 — after TASK-0048 and TASK-0049 merge (the reviewer should see one live output and
+the context-aware prompts):**
 
 - **TASK-0046 (operator-owned review; implementer only for edits the reviewer asks for,
   sonnet).** A person (operator or Cesar) reviews `graph/prompts/{triage,route,design,plan}.md`
