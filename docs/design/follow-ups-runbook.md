@@ -132,8 +132,18 @@ no secrets; decisions go in section 7). Added here:
     exceed wording changes. Signed Evan Stern 2026-11-11.
   - TASK-0044: a one-function fix. Stand-ins are the card's ACs plus the tests. Signed
     Evan Stern 2026-11-11.
+  - TASK-0050 (added 2026-11-11 after PR #12 broke `npm run build` on main): a one-line type
+    fix. Stand-ins are the card's ACs plus a clean build on a fresh `npm ci` and green unit,
+    workflow, versioning and integration suites. Merges before TASK-0048. Signed Evan Stern
+    2026-11-11 (in session).
 
 ## Concurrency & conflict doctrine
+
+- **Fresh dependencies per worktree (added 2026-11-11, after PR #12).** Every worktree runs
+  its own `npm ci` in each package before any gate. Never symlink `node_modules` from the root
+  checkout: the root can hold a stale dependency set, and PR #12 passed `tsc` against zod 3
+  that way while main runs zod 4. vitest does not type-check, so `npm run build` is the only
+  type gate and must run on the worktree's own install.
 
 As in the first-batch runbook. Hotspots for this batch:
 - `bench/harness/package.json` and lockfile, plus `src/core/run.ts` (TASK-0044 and 0045);
