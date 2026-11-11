@@ -4,7 +4,7 @@ title: Triage npm audit findings in graph/ and bench/harness
 status: In Progress
 assignee: []
 created_date: '2026-11-05 21:58'
-updated_date: '2026-11-11 16:22'
+updated_date: '2026-11-11 16:24'
 labels:
   - graph
   - harness
@@ -26,7 +26,12 @@ Spec: specs/008-npm-audit
 <!-- AC:BEGIN -->
 - [ ] #1 Each finding has a recorded disposition
 - [ ] #2 Production dependency findings fixed or accepted with a decision-log row
+- [ ] #3 Spec phase: graph on zod 4 and vitest 2.1.9
+- [ ] #4 Spec phase: harness on zod 4 and vitest 2.1.9
+- [ ] #5 Spec phase: Dispositions recorded
 <!-- AC:END -->
+
+
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
