@@ -145,6 +145,9 @@ habit stays).
 - **C8:** still open until the operator confirms the key is in the Keychain under service
   `claude-bench-g-api-key`. TASK-0048's live call waits; its launcher build does not.
 - **C9:** still open (no reviewer was proposed). Ask when Lane 3 starts.
+  **Ruled 2026-11-11 (operator, in session):** Evan Stern (operator) reviews.
+- **C8 status 2026-11-11 (operator, in session):** key not yet stored; TASK-0048's live call
+  paused until the operator confirms.
 - **C10:** both escape lines signed.
 - **C1-equivalent:** sign-off authorizes this sweep's git writes for the scoped tasks
   (claims, pushes, PRs, board commits). Merges are the operator's.
@@ -162,4 +165,5 @@ complete and its status flipped to done.
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
 | 2026-11-11 | TASK-0044 | #10 | (open) | haiku ×1: ~101k | escape line; second-resolution ids + `-2`… retry on collision; harness 77 passed + 1 skipped (orchestrator re-run) |
-| 2026-11-11 | TASK-0045 | — | — | sonnet: phases 1 (graph) + 2 (harness) dispatched in parallel | spec 008; in flight |
+| 2026-11-11 | TASK-0045 | #11 | (open) | sonnet ×3: ~78k + ~80k + ~75k | spec 008; phases 1-2 parallel, 3; zod 4 needed no source edits; D14, D15; tinypool not fixed by 2.1.9 (accepted dev-only); gates re-run incl. integration and `test:g` |
+| 2026-11-11 | TASK-0048 | — | — | sonnet ×1: ~93k | spec 009; phase 1 (launcher + `smoke:triage`) done under C8's "launcher build does not wait"; unit 66; live call (phase 2) waits on C8 and #11 merging |
