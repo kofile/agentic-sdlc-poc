@@ -4,7 +4,7 @@ title: Send Cesar the n8n ask and record his answers
 status: To Do
 assignee: []
 created_date: '2026-11-05 20:51'
-updated_date: '2026-11-11 16:27'
+updated_date: '2026-11-11 16:28'
 labels:
   - operator
   - cesar
@@ -29,13 +29,15 @@ His first reply (2026-11-05) says the Ticket Grader Webhook is Old and inactive;
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 Message sent and each question above has a recorded answer in the discovery log (section 9b)
-- [ ] #2 Decision recorded on which n8n variants are measured and whether N has live sandbox copies or history-only baselines (D2)
+- [x] #2 Decision recorded on which n8n variants are measured and whether N has live sandbox copies or history-only baselines (D2)
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-11-11: Cesar's answers recorded in notes/00-discovery-log.md section 9d. AC #2 (which n8n variant is measured, D2) awaits operator decision on proposed D13.
+
+2026-11-11: D16 recorded (N = VvyhCzdxMvluqf7d, triage..plan, history first). Cesar's grader-of-record role (D3) not addressed in his reply; still to confirm.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
