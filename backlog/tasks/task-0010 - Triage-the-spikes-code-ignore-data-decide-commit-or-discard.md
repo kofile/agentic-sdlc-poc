@@ -1,10 +1,10 @@
 ---
 id: TASK-0010
 title: 'Triage the spikes/ code: ignore data, decide commit or discard'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-05 20:51'
-updated_date: '2026-11-11 16:11'
+updated_date: '2026-11-11 16:12'
 labels:
   - repo-hygiene
   - spikes
@@ -40,6 +40,12 @@ Dispatch: tier=haiku pinned=claude-haiku-5-5 served=claude-haiku-5-5
 
 2026-11-11 orchestrator: git rm --cached spikes/02-engine/data (65 files; 0 tracked after); spikes/*/data/ gitignored; READMEs for 01/03 new, 02 gained the not-product-code line; git status clean of spikes/ leftovers (only ignored raw/, scratch/, node_modules/).
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+C5 ruling (2026-11-11) carried out via PR #9 (d1ea144): all three spikes kept as evidence with not-product-code READMEs (D7, D8, D9); spikes/*/data/ gitignored; spikes/02-engine/data/ untracked (history keeps it; root working copy restored as ignored files). Escape-line task, no spec set.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
