@@ -114,6 +114,7 @@ post-conditions, plus a graph around it.
 | K6 | Gate policy is data, configurable per team. | Round 1 |
 | K7 | Architecture must plausibly scale company-wide; PoC need not demo tenancy. | Round 2 |
 | K8 | Prefer not to write our own coding harness. | Round 2 |
+| K9 | n8n is read-only for us: never create, update or publish a workflow through the n8n connector (connector updates auto-publish; `ad47NpL1Nf3VlZUM` especially). Clones only in the operator's personal space, with their own webhook URL. | Cesar, 2026-11-11 |
 
 ## 7. Decisions
 
@@ -132,6 +133,9 @@ post-conditions, plus a graph around it.
 | D11 | Hidden tests, `expected.draft.yaml` and `reference.diff` files stay in git history on `origin` (pushed 2026-11-05 in `08b2672` and earlier commits). Accepted for now; revisit if repo visibility widens beyond the operator and Cesar, contender agents can clone it, or a canary leak appears. Rewriting history would need a force-push. Evidence: operator statement in session 2026-11-05 | 2026-11-05 | Med: history rewrite deferred | Med: possible integrity risk if exposure widens | Med | Decided, revisit on trigger |
 | D12 | Reasoning transport for G is the Anthropic API via `@anthropic-ai/sdk` 1.1.0: structured outputs (`output_config.format` json_schema, zod re-validation), no fallbacks, effort `high` set explicitly, model `claude-sonnet-5-5`, API key read from a file mount (`ANTHROPIC_API_KEY_FILE`), selected with `GRAPH_REASONING=anthropic`. Invalid output fails closed (`stopped-invalid-output`). Evidence: `specs/005-reasoning-adapter/`. The live smoke call (C4) is still pending, so behaviour against the live API is UNVERIFIED | 2026-11-05 | Med: one pinned SDK, hand-kept JSON schemas guarded by a drift test | High: key by file mount, no CLI dependency | High: provider swappable behind the Reasoning port | Decided |
 | D13 | Scripted gate approvals in benchmark mode are logged in `interventions` with kind `scripted_approval` and do not count toward the intervention metric or `assisted`; the `interventions` count on a stage record counts unscripted touches only (benchmark spec 5.5). Reconciles TASK-0018's AC #2 with the spec. Evidence: `specs/006-g-adapter/spec.md` (R3, R4) | 2026-11-05 | Med: one extra table row kind to maintain | High: hands-off metric stays honest | Med: other contenders can reuse the kind | Decided |
+| D14 | zod upgraded to 4.6.7 (exact) in `graph/` and `bench/harness/` to clear GHSA-mrhx-c7xc-m3w5 (high, production, `<4.6.6`). Semver-major, but no source or test changes were needed. All gates green, including the D12 structured-output parity test. `npm audit --omit=dev` is clean in both packages. Operator ruling C7(a). Evidence: `specs/008-npm-audit/` | 2026-11-11 | High: production audit clean, no code churn | High: no change for users | Med: stays on current zod major, next major is a fresh upgrade | Decided |
+| D15 | vitest bumped 2.1.8 to 2.1.9 (exact) in both packages, clearing GHSA-9crc-q9x8-hgqq. The remaining vitest-chain advisories (vitest, @vitest/mocker, vite, vite-node, esbuild, tinypool; 2 critical, 1 high, 3 moderate) are accepted as dev-only and not applicable. We never run the vitest UI or API server, browser mode, or a vite/esbuild dev server, and tests run locally only. tinypool is not fixed by 2.1.9 (stays 1.1.1). A vitest 4 major upgrade is out of scope (C7c) and would get its own card. Operator ruling C7(b)/(c). Evidence: `specs/008-npm-audit/` | 2026-11-11 | Med: accepted advisories need a re-check on each audit run | High: dev-only, no effect on users | Med: vitest 4 upgrade deferred to its own card | Decided |
+| D16 | Contender N is n8n workflow `VvyhCzdxMvluqf7d` (the one in use), measured on **triage, route, design and plan only**, from execution history first (D2); live runs only via a copy in the operator's personal space with its own webhook URL (K9). N is reported as "does not cover" execute onward, never as failing those stages; stage-level comparisons with N use those four stages. The 2026-11-04 example workflows (`PR Reviewer & Approver`, `ad47NpL1Nf3VlZUM`) are not N. Evidence: section 9d (Cesar's answers and operator statement, 2026-11-11) | 2026-11-11 | High: no n8n rework, read-only | Med: N's story is partial by its own scope, stated plainly | Med | Decided |
 
 Note 2026-11-05: D7's follow-up (workflow versioning with in-flight runs) is answered in `notes/spike-04-versioning.md` — a run parked at the design gate survived a worker swap to a changed definition guarded by `patched()`, and the unguarded change failed replay with a determinism error (single patch, local server, mocked activities; Worker Versioning and Temporal Cloud not tested).
 
@@ -202,6 +206,47 @@ Coverage matrix (what exists to compare, to be confirmed):
 ## 9c. Spec review round 1 (2026-11-05, sections 0-4)
 
 Raised, not yet decided: H1 is under-powered (4 anchors at k=5; consider 6-8 anchors, cheap because triage-only runs cost little); plugin may not run unattended under `claude -p` (spike 1); schedule is aggressive (Day 1 is 2026-11-05; repo, tickets, hidden tests and seeded PRs need a few days before G exists); $2.50 mean per run is likely low, replace after the first pilot; dev set lacks cross-repo and reject tickets; H2 falsification clause mixes two conditions; no live-demo script yet; freeze the spec with a git tag before the first scored run. Sections 5-9 reviewed 2026-11-05: added per-model price table and re-verify requirement, H5 framed as a capability comparison with equal fault types, freeze moved to Day 5, spikes added to Days 1-2, operating model (agent lanes, operator reviews at Days 2/5/7) and spot-check blindness limitation recorded in the spec. Still undecided: raise anchor-ticket count for H1, add cross-repo and reject tickets to dev set, split the H2 clause, add live-demo script and an at-scale architecture note, test the design-redesign loop with a scripted reject.
+
+## 9d. Cesar's answers and the operator's correction (2026-11-11)
+
+Source: Cesar's written reply relayed by the operator in session 2026-11-11, paraphrased;
+plus one operator statement the same day.
+
+- **The workflows shared on 2026-11-04 are examples, not part of the SDLC plugin's live
+  path.** Section 9b's reading of `PR Reviewer & Approver` and `ad47NpL1Nf3VlZUM` describes
+  examples, not the production n8n SDLC.
+- **The n8n workflow currently in use is `VvyhCzdxMvluqf7d`.** It is N's baseline (D16).
+- **Operator: n8n has no execute step for the SDLC yet; it runs only up to the
+  implementation plan.** So N covers triage → route → design → plan only.
+- **Merge and deploy workflows:** do not exist yet.
+- **Who opens the PR:** in the plugin, the execute stage creates the branch, commits and
+  opens the PR at its end.
+- **Validate / quality gates:** run by the target repo's CI/CD where it exists. Otherwise
+  the plugin should carry the skills to run them (possibly a config flag).
+- **Triage:** the Ticket Grader is triggered by a Jira webhook. We may copy the workflow
+  and drive it with our own test payload via n8n's test-webhook feature.
+- **Sandbox copies of n8n workflows:** not for now (plugin adoption first). Cloning into
+  the operator's personal space is allowed, provided any published copy gets a different
+  webhook URL to avoid conflicts.
+- **Reading past executions of WF2.1, WF2.2, WF3:** allowed.
+- **Token telemetry:** token usage is in each agent node's response, so it is in the
+  execution history, but not aggregated in any dashboard.
+- **Time cap:** the 40-minute cap is the plugin's. An n8n execution currently takes about
+  5 minutes (mostly deterministic steps). Cost per n8n execution was not answered.
+- **Constraint (K9 below):** `ad47NpL1Nf3VlZUM` is exposed to MCP, but it must never be
+  updated through the connector, because connector updates publish automatically.
+
+Coverage matrix, corrected (supersedes the n8n column in 9b):
+
+| Stage | Plugin | n8n (`VvyhCzdxMvluqf7d`) | New system |
+|---|---|---|---|
+| triage | yes | yes (webhook-triggered grader; test payload possible) | built |
+| route / design / plan | yes | yes | built |
+| execute / open PR | yes | **no** | built |
+| validate / review | yes (or repo CI) | **no** (review workflow is an example only) | partly |
+| merge / deploy | yes | no | out of PoC scope |
+
+**Decided as D16 (2026-11-11):** N is `VvyhCzdxMvluqf7d`, triage..plan only, history first.
 
 ## 10. Open questions
 

@@ -4,6 +4,7 @@ title: Enable MCP access on the n8n execute workflow
 status: To Do
 assignee: []
 created_date: '2026-11-05 20:51'
+updated_date: '2026-11-11 16:28'
 labels:
   - operator
   - cesar
@@ -26,6 +27,14 @@ The execute workflow (id ad47NpL1Nf3VlZUM) returns 'Workflow is not available in
 - [ ] #1 get_workflow_details on ad47NpL1Nf3VlZUM succeeds
 - [ ] #2 Past executions for it can be searched and a token-count field is confirmed present or absent
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-11-11 (Cesar): ad47NpL1Nf3VlZUM is already exposed to MCP, but it is an example workflow, not the SDLC path in use; never update it through the connector (auto-publishes; K9). Whether this card is still needed depends on D13.
+
+2026-11-11: under D16 the execute workflow is not part of N; propose dropping this card (operator call).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

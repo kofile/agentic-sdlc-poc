@@ -1,9 +1,10 @@
 ---
 id: TASK-0044
 title: bench run ids collide for the same ticket and rep within one minute
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-05 21:58'
+updated_date: '2026-11-11 16:24'
 labels:
   - harness
   - bug
@@ -20,9 +21,17 @@ Found 2026-11-05 during TASK-0018 verification: two 'bench run' invocations with
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Two runs of the same contender/ticket/rep started in the same minute get distinct run ids
-- [ ] #2 Run id stays human-readable and sortable
+- [x] #1 Two runs of the same contender/ticket/rep started in the same minute get distinct run ids
+- [x] #2 Run id stays human-readable and sortable
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=haiku pinned=claude-haiku-5-5 served=claude-haiku-5-5
+
+2026-11-11 escape line (signed): card ACs + tests stand in for the spec set. Orchestrator re-ran harness build ok, 77 passed + 1 skipped (was 73+1). Collision retry: same-second runs get -2, -3 ... (bounded at 99); artifact dir named after the settled id.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
