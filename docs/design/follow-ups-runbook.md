@@ -27,7 +27,7 @@ proposed" in session; rulings below)
 - **Next spec number:** check `specs/` on `origin/main` at claim time (005 was the last
   known one; take the next free).
 - **Queued, in merge order:** TASK-0044, TASK-0045, TASK-0049 (amendment A1),
-  TASK-0048, TASK-0046.
+  TASK-0051 (amendment A2), TASK-0048, TASK-0046.
 - **Then (not in this runbook):** `pdlc:refactor-triage` over the merged range of both sweeps.
 
 ## Execution lanes
@@ -90,6 +90,20 @@ proposed" in session; rulings below)
   It does not need the key, and it merges **before TASK-0048**, so the live smoke call
   exercises the context-aware prompts. It also merges before TASK-0046. If it lands while
   TASK-0048's branch is open, TASK-0048 merges `main` in and re-runs its gates.
+
+- **TASK-0051 (sonnet · model `claude-sonnet-5-5`, fallback `claude-sonnet-5`. The approach
+  is settled here.)** Added by **amendment A2** (operator, 2026-11-11, "Yes, add it"). The
+  plan gate is never human because no team file has a `plan` key. The fix takes the first
+  option in the card's AC #1:
+  - Add `"plan"` to every `graph/teams/*.json`: `auto` for auto, `human` for default and strict.
+  - Document `merge` as reserved for the out-of-PoC merge stage. Do not remove it.
+  - Add a workflow test that a human plan gate waits for a `decide` signal under the default
+    policy.
+
+  Footprint: `graph/teams/`, `graph/tests/workflow/`, `graph/README.md`,
+  `graph/docs/stage-contracts.md`. Start now (no key needed). It merges after TASK-0049,
+  which it does, and before TASK-0046. Its order relative to TASK-0048 doesn't matter, since
+  the smoke call runs triage only.
 
 **Lane 3 — after TASK-0048 and TASK-0049 merge (the reviewer should see one live output and
 the context-aware prompts):**
