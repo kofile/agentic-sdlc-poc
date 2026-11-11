@@ -4,7 +4,7 @@ title: 'Give G''s route, design and plan steps the context their one-shot calls 
 status: In Progress
 assignee: []
 created_date: '2026-11-11 19:59'
-updated_date: '2026-11-11 20:03'
+updated_date: '2026-11-11 20:04'
 labels:
   - graph
   - reasoning
@@ -34,8 +34,6 @@ Spec: specs/010-preloaded-context
 - [ ] #7 Spec phase: Wiring, prompts and docs
 <!-- AC:END -->
 
-
-
 ## Implementation Plan
 
 <!-- SECTION:PLAN:BEGIN -->
@@ -46,6 +44,12 @@ D17 (2026-11-11): option 1. Context step in code: route gets the repository cata
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-11-11: operator chose 'Pre-load + path gate'; recorded as D17.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+2026-11-11 spec 010 committed (spec, plan, tasks). Phases 1 (context port/adapter/assembly) and 2 (plan schema + path gate) dispatched in parallel on disjoint files; phase 3 (wiring) after both.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
