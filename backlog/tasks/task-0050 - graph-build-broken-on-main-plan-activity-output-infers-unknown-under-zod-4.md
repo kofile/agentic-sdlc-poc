@@ -1,10 +1,10 @@
 ---
 id: TASK-0050
 title: 'graph build broken on main: plan activity output infers unknown under zod 4'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-11 20:29'
-updated_date: '2026-11-11 20:32'
+updated_date: '2026-11-11 20:33'
 labels:
   - graph
   - bug
@@ -33,12 +33,20 @@ Found 2026-11-11 after PR #12 (TASK-0049) merged: 'npm run build' in graph/ fail
 Dispatch: tier=haiku pinned=claude-haiku-5-5 served=claude-haiku-5-5
 
 2026-11-11 orchestrator re-run on the worktree's own npm ci: build exit 0, unit 90, workflow 14, versioning 1, integration ALL PASS, 0 workers.
+
+2026-11-11 merged via PR #13. DoD #4: spec set replaced by the signed escape line.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+plan() now calls callModelStage<PlanOutput>; graph build clean on main again under zod 4. Root cause of the miss (symlinked stale node_modules) fixed in doctrine: fresh npm ci per worktree. PR #13.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 Tests are written (when applicable).
-- [ ] #2 All Tests pass (when available)
-- [ ] #3 All acceptance criteria (AC) are checked off or explicitly bypassed with note
-- [ ] #4 Spec-kit specifications have been written, and have been fully executed (when applicable)
+- [x] #1 Tests are written (when applicable).
+- [x] #2 All Tests pass (when available)
+- [x] #3 All acceptance criteria (AC) are checked off or explicitly bypassed with note
+- [x] #4 Spec-kit specifications have been written, and have been fully executed (when applicable)
 <!-- DOD:END -->
