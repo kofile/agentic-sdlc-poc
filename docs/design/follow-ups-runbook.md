@@ -26,7 +26,8 @@ proposed" in session; rulings below)
 - **Paused — untouched:** none.
 - **Next spec number:** check `specs/` on `origin/main` at claim time (005 was the last
   known one; take the next free).
-- **Queued, in merge order:** TASK-0044, TASK-0045, TASK-0048, TASK-0046.
+- **Queued, in merge order:** TASK-0044, TASK-0045, TASK-0049 (amendment A1),
+  TASK-0048, TASK-0046.
 - **Then (not in this runbook):** `pdlc:refactor-triage` over the merged range of both sweeps.
 
 ## Execution lanes
@@ -71,7 +72,27 @@ proposed" in session; rulings below)
   implementer builds and tests the launcher with a dummy Keychain service name.
   Spend cap: $1 for the whole task.
 
-**Lane 3 — after TASK-0048 merges (the reviewer should see one live output):**
+- **TASK-0049 (sonnet · model `claude-sonnet-5-5`, fallback `claude-sonnet-5`. D17 settles
+  the approach, so the implementer has no open judgment call.)** Added by **amendment A1**
+  (operator, 2026-11-11, "Yes, add it"). It pre-loads context for G's one-shot steps per D17:
+  - **Route** gets the repository catalog.
+  - **Design and plan** get the Spec Wiki, the target repo's file tree and keyword/path-matched
+    files. A deterministic context step in code assembles all of this before the call.
+  - **A code gate** fails plan task file paths that neither exist in the checkout nor are
+    marked new.
+
+  The Spec Wiki lives in the sandbox Confluence, which is not provisioned yet (M1). Read it
+  through a port with a file-backed adapter, and record its absence as a `telemetry_gaps`
+  entry, never as silent empty context. Never source context from `bench/hidden-tests/`,
+  `bench/tickets/expected.draft.yaml` or reference diffs. Footprint: `graph/src/workflow/`,
+  a new context port and adapter under `graph/src/`, `graph/prompts/{route,design,plan}.md`,
+  `graph/src/core/` (gate), and tests. Start immediately (operator, 2026-11-11: "We can do it before the key lands").
+  It does not need the key, and it merges **before TASK-0048**, so the live smoke call
+  exercises the context-aware prompts. It also merges before TASK-0046. If it lands while
+  TASK-0048's branch is open, TASK-0048 merges `main` in and re-runs its gates.
+
+**Lane 3 — after TASK-0048 and TASK-0049 merge (the reviewer should see one live output and
+the context-aware prompts):**
 
 - **TASK-0046 (operator-owned review; implementer only for edits the reviewer asks for,
   sonnet).** A person (operator or Cesar) reviews `graph/prompts/{triage,route,design,plan}.md`
@@ -164,6 +185,7 @@ complete and its status flipped to done.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
-| 2026-11-11 | TASK-0044 | #10 | (open) | haiku ×1: ~101k | escape line; second-resolution ids + `-2`… retry on collision; harness 77 passed + 1 skipped (orchestrator re-run) |
-| 2026-11-11 | TASK-0045 | #11 | (open) | sonnet ×3: ~78k + ~80k + ~75k | spec 008; phases 1-2 parallel, 3; zod 4 needed no source edits; D14, D15; tinypool not fixed by 2.1.9 (accepted dev-only); gates re-run incl. integration and `test:g` |
-| 2026-11-11 | TASK-0048 | — | — | sonnet ×1: ~93k | spec 009; phase 1 (launcher + `smoke:triage`) done under C8's "launcher build does not wait"; unit 66; live call (phase 2) waits on C8 and #11 merging |
+| 2026-11-11 | TASK-0044 | #10 | a83603f | haiku ×1: ~101k | escape line; second-resolution ids + `-2`… retry on collision; harness 77 passed + 1 skipped (orchestrator re-run) |
+| 2026-11-11 | TASK-0045 | #11 | c64fad5 | sonnet ×3: ~78k + ~80k + ~75k | spec 008; phases 1-2 parallel, 3; zod 4 needed no source edits; D14, D15; tinypool not fixed by 2.1.9 (accepted dev-only); gates re-run incl. integration and `test:g` |
+| 2026-11-11 | TASK-0048 | — | — | sonnet ×1: ~93k | spec 009; phase 1 (launcher + `smoke:triage`) done under C8's "launcher build does not wait"; unit 66; live call (phase 2) waits on C8; #11 merged, main merged into the branch |
+| 2026-11-11 | TASK-0049 | #12 | b7a1b62 | sonnet ×3: ~84k + ~96k + ~132k | spec 010; amendment A1; phases 1-2 parallel, 3 after; orchestrator re-run: unit 90, workflow 14, versioning 1, integration ALL PASS; versioning fixtures mirrored for the patch; merges before TASK-0048 |

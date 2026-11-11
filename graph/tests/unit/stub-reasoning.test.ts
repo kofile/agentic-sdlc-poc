@@ -48,3 +48,24 @@ describe('StubReasoning', () => {
     expect(err.usage.model_requested).toBe('claude-sonnet-5');
   });
 });
+
+describe('StubReasoning plan paths', () => {
+  const plan = async (knobs?: object) => {
+    const { PlanOutputSchema } = await import('../../src/core/schemas.ts');
+    const r = new StubReasoning();
+    return r.call({
+      stage: 'plan', prompt: JSON.stringify({ ticket: { id: 'T9', title: 'x', description: 'y', labels: [] } }),
+      schema: PlanOutputSchema, modelRequested: 'claude-sonnet-5', idempotencyKey: 'kp',
+      // @ts-expect-error -- test-only knob
+      knobs,
+    });
+  };
+  it('defaults to an existing fixture path plus a new file', async () => {
+    const res = await plan();
+    expect(res.output.tasks[0]).toMatchObject({ files: ['src/index.ts'], new_files: ['src/health.ts'] });
+  });
+  it('forcePlanFiles overrides the touched files', async () => {
+    const res = await plan({ forcePlanFiles: ['src/missing.ts'] });
+    expect(res.output.tasks[0].files).toEqual(['src/missing.ts']);
+  });
+});

@@ -18,6 +18,10 @@ export interface MockActivityState {
   /** Activity invocations per model stage, to prove a failed stage is not retried. */
   stageCalls: Record<string, number>;
   routeRepos: string[];
+  /** Result the mock plan activity returns for the plan path gate. */
+  pathGate: { pass: boolean; reason: string };
+  designRepos: string[][];
+  planRepos: string[][];
   designCalls: number;
   gateOutcomes: Array<{ stage: string; gate: string; decision: string; reason: string }>;
   executeCalled: boolean;
@@ -28,7 +32,7 @@ export interface MockActivityState {
 
 export function freshState(policy: GatePolicy, overrides: Partial<MockActivityState> = {}): MockActivityState {
   return {
-    policy, triageGrade: 'A', invalidOutputAt: [], stageCalls: {}, routeRepos: ['repo-a'], designCalls: 0, gateOutcomes: [],
+    policy, triageGrade: 'A', invalidOutputAt: [], stageCalls: {}, routeRepos: ['repo-a'], pathGate: { pass: true, reason: 'ok' }, designRepos: [], planRepos: [], designCalls: 0, gateOutcomes: [],
     executeCalled: false, prOpened: false, transitions: [], comments: [],
     ...overrides,
   };
@@ -57,8 +61,9 @@ export function buildMockActivities(state: MockActivityState) {
       usage: { input: 10, output: 10, model_requested: 'mock-model', model_served: 'mock-model' },
       llm_calls: 1,
     }),
-    design: async (_runId: string, _ticket: Ticket, feedback: string | null, round: number) => {
+    design: async (_runId: string, _ticket: Ticket, feedback: string | null, round: number, repos?: string[]) => {
       state.designCalls++;
+      state.designRepos.push(repos ?? []);
       maybeInvalid(state, 'design');
       return {
         output: { summary: `design r${round}${feedback ? ` fb=${feedback}` : ''}`, approach: 'mock approach', interfaces: [], risks: [], round },
@@ -66,10 +71,11 @@ export function buildMockActivities(state: MockActivityState) {
         llm_calls: 1,
       };
     },
-    plan: async (_runId: string, _ticket: Ticket, _design: unknown) => (maybeInvalid(state, 'plan'), {
+    plan: async (_runId: string, _ticket: Ticket, _design: unknown, repos?: string[]) => (maybeInvalid(state, 'plan'), state.planRepos.push(repos ?? []), {
       output: { tasks: [{ id: 'T1', title: 'do it', files: [], steps: ['step 1'] }] },
       usage: { input: 10, output: 10, model_requested: 'mock-model', model_served: 'mock-model' },
       llm_calls: 1,
+      pathGate: state.pathGate,
     }),
     execute: async (_runId: string, _ticket: Ticket, _plan: unknown) => {
       state.executeCalled = true;

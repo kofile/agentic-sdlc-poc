@@ -11,6 +11,8 @@ export interface StubKnobs {
   failSchemaNTimes?: number;
   /** Repos to claim were routed (test hook; default one repo named after the ticket component). */
   forceRepos?: string[];
+  /** Plan task `files` to emit instead of the default existing path (drives the plan path gate). */
+  forcePlanFiles?: string[];
 }
 
 function fakeUsage(modelRequested: string, inputTokens: number, outputTokens: number): ReasoningUsage {
@@ -43,7 +45,7 @@ function shape(stage: string, promptPayload: any, knobs: StubKnobs): unknown {
     }
     case 'plan': {
       return {
-        tasks: [{ id: 'T1', title: `Implement ${ticket?.id ?? 'ticket'}`, files: ['src/index.ts'], steps: ['Write the change', 'Add a test'] }],
+        tasks: [{ id: 'T1', title: `Implement ${ticket?.id ?? 'ticket'}`, files: knobs.forcePlanFiles ?? ['src/index.ts'], new_files: ['src/health.ts'], steps: ['Write the change', 'Add a test'] }],
         base_sha: 'stub-base-sha',
       };
     }

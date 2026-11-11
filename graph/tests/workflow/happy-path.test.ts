@@ -23,6 +23,7 @@ describe('pipeline: happy path (auto gates)', () => {
       expect(state.gateOutcomes).toEqual([
         { stage: 'triage', gate: 'A or B?', decision: 'pass', reason: 'grade A' },
         { stage: 'route', gate: 'Repo identified?', decision: 'pass', reason: '1 repo(s) routed' },
+        { stage: 'plan', gate: 'Plan paths exist?', decision: 'pass', reason: 'ok' },
       ]);
     });
   }, 30_000);

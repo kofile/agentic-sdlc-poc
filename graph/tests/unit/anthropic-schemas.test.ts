@@ -30,4 +30,9 @@ describe('anthropic JSON schemas', () => {
       checkObject(STAGE_SCHEMAS[stage] as unknown as z.ZodObject<any>, STAGE_JSON_SCHEMAS[stage], stage);
     });
   }
+  it('plan tasks declare new_files as a required string array', () => {
+    const item = (STAGE_JSON_SCHEMAS.plan as any).properties.tasks.items;
+    expect(item.properties.new_files).toEqual(item.properties.files);
+    expect(item.required).toContain('new_files');
+  });
 });

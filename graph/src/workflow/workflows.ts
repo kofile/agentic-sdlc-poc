@@ -2,7 +2,7 @@
 // triage -> route -> design -> [human gate] -> plan -> [human gate] -> execute -> open-pr.
 // Pattern (gate keying, condition()+timer, reject-redo as a loop) follows spike-02's proven
 // design; see notes/spike-02-engine.md section "Evidence" (B, C, D).
-import { proxyActivities, defineSignal, defineQuery, setHandler, condition, ActivityFailure, ApplicationFailure } from '@temporalio/workflow';
+import { proxyActivities, defineSignal, defineQuery, setHandler, condition, patched, ActivityFailure, ApplicationFailure } from '@temporalio/workflow';
 import type * as A from './activities.ts';
 import { triageGate, routeGate } from '../core/gates.ts';
 import type { Ticket } from '../core/schemas.ts';
@@ -41,6 +41,7 @@ export interface PipelineInput {
 export type PipelineResult =
   | { status: 'stopped-at-triage'; grade: string; reason: string; log: string[] }
   | { status: 'stopped-at-route'; reason: string; log: string[] }
+  | { status: 'stopped-at-plan-paths'; reason: string; log: string[] }
   | { status: 'stopped-invalid-output'; at: string; reason: string; log: string[] }
   | { status: 'escalated-timeout'; at: string; round: number; log: string[] }
   | { status: 'rejected'; at: string; log: string[] }
@@ -144,12 +145,13 @@ async function runPipeline(inp: PipelineInput, log: string[]): Promise<PipelineR
   }
 
   // Reject-and-redo loop is just a bounded while loop (spike-02 D).
+  const preload = patched('context-preload-v1');
   let feedback: string | null = null;
   let round = 1;
   let designOut: Awaited<ReturnType<typeof model.design>>['output'] | undefined;
   for (;;) {
     step = `design:r${round}`;
-    const d = await modelStage('design', () => model.design(runId, ticket, feedback, round));
+    const d = await modelStage('design', () => preload ? model.design(runId, ticket, feedback, round, rt.output.order) : model.design(runId, ticket, feedback, round));
     designOut = d.output;
     const decision = await gate('design', round);
     if (decision.approved) break;
@@ -165,7 +167,15 @@ async function runPipeline(inp: PipelineInput, log: string[]): Promise<PipelineR
   }
 
   step = 'plan';
-  const pl = await modelStage('plan', () => model.plan(runId, ticket, designOut!));
+  const pl = await modelStage('plan', () => (preload ? model.plan(runId, ticket, designOut!, rt.output.order) : model.plan(runId, ticket, designOut!)));
+  if (preload) {
+    const pathGate = pl.pathGate;
+    await std.recordGateOutcome(runId, ticket.id, 'plan', 'Plan paths exist?', pathGate.pass ? 'pass' : 'fail', pathGate.reason);
+    if (!pathGate.pass) {
+      await std.transitionTicket(runId, ticket.id, 'Waiting for Info');
+      return { status: 'stopped-at-plan-paths', reason: pathGate.reason, log };
+    }
+  }
   const pg = await gate('plan', 1);
   if (!pg.approved) {
     if (pg.by === 'timer' && policy.onTimeout === 'escalate') return { status: 'escalated-timeout', at: 'plan', round: 1, log };

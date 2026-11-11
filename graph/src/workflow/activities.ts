@@ -6,8 +6,10 @@ import {
   type Ticket, type TriageOutput, type RouteOutput, type DesignOutput, type PlanOutput,
 } from '../core/schemas.ts';
 import type { GatePolicy } from '../core/gates.ts';
+import { planPathGate } from '../core/gates.ts';
+import { selectFiles, buildRepoContext, catalogGaps, contextRef, type RepoContext } from '../core/context.ts';
 import { appendTelemetry, costAndGaps, type StageRunRecord } from '../core/telemetry.ts';
-import { reasoning, tracker, docs, vcs, config, executeHost, TELEMETRY_FILE, CONTENDER_VERSION } from './container.ts';
+import { reasoning, tracker, docs, vcs, config, executeHost, context, TELEMETRY_FILE, CONTENDER_VERSION } from './container.ts';
 import { ReasoningOutputInvalid, type ReasoningRequest } from '../ports/reasoning.ts';
 import type { JobSpec } from '../ports/execute-host.ts';
 import { TERMINAL } from '../ports/execute-host.ts';
@@ -32,6 +34,8 @@ async function recordStage(args: {
   modelRequested?: string; modelServed?: string;
   status: StageRunRecord['status']; gate?: StageRunRecord['gate']; schemaValid: boolean; artifactRefs?: string[];
   failureLabel?: string | null;
+  /** Extra telemetry gaps (e.g. pre-loaded context absences), merged with the cost gaps. */
+  contextGaps?: string[];
 }) {
   const prices = await config.loadPriceTable();
   const tokens = { input: args.tokens.input, output: args.tokens.output, cache_read: args.tokens.cache_read ?? 0, cache_write: args.tokens.cache_write ?? 0 };
@@ -65,7 +69,7 @@ async function recordStage(args: {
     failure_label: args.failureLabel ?? null,
     failure_note: null,
     scores: { hidden_tests_passed: 0, hidden_tests_total: 0, gates_green: true, rubric: null },
-    telemetry_gaps: gaps,
+    telemetry_gaps: [...gaps, ...(args.contextGaps ?? [])],
     canary_leak: false,
   };
   appendTelemetry(TELEMETRY_FILE, record);
@@ -81,6 +85,9 @@ async function callModelStage<T>(args: {
   req: Omit<ReasoningRequest<T>, 'stage' | 'modelRequested'>;
   /** Optional side effect (e.g. publishing a doc) run after a valid output; returns artifact refs. */
   after?: (output: T) => Promise<string[]>;
+  /** Pre-loaded context: gaps merged into telemetry_gaps and an artifact ref on the record. */
+  contextGaps?: string[];
+  contextRefs?: string[];
 }): Promise<StageCallResult<T>> {
   const startedAt = new Date().toISOString();
   const t0 = Date.now();
@@ -94,18 +101,20 @@ async function callModelStage<T>(args: {
         tokens: { input: err.usage.input_tokens, output: err.usage.output_tokens, cache_read: err.usage.cache_read_tokens, cache_write: err.usage.cache_write_tokens },
         tokensSource: err.usage.source, modelRequested: err.usage.model_requested, modelServed: err.usage.model_served,
         status: 'failed', schemaValid: false, failureLabel: err.kind,
+        contextGaps: args.contextGaps, artifactRefs: args.contextRefs,
       });
       throw ApplicationFailure.nonRetryable(err.message, 'ReasoningOutputInvalid', { stage: err.stage, kind: err.kind });
     }
     throw err;
   }
   const refs = args.after ? await args.after(res.output) : [];
+  refs.push(...(args.contextRefs ?? []));
   if (res.prompt_version) refs.push(`prompt:${args.stage}@${res.prompt_version}`);
   await recordStage({
     runId: args.runId, ticketId: args.ticketId, stage: args.stage, startedAt, wallMs: Date.now() - t0, llmCalls: res.llm_calls,
     tokens: { input: res.usage.input_tokens, output: res.usage.output_tokens, cache_read: res.usage.cache_read_tokens, cache_write: res.usage.cache_write_tokens },
     tokensSource: res.usage.source, modelRequested: res.usage.model_requested, modelServed: res.usage.model_served,
-    status: 'completed', schemaValid: true, artifactRefs: refs,
+    status: 'completed', schemaValid: true, artifactRefs: refs, contextGaps: args.contextGaps,
   });
   return {
     output: res.output,
@@ -134,32 +143,66 @@ export async function recordGateOutcome(runId: string, ticketId: string, stage: 
 }
 
 export function route(runId: string, ticket: Ticket): Promise<StageCallResult<RouteOutput>> {
+  return routeWithContext(runId, ticket);
+}
+
+async function routeWithContext(runId: string, ticket: Ticket): Promise<StageCallResult<RouteOutput>> {
+  const catalog = await context.repositoryCatalog();
+  const gaps = catalogGaps(catalog);
   return callModelStage({
     runId, ticketId: ticket.id, stage: 'route',
-    req: { prompt: JSON.stringify({ ticket }), schema: RouteOutputSchema, idempotencyKey: `${runId}:route` },
+    req: { prompt: JSON.stringify({ ticket, catalog, gaps }), schema: RouteOutputSchema, idempotencyKey: `${runId}:route` },
+    contextGaps: gaps,
   });
 }
 
-export function design(runId: string, ticket: Ticket, feedback: string | null, round: number): Promise<StageCallResult<DesignOutput>> {
+/** Per routed repo: tree -> selected files -> contents -> capped context. File contents stay in
+ * the activity (never returned to the workflow, so never in Temporal history). */
+async function assembleContext(ticket: Ticket, repos: string[]) {
+  const contexts: RepoContext[] = [];
+  const trees: Record<string, string[] | null> = {};
+  const gaps: string[] = [];
+  for (const repo of repos) {
+    const [specWiki, tree] = await Promise.all([context.specWiki(repo), context.fileTree(repo)]);
+    trees[repo] = tree;
+    const picked = tree ? selectFiles(tree, ticket) : [];
+    const read = picked.length ? await context.readFilesDetailed(repo, picked) : { files: [], gaps: [] };
+    const built = buildRepoContext({ name: repo, specWiki, tree, files: read.files });
+    contexts.push(built.context);
+    gaps.push(...read.gaps, ...built.gaps);
+  }
+  return { payload: { repos: contexts }, trees, gaps, ref: contextRef({ repos: contexts }) };
+}
+
+export async function design(runId: string, ticket: Ticket, feedback: string | null, round: number, repos: string[] = []): Promise<StageCallResult<DesignOutput>> {
+  const ctx = await assembleContext(ticket, repos);
   return callModelStage({
     runId, ticketId: ticket.id, stage: 'design',
-    req: { prompt: JSON.stringify({ ticket, feedback, round }), schema: DesignOutputSchema, idempotencyKey: `${runId}:design:${round}` },
+    req: { prompt: JSON.stringify({ ticket, feedback, round, context: ctx.payload, gaps: ctx.gaps }), schema: DesignOutputSchema, idempotencyKey: `${runId}:design:${round}` },
     after: async (output) => {
       const { page } = await docs.upsertPageByTitle(`${ticket.id} — Architecture Design`, JSON.stringify(output, null, 2), `${runId}:design-doc:${round}`);
       return [`confluence:${page.id}`];
     },
+    contextGaps: ctx.gaps, contextRefs: [ctx.ref],
   });
 }
 
-export function plan(runId: string, ticket: Ticket, designOutput: DesignOutput): Promise<StageCallResult<PlanOutput>> {
-  return callModelStage({
+export interface PlanCallResult extends StageCallResult<PlanOutput> {
+  pathGate: { pass: boolean; reason: string };
+}
+
+export async function plan(runId: string, ticket: Ticket, designOutput: DesignOutput, repos: string[] = []): Promise<PlanCallResult> {
+  const ctx = await assembleContext(ticket, repos);
+  const res = await callModelStage({
     runId, ticketId: ticket.id, stage: 'plan',
-    req: { prompt: JSON.stringify({ ticket, design: designOutput }), schema: PlanOutputSchema, idempotencyKey: `${runId}:plan` },
+    req: { prompt: JSON.stringify({ ticket, design: designOutput, context: ctx.payload, gaps: ctx.gaps }), schema: PlanOutputSchema, idempotencyKey: `${runId}:plan` },
     after: async (output) => {
       const { page } = await docs.upsertPageByTitle(`${ticket.id} — Implementation Plan`, JSON.stringify(output, null, 2), `${runId}:plan-doc`);
       return [`confluence:${page.id}`];
     },
+    contextGaps: ctx.gaps, contextRefs: [ctx.ref],
   });
+  return { ...res, pathGate: planPathGate(res.output, ctx.trees) };
 }
 
 export interface ExecuteResult { branch: string; commit: string; jobId: string; state: string }
