@@ -14,9 +14,19 @@ Stage names and the ladder (triage -> route -> design -> plan -> execute -> open
 - **On fail:** workflow returns `{ status: 'stopped-at-triage', grade, reason }` and transitions
   the ticket to `Waiting for Info`.
 
+## Pre-loaded context (route, design, plan)
+
+Spec 010. The activities assemble context through the `ContextSource` port
+(`src/ports/context.ts`, file adapter `src/adapters/file-context.ts`, config
+`config/context.json`) and the pure functions in `src/core/context.ts`; file contents stay in
+the activity and never enter Temporal history. Absences are recorded as `telemetry_gaps`
+(`context:catalog-absent`, `context:spec-wiki-absent:<repo>`, `context:checkout-absent:<repo>`,
+plus cap and canary gaps) and are also passed to the model as `gaps`. Each assembled context
+adds an artifact ref `context:<12 hex of sha256>` to the stage record.
+
 ## route
 
-- **Input:** `Ticket`.
+- **Input:** `{ ticket, catalog, gaps }` (`catalog` is the repository catalog markdown, or null).
 - **Output:** `RouteOutputSchema` — `{ repos: [{name, role, confidence}], order: string[] }`.
 - **Gate:** code gate, `routeGate()` — fails on zero repos, or if `order` references a repo not
   in `repos`.
@@ -24,7 +34,8 @@ Stage names and the ladder (triage -> route -> design -> plan -> execute -> open
 
 ## design
 
-- **Input:** `Ticket`, `feedback: string | null` (from a prior reject), `round: number`.
+- **Input:** `{ ticket, feedback, round, context: { repos: [{ name, spec_wiki, tree, files }] }, gaps }`
+  for the repos route chose (route `order`); the activity takes those names as a trailing `repos` argument.
 - **Output:** `DesignOutputSchema` — `{ summary, approach, interfaces[], risks[], round }`.
   Upserted to Docs as `"{ticket.id} — Architecture Design"` (em dash, not hyphen — one page
   per ticket per artifact, re-runs bump the version).
@@ -36,10 +47,16 @@ Stage names and the ladder (triage -> route -> design -> plan -> execute -> open
 
 ## plan
 
-- **Input:** `Ticket`, `DesignOutput`.
-- **Output:** `PlanOutputSchema` — `{ tasks: [{id, title, files[], steps[]}], base_sha? }`, at
+- **Input:** `{ ticket, design, context: { repos: [...] }, gaps }`, same repos as design.
+- **Output:** `PlanOutputSchema` — `{ tasks: [{id, title, files[], new_files[], steps[]}], base_sha? }`, at
   least one task with at least one step. Upserted to Docs as
   `"{ticket.id} — Implementation Plan"`.
+- **Path gate:** code gate, `planPathGate()` in `src/core/gates.ts`, run by the plan activity
+  after a valid output (result `pathGate: { pass, reason }`). Every `files` path must exist in its
+  repo's tree or be in that task's `new_files`; `new_files` must not already exist; with several
+  repos every path is prefixed `<repo>/`; a missing checkout fails closed. The workflow records
+  it as `Plan paths exist?` and on fail transitions the ticket to `Waiting for Info` and returns
+  `{ status: 'stopped-at-plan-paths', reason, log }`. Behind `patched('context-preload-v1')`.
 - **Gate:** `plan`, policy-driven, one round (no reject-loop back into design in this
   skeleton — a reject at `plan` ends the run as `rejected` or `escalated-timeout`, it does not
   re-run `design`).

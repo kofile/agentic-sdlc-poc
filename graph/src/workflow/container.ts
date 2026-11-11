@@ -7,6 +7,7 @@ import { StubReasoning } from '../adapters/stub-reasoning.ts';
 import { MemoryTracker } from '../adapters/memory-tracker.ts';
 import { MemoryDocs } from '../adapters/memory-docs.ts';
 import { MemoryVcs } from '../adapters/memory-vcs.ts';
+import { FileContextSource } from '../adapters/file-context.ts';
 import { FileConfig } from '../adapters/file-config.ts';
 import { SystemClock } from '../adapters/system-clock.ts';
 import { DockerExecuteHost } from '../adapters/docker-execute-host.ts';
@@ -28,6 +29,7 @@ export const reasoning: Reasoning = selectReasoning();
 export const tracker = new MemoryTracker();
 export const docs = new MemoryDocs();
 export const vcs = new MemoryVcs();
+export const context = new FileContextSource();
 export const config = new FileConfig();
 export const clock = new SystemClock();
 

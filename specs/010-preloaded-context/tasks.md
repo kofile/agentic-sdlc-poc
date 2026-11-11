@@ -14,12 +14,15 @@
 
 ## Phase 3: Wiring, prompts and docs
 
-- [ ] T007 Activities assemble context; route/design/plan payloads per R6; context gaps and ref in telemetry
-- [ ] T008 Workflow plan-path gate and `stopped-at-plan-paths` behind `patched('context-preload-v1')` (R9)
-- [ ] T009 Prompts and `stage-contracts.md` updated; stub and fixtures pass the gate (R10–R11)
-- [ ] T010 build, unit, workflow, versioning, integration green
+- [x] T007 Activities assemble context; route/design/plan payloads per R6; context gaps and ref in telemetry
+- [x] T008 Workflow plan-path gate and `stopped-at-plan-paths` behind `patched('context-preload-v1')` (R9)
+- [x] T009 Prompts and `stage-contracts.md` updated; stub and fixtures pass the gate (R10–R11)
+- [x] T010 build, unit, workflow, versioning, integration green
 
 ## Deviations
 
 - Phase 1: the port gains `readFilesDetailed(repo, paths) -> { files, gaps }` beside the spec'd `readFiles`, because the canary gap (R3) has to reach the caller and `readFiles` returns only files. `readFiles` delegates to it.
 - Phase 1: `buildRepoContext` takes already-read files (selection via `selectFiles` happens first, then the adapter reads) and returns `{ context, gaps }`; helpers `catalogGaps` and `contextRef` live in `src/core/context.ts`. The walk also skips any path inside `bench/hidden-tests` or `bench/tickets` (same guard as construction).
+- Phase 3: `tests/versioning/fixtures/workflows-v2-{patched,unpatched}.ts` and `in-flight.test.ts` (not in the owned list) were updated: the fixtures are copies of the real `pipeline`, and run A on the real v1 now takes the `context-preload-v1` path, so the fixtures mirror that patched block and the test expects the extra `Plan paths exist?` gate row. The unpatched fixture declares the preload patch before its unguarded `precheck` so the negative control still fails on `precheck`.
+- Phase 3: `tests/workflow/helpers.ts` mock plan returns `pathGate` (default pass) and records the `repos` args; `happy-path.test.ts` expects the new gate row. `design`/`plan` activities default `repos = []` so an old-shape call still works. The workflow does not tolerate a missing `pathGate` in the patched branch (fail closed via type, no `in` check).
+- Phase 3: the stub plan emits `files: ['src/index.ts']` (exists in the fixture checkout) and `new_files: ['src/health.ts']`.
