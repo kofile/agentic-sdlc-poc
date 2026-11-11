@@ -4,6 +4,7 @@ title: 'Give G''s route, design and plan steps the context their one-shot calls 
 status: To Do
 assignee: []
 created_date: '2026-11-11 19:59'
+updated_date: '2026-11-11 20:00'
 labels:
   - graph
   - reasoning
@@ -22,11 +23,23 @@ Found 2026-11-11 by the explainer session, confirmed by the orchestrator. The di
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Operator decision on the approach recorded as a decision-log row
+- [x] #1 Operator decision on the approach recorded as a decision-log row
 - [ ] #2 Route receives the repository catalog; design and plan receive the agreed context
 - [ ] #3 Plan file paths are checked by a code gate against the checkout (exist, or explicitly new)
 - [ ] #4 Lands before the spec-frozen tag; TASK-0046 reviews prompts after this change
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+D17 (2026-11-11): option 1. Context step in code: route gets the repository catalog; design and plan get the Spec Wiki, file tree and keyword/path-matched files; plan file-path gate in code. Hybrid only if the dev pilot shows context-labelled plan failures.
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-11-11: operator chose 'Pre-load + path gate'; recorded as D17.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
