@@ -42,4 +42,9 @@ describe('PlanOutputSchema', () => {
     expect(() => PlanOutputSchema.parse({ tasks: [{ id: 'T1', title: 't', steps: [] }] })).toThrow();
     expect(() => PlanOutputSchema.parse({ tasks: [{ id: 'T1', title: 't', steps: ['do it'] }] })).not.toThrow();
   });
+  it('defaults new_files to []', () => {
+    const out = PlanOutputSchema.parse({ tasks: [{ id: 'T1', title: 't', steps: ['s'] }] });
+    expect(out.tasks[0]!.new_files).toEqual([]);
+    expect(PlanOutputSchema.parse({ tasks: [{ id: 'T1', title: 't', new_files: ['a.ts'], steps: ['s'] }] }).tasks[0]!.new_files).toEqual(['a.ts']);
+  });
 });

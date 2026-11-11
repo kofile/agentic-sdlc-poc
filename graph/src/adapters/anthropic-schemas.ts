@@ -56,8 +56,8 @@ export const PLAN_JSON_SCHEMA: JsonSchema = {
       type: 'array',
       items: {
         type: 'object',
-        properties: { id: { type: 'string' }, title: { type: 'string' }, files: strArray, steps: strArray },
-        required: ['id', 'title', 'files', 'steps'],
+        properties: { id: { type: 'string' }, title: { type: 'string' }, files: strArray, new_files: strArray, steps: strArray },
+        required: ['id', 'title', 'files', 'new_files', 'steps'],
         additionalProperties: false,
       },
     },

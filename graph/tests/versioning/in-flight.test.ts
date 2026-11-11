@@ -68,6 +68,7 @@ describe('workflow versioning with a run in flight (patched())', () => {
       expect(stateA.gateOutcomes).toEqual([
         { stage: 'triage', gate: 'A or B?', decision: 'pass', reason: 'grade A' },
         { stage: 'route', gate: 'Repo identified?', decision: 'pass', reason: '1 repo(s) routed' },
+        { stage: 'plan', gate: 'Plan paths exist?', decision: 'pass', reason: 'ok' },
       ]);
       // in-flight run keeps the OLD path: the new step is never executed for it
       expect(precheckCalls).not.toContain('run-a');

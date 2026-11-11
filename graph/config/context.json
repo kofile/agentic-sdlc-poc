@@ -1,0 +1,9 @@
+{
+  "catalog": "../../bench/catalog/repository-catalog.md",
+  "specWikiDir": null,
+  "repos": {
+    "orderdesk": "../../bench/orderdesk",
+    "orderdesk-web": "../../bench/orderdesk-web",
+    "graph-sample-repo": "../tests/fixtures/checkouts/graph-sample-repo"
+  }
+}

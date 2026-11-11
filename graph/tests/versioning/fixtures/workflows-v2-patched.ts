@@ -98,12 +98,14 @@ export async function pipeline(inp: PipelineInput): Promise<PipelineResult> {
 
 
   // Reject-and-redo loop is just a bounded while loop (spike-02 D).
+  // Mirrors the real workflow (spec 010): the in-flight run already took this patched path on v1.
+  const preload = patched('context-preload-v1');
   let feedback: string | null = null;
   let round = 1;
   let designOut: Awaited<ReturnType<typeof model.design>>['output'] | undefined;
   for (;;) {
     step = `design:r${round}`;
-    const d = await model.design(runId, ticket, feedback, round);
+    const d = await (preload ? model.design(runId, ticket, feedback, round, rt.output.order) : model.design(runId, ticket, feedback, round));
     designOut = d.output;
     const decision = await gate('design', round);
     if (decision.approved) break;
@@ -119,7 +121,15 @@ export async function pipeline(inp: PipelineInput): Promise<PipelineResult> {
   }
 
   step = 'plan';
-  const pl = await model.plan(runId, ticket, designOut!);
+  const pl = await (preload ? model.plan(runId, ticket, designOut!, rt.output.order) : model.plan(runId, ticket, designOut!));
+  if (preload) {
+    const pathGate = pl.pathGate;
+    await std.recordGateOutcome(runId, ticket.id, 'plan', 'Plan paths exist?', pathGate.pass ? 'pass' : 'fail', pathGate.reason);
+    if (!pathGate.pass) {
+      await std.transitionTicket(runId, ticket.id, 'Waiting for Info');
+      return { status: 'stopped-at-plan-paths', reason: pathGate.reason, log };
+    }
+  }
   const pg = await gate('plan', 1);
   if (!pg.approved) {
     if (pg.by === 'timer' && policy.onTimeout === 'escalate') return { status: 'escalated-timeout', at: 'plan', round: 1, log };
