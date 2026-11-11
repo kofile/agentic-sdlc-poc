@@ -26,8 +26,8 @@ proposed" in session; rulings below)
 - **Paused — untouched:** none.
 - **Next spec number:** check `specs/` on `origin/main` at claim time (005 was the last
   known one; take the next free).
-- **Queued, in merge order:** TASK-0044, TASK-0045, TASK-0048, TASK-0049 (amendment A1),
-  TASK-0046.
+- **Queued, in merge order:** TASK-0044, TASK-0045, TASK-0049 (amendment A1),
+  TASK-0048, TASK-0046.
 - **Then (not in this runbook):** `pdlc:refactor-triage` over the merged range of both sweeps.
 
 ## Execution lanes
@@ -86,8 +86,10 @@ proposed" in session; rulings below)
   entry, never as silent empty context. Never source context from `bench/hidden-tests/`,
   `bench/tickets/expected.draft.yaml` or reference diffs. Footprint: `graph/src/workflow/`,
   a new context port and adapter under `graph/src/`, `graph/prompts/{route,design,plan}.md`,
-  `graph/src/core/` (gate), and tests. It may develop in parallel with TASK-0048, but merges
-  after it, and before TASK-0046, whose review reads the context-aware prompts.
+  `graph/src/core/` (gate), and tests. Start immediately (operator, 2026-11-11: "We can do it before the key lands").
+  It does not need the key, and it merges **before TASK-0048**, so the live smoke call
+  exercises the context-aware prompts. It also merges before TASK-0046. If it lands while
+  TASK-0048's branch is open, TASK-0048 merges `main` in and re-runs its gates.
 
 **Lane 3 — after TASK-0048 and TASK-0049 merge (the reviewer should see one live output and
 the context-aware prompts):**
