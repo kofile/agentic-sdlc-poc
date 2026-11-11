@@ -15,7 +15,7 @@
 ## Phase 3: Dispositions recorded
 
 - [x] T007 post-change `npm audit` in both packages, mapped to F1–F8
-- [ ] T008 decision rows (zod upgrade; vitest chain dev-only acceptance) in the discovery log
+- [x] T008 decision rows (zod upgrade; vitest chain dev-only acceptance) in the discovery log
 
 ## Verification record (orchestrator, 2026-11-11, temporal-dev)
 
