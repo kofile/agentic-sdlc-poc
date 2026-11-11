@@ -1,9 +1,10 @@
 ---
 id: TASK-0044
 title: bench run ids collide for the same ticket and rep within one minute
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-05 21:58'
+updated_date: '2026-11-11 16:22'
 labels:
   - harness
   - bug
