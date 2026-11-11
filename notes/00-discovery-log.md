@@ -133,6 +133,7 @@ post-conditions, plus a graph around it.
 | D11 | Hidden tests, `expected.draft.yaml` and `reference.diff` files stay in git history on `origin` (pushed 2026-11-05 in `08b2672` and earlier commits). Accepted for now; revisit if repo visibility widens beyond the operator and Cesar, contender agents can clone it, or a canary leak appears. Rewriting history would need a force-push. Evidence: operator statement in session 2026-11-05 | 2026-11-05 | Med: history rewrite deferred | Med: possible integrity risk if exposure widens | Med | Decided, revisit on trigger |
 | D12 | Reasoning transport for G is the Anthropic API via `@anthropic-ai/sdk` 1.1.0: structured outputs (`output_config.format` json_schema, zod re-validation), no fallbacks, effort `high` set explicitly, model `claude-sonnet-5-5`, API key read from a file mount (`ANTHROPIC_API_KEY_FILE`), selected with `GRAPH_REASONING=anthropic`. Invalid output fails closed (`stopped-invalid-output`). Evidence: `specs/005-reasoning-adapter/`. The live smoke call (C4) is still pending, so behaviour against the live API is UNVERIFIED | 2026-11-05 | Med: one pinned SDK, hand-kept JSON schemas guarded by a drift test | High: key by file mount, no CLI dependency | High: provider swappable behind the Reasoning port | Decided |
 | D13 | Scripted gate approvals in benchmark mode are logged in `interventions` with kind `scripted_approval` and do not count toward the intervention metric or `assisted`; the `interventions` count on a stage record counts unscripted touches only (benchmark spec 5.5). Reconciles TASK-0018's AC #2 with the spec. Evidence: `specs/006-g-adapter/spec.md` (R3, R4) | 2026-11-05 | Med: one extra table row kind to maintain | High: hands-off metric stays honest | Med: other contenders can reuse the kind | Decided |
+| D16 | Contender N is n8n workflow `VvyhCzdxMvluqf7d` (the one in use), measured on **triage, route, design and plan only**, from execution history first (D2); live runs only via a copy in the operator's personal space with its own webhook URL (K9). N is reported as "does not cover" execute onward, never as failing those stages; stage-level comparisons with N use those four stages. The 2026-11-04 example workflows (`PR Reviewer & Approver`, `ad47NpL1Nf3VlZUM`) are not N. Evidence: section 9d (Cesar's answers and operator statement, 2026-11-11) | 2026-11-11 | High: no n8n rework, read-only | Med: N's story is partial by its own scope, stated plainly | Med | Decided |
 
 Note 2026-11-05: D7's follow-up (workflow versioning with in-flight runs) is answered in `notes/spike-04-versioning.md` — a run parked at the design gate survived a worker swap to a changed definition guarded by `patched()`, and the unguarded change failed replay with a determinism error (single patch, local server, mocked activities; Worker Versioning and Temporal Cloud not tested).
 
@@ -212,8 +213,7 @@ plus one operator statement the same day.
 - **The workflows shared on 2026-11-04 are examples, not part of the SDLC plugin's live
   path.** Section 9b's reading of `PR Reviewer & Approver` and `ad47NpL1Nf3VlZUM` describes
   examples, not the production n8n SDLC.
-- **The n8n workflow currently in use is `VvyhCzdxMvluqf7d`.** It is N's candidate baseline
-  (decision pending, see D13 below).
+- **The n8n workflow currently in use is `VvyhCzdxMvluqf7d`.** It is N's baseline (D16).
 - **Operator: n8n has no execute step for the SDLC yet; it runs only up to the
   implementation plan.** So N covers triage → route → design → plan only.
 - **Merge and deploy workflows:** do not exist yet.
@@ -244,9 +244,7 @@ Coverage matrix, corrected (supersedes the n8n column in 9b):
 | validate / review | yes (or repo CI) | **no** (review workflow is an example only) | partly |
 | merge / deploy | yes | no | out of PoC scope |
 
-**Open for the operator:** proposed D13 fixes N's scope as `VvyhCzdxMvluqf7d`, triage..plan
-only, history-first per D2. Its comparisons would be made on those four stages, and N would
-be reported as "does not cover" execute onward rather than as failing it. Not yet decided.
+**Decided as D16 (2026-11-11):** N is `VvyhCzdxMvluqf7d`, triage..plan only, history first.
 
 ## 10. Open questions
 
