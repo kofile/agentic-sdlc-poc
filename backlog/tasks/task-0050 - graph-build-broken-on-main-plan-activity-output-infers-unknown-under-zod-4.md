@@ -1,9 +1,10 @@
 ---
 id: TASK-0050
 title: 'graph build broken on main: plan activity output infers unknown under zod 4'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-11 20:29'
+updated_date: '2026-11-11 20:30'
 labels:
   - graph
   - bug
@@ -23,6 +24,12 @@ Found 2026-11-11 after PR #12 (TASK-0049) merged: 'npm run build' in graph/ fail
 - [ ] #1 npm run build in graph/ is clean on a fresh npm ci
 - [ ] #2 unit, workflow, versioning and integration stay green
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-11-11 escape line signed (runbook, Per-task artifacts section): card ACs + clean build on fresh npm ci + green suites stand in for the spec set.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
