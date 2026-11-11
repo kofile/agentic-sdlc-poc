@@ -1,10 +1,10 @@
 ---
 id: TASK-0049
 title: 'Give G''s route, design and plan steps the context their one-shot calls assume'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-11 19:59'
-updated_date: '2026-11-11 20:00'
+updated_date: '2026-11-11 20:02'
 labels:
   - graph
   - reasoning
@@ -19,6 +19,8 @@ ordinal: 49000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Found 2026-11-11 by the explainer session, confirmed by the orchestrator. The discovery log (s3) classes design and plan as one-shot generation with PRE-LOADED context; G loads none. activities.ts sends route only {ticket} (no repository catalog, though bench/catalog/repository-catalog.md exists and the stage contract says 'classify against catalog', so route can only invent repo names); design only {ticket, feedback, round}; plan only {ticket, design}, yet plan.md asks for the files each task touches, so paths are guesses. Spec section 4 says a pre-generated Spec Wiki is shared by contenders, and P's plan-agent reads a real checkout. Left as is, G loses route/plan quality for a structural reason, which confounds H6 and the plan comparison. Options: (1) code assembles context before each call (catalog for route; Spec Wiki + file tree + keyword-matched files for design/plan) and a code gate checks every plan file path exists or is marked new; (2) bounded read-only tool loop for plan; (3) hybrid: (1) plus at most N typed extra-file requests. Decision needed before the D5 freeze and before TASK-0046's prompt review.
+
+Spec: specs/010-preloaded-context
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
