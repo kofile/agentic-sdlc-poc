@@ -4,7 +4,7 @@ title: 'Give G''s route, design and plan steps the context their one-shot calls 
 status: In Progress
 assignee: []
 created_date: '2026-11-11 19:59'
-updated_date: '2026-11-11 20:04'
+updated_date: '2026-11-11 20:06'
 labels:
   - graph
   - reasoning
@@ -29,8 +29,8 @@ Spec: specs/010-preloaded-context
 - [ ] #2 Route receives the repository catalog; design and plan receive the agreed context
 - [ ] #3 Plan file paths are checked by a code gate against the checkout (exist, or explicitly new)
 - [ ] #4 Lands before the spec-frozen tag; TASK-0046 reviews prompts after this change
-- [ ] #5 Spec phase: Context port, adapter and assembly
-- [ ] #6 Spec phase: Plan schema and path gate
+- [x] #5 Spec phase: Context port, adapter and assembly
+- [x] #6 Spec phase: Plan schema and path gate
 - [ ] #7 Spec phase: Wiring, prompts and docs
 <!-- AC:END -->
 
@@ -50,6 +50,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 2026-11-11 spec 010 committed (spec, plan, tasks). Phases 1 (context port/adapter/assembly) and 2 (plan schema + path gate) dispatched in parallel on disjoint files; phase 3 (wiring) after both.
+
+2026-11-11 phases 1-2 done; orchestrator re-ran build ok, unit 88; adapter smoke: catalog read, orderdesk 41 / orderdesk-web 24 / sample 2 paths, spec wiki null (gap). Phase 3 dispatched.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
