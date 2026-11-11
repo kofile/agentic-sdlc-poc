@@ -132,8 +132,18 @@ no secrets; decisions go in section 7). Added here:
     exceed wording changes. Signed Evan Stern 2026-11-11.
   - TASK-0044: a one-function fix. Stand-ins are the card's ACs plus the tests. Signed
     Evan Stern 2026-11-11.
+  - TASK-0050 (added 2026-11-11 after PR #12 broke `npm run build` on main): a one-line type
+    fix. Stand-ins are the card's ACs plus a clean build on a fresh `npm ci` and green unit,
+    workflow, versioning and integration suites. Merges before TASK-0048. Signed Evan Stern
+    2026-11-11 (in session).
 
 ## Concurrency & conflict doctrine
+
+- **Fresh dependencies per worktree (added 2026-11-11, after PR #12).** Every worktree runs
+  its own `npm ci` in each package before any gate. Never symlink `node_modules` from the root
+  checkout: the root can hold a stale dependency set, and PR #12 passed `tsc` against zod 3
+  that way while main runs zod 4. vitest does not type-check, so `npm run build` is the only
+  type gate and must run on the worktree's own install.
 
 As in the first-batch runbook. Hotspots for this batch:
 - `bench/harness/package.json` and lockfile, plus `src/core/run.ts` (TASK-0044 and 0045);
@@ -189,3 +199,4 @@ complete and its status flipped to done.
 | 2026-11-11 | TASK-0045 | #11 | c64fad5 | sonnet ×3: ~78k + ~80k + ~75k | spec 008; phases 1-2 parallel, 3; zod 4 needed no source edits; D14, D15; tinypool not fixed by 2.1.9 (accepted dev-only); gates re-run incl. integration and `test:g` |
 | 2026-11-11 | TASK-0048 | — | — | sonnet ×1: ~93k | spec 009; phase 1 (launcher + `smoke:triage`) done under C8's "launcher build does not wait"; unit 66; live call (phase 2) waits on C8; #11 merged, main merged into the branch |
 | 2026-11-11 | TASK-0049 | #12 | b7a1b62 | sonnet ×3: ~84k + ~96k + ~132k | spec 010; amendment A1; phases 1-2 parallel, 3 after; orchestrator re-run: unit 90, workflow 14, versioning 1, integration ALL PASS; versioning fixtures mirrored for the patch; merges before TASK-0048 |
+| 2026-11-11 | TASK-0050 | #13 | d34a397 | haiku ×1: ~85k | escape line; #12 broke `npm run build` on main (zod 4 inference, missed via symlinked root node_modules); one-line fix; build, unit 90, workflow 14, versioning 1, integration ALL PASS on own npm ci; merges before TASK-0048 |
