@@ -4,7 +4,7 @@ title: 'graph build broken on main: plan activity output infers unknown under zo
 status: In Progress
 assignee: []
 created_date: '2026-11-11 20:29'
-updated_date: '2026-11-11 20:30'
+updated_date: '2026-11-11 20:31'
 labels:
   - graph
   - bug
@@ -29,6 +29,8 @@ Found 2026-11-11 after PR #12 (TASK-0049) merged: 'npm run build' in graph/ fail
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-11-11 escape line signed (runbook, Per-task artifacts section): card ACs + clean build on fresh npm ci + green suites stand in for the spec set.
+
+Dispatch: tier=haiku pinned=claude-haiku-5-5 served=claude-haiku-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
