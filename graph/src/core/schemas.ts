@@ -42,6 +42,8 @@ export const PlanTaskSchema = z.object({
   id: z.string(),
   title: z.string(),
   files: z.array(z.string()).default([]),
+  /** Paths this task creates (files stays "paths the task touches"). */
+  new_files: z.array(z.string()).default([]),
   steps: z.array(z.string()).min(1),
 });
 
