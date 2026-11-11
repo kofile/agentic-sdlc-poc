@@ -193,7 +193,7 @@ export interface PlanCallResult extends StageCallResult<PlanOutput> {
 
 export async function plan(runId: string, ticket: Ticket, designOutput: DesignOutput, repos: string[] = []): Promise<PlanCallResult> {
   const ctx = await assembleContext(ticket, repos);
-  const res = await callModelStage({
+  const res = await callModelStage<PlanOutput>({
     runId, ticketId: ticket.id, stage: 'plan',
     req: { prompt: JSON.stringify({ ticket, design: designOutput, context: ctx.payload, gaps: ctx.gaps }), schema: PlanOutputSchema, idempotencyKey: `${runId}:plan` },
     after: async (output) => {
