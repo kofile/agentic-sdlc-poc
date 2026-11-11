@@ -4,7 +4,7 @@ title: Triage npm audit findings in graph/ and bench/harness
 status: In Progress
 assignee: []
 created_date: '2026-11-05 21:58'
-updated_date: '2026-11-11 16:24'
+updated_date: '2026-11-11 16:27'
 labels:
   - graph
   - harness
@@ -31,7 +31,15 @@ Spec: specs/008-npm-audit
 - [ ] #5 Spec phase: Dispositions recorded
 <!-- AC:END -->
 
+## Implementation Notes
 
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+2026-11-11 phases 1 (graph) and 2 (harness) in parallel on disjoint dirs; zod 4 needed no source edits; orchestrator re-ran all gates incl. integration and test:g (specs/008 tasks.md verification record). Phase 3 (decision rows) next.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
