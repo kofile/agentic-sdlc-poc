@@ -52,6 +52,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 2026-11-11 spec 010 committed (spec, plan, tasks). Phases 1 (context port/adapter/assembly) and 2 (plan schema + path gate) dispatched in parallel on disjoint files; phase 3 (wiring) after both.
 
 2026-11-11 phases 1-2 done; orchestrator re-ran build ok, unit 88; adapter smoke: catalog read, orderdesk 41 / orderdesk-web 24 / sample 2 paths, spec wiki null (gap). Phase 3 dispatched.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
