@@ -1,6 +1,6 @@
 {
   "team": "auto",
-  "gates": { "design": "auto", "merge": "auto" },
+  "gates": { "design": "auto", "plan": "auto", "merge": "auto" },
   "humanTimeoutSec": 5,
   "onTimeout": "auto-reject",
   "maxRejectRounds": 3

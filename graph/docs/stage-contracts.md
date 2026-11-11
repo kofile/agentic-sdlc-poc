@@ -100,3 +100,10 @@ success and on `ReasoningOutputInvalid` usage; `model_requested` still records w
 asked for. `recordStage` (via `costAndGaps` in `core/telemetry.ts`) never prices such a stage:
 `cost_usd.tokens` is `0` and `telemetry_gaps` carries `no_real_model` and `cost_not_measured`,
 with no `price_fallback:stub`. Real adapters are priced on `model_served` as before.
+
+## Gate policy keys
+
+`teams/*.json` names three gate keys under `gates`. `design` and `plan` are read by the
+workflow (`gate()` in `workflows.ts`); the `auto` team sets both to `auto`, `default` and
+`strict` set both to `human`. `merge` is reserved for a merge stage outside the PoC: no
+workflow code reads it today.
