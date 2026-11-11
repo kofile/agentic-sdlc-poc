@@ -1,9 +1,10 @@
 ---
 id: TASK-0048
 title: Live smoke call for G's Reasoning adapter (C4)
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-11 16:20'
+updated_date: '2026-11-11 16:26'
 labels:
   - graph
   - reasoning
@@ -18,6 +19,8 @@ ordinal: 48000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 First real model call through graph/src/adapters/anthropic-reasoning.ts (D12), which so far is tested only against recorded fixtures. Needs the dedicated G API key from the operator, stored in the macOS Keychain and passed to the process as a file (ANTHROPIC_API_KEY_FILE, GRAPH_REASONING=anthropic); never written to the repo, a log or a fixture. Use graph/tickets/sample-ticket.md only (never bench/tickets). Spend: a few cents; hard stop at $1.
+
+Spec: specs/009-live-smoke
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
