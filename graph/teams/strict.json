@@ -1,6 +1,6 @@
 {
   "team": "strict",
-  "gates": { "design": "human", "merge": "human" },
+  "gates": { "design": "human", "plan": "human", "merge": "human" },
   "humanTimeoutSec": 172800,
   "onTimeout": "escalate",
   "maxRejectRounds": 3

@@ -22,6 +22,8 @@ Repos, a real model) can replace the stubs here without touching the workflow or
 - **Gate policy is data** (`teams/*.json`), loaded once per run through an activity (the
   workflow sandbox forbids file reads) and snapshotted — a mid-run edit never changes a
   running workflow.
+  The policy-driven gates are `design` and `plan` (`auto` team: both auto; `default` and
+  `strict`: both human). `merge` is reserved and not read by the workflow.
 
 ## Running it
 
@@ -117,10 +119,9 @@ which the dispatch required.
 
 - No real Reasoning/Tracker/Docs/Vcs adapter — explicitly out of scope this round.
 - No workflow-versioning test (explicitly out of scope — Day 3 item per the discovery log).
-- The `strict` team's `merge: human` gate exists in `teams/strict.json` but the workflow
-  currently treats `merge` as always-auto (there is no `open-pr -> merge` stage in this
-  skeleton's scope; `open-pr` is the last stage per the dispatch). The gate policy schema and
-  `teams/*.json` are ready for a `merge` stage to be added without a schema change.
+- `merge` is reserved. It stays in `teams/*.json` (`strict` sets it to `human`), but no workflow
+  code reads it: there is no `open-pr -> merge` stage in this skeleton (`open-pr` is the last
+  stage). The policy schema is ready for a `merge` stage to be added without a schema change.
 - Benchmark-harness integration (writing `bench.sqlite`, the `bench run --contender G`
   adapter) is not built — only the uniform `StageRunRecord` JSONL output it would consume.
 - Load/concurrency testing of multiple simultaneous runs against one worker was not done
