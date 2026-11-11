@@ -4,7 +4,7 @@ title: 'Give G''s route, design and plan steps the context their one-shot calls 
 status: In Progress
 assignee: []
 created_date: '2026-11-11 19:59'
-updated_date: '2026-11-11 20:02'
+updated_date: '2026-11-11 20:03'
 labels:
   - graph
   - reasoning
@@ -29,7 +29,12 @@ Spec: specs/010-preloaded-context
 - [ ] #2 Route receives the repository catalog; design and plan receive the agreed context
 - [ ] #3 Plan file paths are checked by a code gate against the checkout (exist, or explicitly new)
 - [ ] #4 Lands before the spec-frozen tag; TASK-0046 reviews prompts after this change
+- [ ] #5 Spec phase: Context port, adapter and assembly
+- [ ] #6 Spec phase: Plan schema and path gate
+- [ ] #7 Spec phase: Wiring, prompts and docs
 <!-- AC:END -->
+
+
 
 ## Implementation Plan
 
