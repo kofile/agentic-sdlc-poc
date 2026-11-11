@@ -4,7 +4,7 @@ title: 'N adapter: n8n history baseline first, then live trigger'
 status: To Do
 assignee: []
 created_date: '2026-11-05 20:51'
-updated_date: '2026-11-11 16:27'
+updated_date: '2026-11-11 16:28'
 labels:
   - adapter
   - contender-n
@@ -38,6 +38,8 @@ Contender N is the n8n workflows. D2: baseline from execution history first (spe
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-11-11 (Cesar + operator, log 9d): baseline candidate is workflow VvyhCzdxMvluqf7d; n8n covers triage..plan only (no execute/open-pr/validate/review); past executions of WF2.1/2.2/3 may be read; token usage is in agent-node responses in execution history; n8n run ~5 min. K9: read-only, never update/publish via connector. Scope pending D13.
+
+2026-11-11: scope fixed by D16 — VvyhCzdxMvluqf7d, stages triage..plan; history first; AC #2 (live copies) only via a personal-space clone with its own webhook URL (K9).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
