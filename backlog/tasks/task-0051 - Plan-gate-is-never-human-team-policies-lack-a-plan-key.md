@@ -1,10 +1,10 @@
 ---
 id: TASK-0051
 title: 'Plan gate is never human: team policies lack a plan key'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-11 20:35'
-updated_date: '2026-11-11 20:48'
+updated_date: '2026-11-11 20:50'
 labels:
   - graph
   - bug
@@ -37,12 +37,20 @@ Spec: specs/011-plan-gate-policy
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 2026-11-11 orchestrator re-run on own npm ci: build exit 0, unit 93, workflow 16, versioning 1, integration ALL PASS, 0 workers. Harness G adapter approves any waiting gate generically (bench/harness/src/adapters/g/gates.ts:48-62), so plan under default/strict is handled; read, not run.
+
+2026-11-11 merged via PR #14 (608056e). spec 011 T001-T005 all ticked.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+plan gate stated in every team file (auto: auto; default, strict: human); merge documented as reserved for a merge stage outside the PoC; workflow test loads the committed default.json and proves the plan gate waits for decide (approve -> opened-pr, reject -> rejected). Harness G adapter approves waiting gates generically (read, not run). PR #14, merge 608056e.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 Tests are written (when applicable).
-- [ ] #2 All Tests pass (when available)
-- [ ] #3 All acceptance criteria (AC) are checked off or explicitly bypassed with note
-- [ ] #4 Spec-kit specifications have been written, and have been fully executed (when applicable)
+- [x] #1 Tests are written (when applicable).
+- [x] #2 All Tests pass (when available)
+- [x] #3 All acceptance criteria (AC) are checked off or explicitly bypassed with note
+- [x] #4 Spec-kit specifications have been written, and have been fully executed (when applicable)
 <!-- DOD:END -->
